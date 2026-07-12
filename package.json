@@ -15,8 +15,9 @@
     "dev": "bun run --filter '@interlock/*' dev",
     "build": "bun run --filter '@interlock/web' build",
     "start:worker": "bun run --filter '@interlock/worker' start",
+    "db:migrate": "bun run --filter '@interlock/db' migrate",
     "lint": "eslint .",
-    "typecheck": "tsc -p packages/shared/tsconfig.json && tsc -p packages/worker/tsconfig.json && bun run --filter '@interlock/web' typecheck",
+    "typecheck": "tsc -p packages/shared/tsconfig.json && tsc -p packages/db/tsconfig.json && tsc -p packages/worker/tsconfig.json && bun run --filter '@interlock/web' typecheck",
     "test": "bun test"
   },
   "devDependencies": {

@@ -8,6 +8,23 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
+
+    services:
+      # Empty Postgres 16 for the @interlock/db migration integration tests.
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: interlock
+          POSTGRES_PASSWORD: interlock
+          POSTGRES_DB: interlock
+        ports:
+          - "5432:5432"
+        options: >-
+          --health-cmd "pg_isready -U interlock -d interlock"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
     steps:
       - uses: actions/checkout@v4
 
@@ -31,3 +48,5 @@ jobs:
 
       - name: Test
         run: bun test
+        env:
+          DATABASE_URL: postgres://interlock:interlock@localhost:5432/interlock

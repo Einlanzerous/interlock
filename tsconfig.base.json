@@ -15,7 +15,8 @@
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "paths": {
-      "@interlock/shared": ["./packages/shared/src/index.ts"]
+      "@interlock/shared": ["./packages/shared/src/index.ts"],
+      "@interlock/db": ["./packages/db/src/index.ts"]
     }
   }
 }
