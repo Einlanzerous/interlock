@@ -1,0 +1,65 @@
+name: interlock
+
+services:
+  # The single source of truth, the pg-boss queue, and the FTS index.
+  # `docker compose up db` is all you need for local dev; run web + worker
+  # with `bun run dev` on the host.
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: interlock
+      POSTGRES_PASSWORD: interlock
+      POSTGRES_DB: interlock
+    ports:
+      # Host port is overridable so Interlock can share a box with other
+      # Postgres instances. Container port stays 5432.
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U interlock -d interlock"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # web + worker images are provisional here — full deploy hardening is ITLK-13.
+  # They sit behind the `full` profile so they don't start on a bare
+  # `docker compose up db`. Bring the whole stack up with `--profile full`.
+  web:
+    build:
+      context: .
+      dockerfile: docker/web.Dockerfile
+    environment:
+      DATABASE_URL: postgres://interlock:interlock@db:5432/interlock
+      WEB_PORT: 3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    profiles: ["full"]
+
+  worker:
+    build:
+      context: .
+      dockerfile: docker/worker.Dockerfile
+    environment:
+      DATABASE_URL: postgres://interlock:interlock@db:5432/interlock
+    depends_on:
+      db:
+        condition: service_healthy
+    profiles: ["full"]
+
+  # Optional local LLM for letter drafts + change summaries (ITLK-14).
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+    profiles: ["ai"]
+
+volumes:
+  pgdata:
+  ollama:

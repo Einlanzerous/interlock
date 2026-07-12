@@ -1,0 +1,23 @@
+{
+  "name": "@interlock/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nuxi dev",
+    "build": "nuxi build",
+    "preview": "nuxi preview",
+    "typecheck": "nuxi prepare && nuxi typecheck"
+  },
+  "dependencies": {
+    "@interlock/shared": "workspace:*",
+    "nuxt": "^3.14.1592",
+    "pg": "^8.13.1",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.11.10",
+    "vue-tsc": "^2.1.10"
+  }
+}

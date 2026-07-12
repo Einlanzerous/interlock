@@ -1,0 +1,30 @@
+{
+  "name": "interlock",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "bun": ">=1.3.0",
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "bun run --filter '@interlock/*' dev",
+    "build": "bun run --filter '@interlock/web' build",
+    "start:worker": "bun run --filter '@interlock/worker' start",
+    "lint": "eslint .",
+    "typecheck": "tsc -p packages/shared/tsconfig.json && tsc -p packages/worker/tsconfig.json && bun run --filter '@interlock/web' typecheck",
+    "test": "bun test"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "@types/bun": "^1.1.14",
+    "@types/node": "^22.10.2",
+    "eslint": "^9.17.0",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.1"
+  }
+}
