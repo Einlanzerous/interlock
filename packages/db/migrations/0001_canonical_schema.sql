@@ -1,7 +1,7 @@
 -- 0001 — canonical schema (ITLK-3, design brief §2).
 --
--- Source-agnostic core: adapters map Legistar/LegiScan payloads into these
--- tables and nothing downstream ever reads a source payload directly. Idempotency
+-- Source-agnostic core: adapters map Chicago Clerk eLMS / LegiScan payloads
+-- into these tables and nothing downstream ever reads a source payload directly. Idempotency
 -- comes from the runner (schema_migrations tracking), so statements here are
 -- plain CREATEs — each migration file runs exactly once, inside a transaction.
 
@@ -19,12 +19,14 @@ create schema if not exists pgboss;
 -- ============================================================================
 
 -- Extensible by ALTER TYPE ... ADD VALUE (Epic 4 adds federal_congress).
-create type bill_source as enum ('legistar_chi', 'legiscan_il');
+-- chi_clerk = the City Clerk's eLMS (api.chicityclerkelms.chicago.gov) — Chicago
+-- left Legistar in June 2023; the design brief's Legistar spec is historical.
+create type bill_source as enum ('chi_clerk', 'legiscan_il');
 
 create type jurisdiction as enum ('chicago_council', 'il_ga');
 
--- Canonical stage across both sources; adapters own the mapping (Legistar
--- MatterStatusName and LegiScan status ints are wider and messier than this).
+-- Canonical stage across both sources; adapters own the mapping (eLMS status
+-- strings and LegiScan status ints are wider and messier than this).
 -- Signal legend: watch = introduced/referred, caution = in_committee..enrolled,
 -- clear = passed/enacted, stop = failed/vetoed.
 create type bill_status as enum (
@@ -108,7 +110,7 @@ $$;
 create table bill (
   id                   uuid primary key default gen_random_uuid(),
   source               bill_source not null,
-  source_bill_id       text not null,          -- Legistar MatterId / LegiScan bill_id
+  source_bill_id       text not null,          -- eLMS matterId GUID / LegiScan bill_id
   identifier           text not null,          -- "O2024-0001" / "HB1234"
   jurisdiction         jurisdiction not null,
   session              text,
@@ -119,7 +121,7 @@ create table bill (
   last_action_text     text,
   last_action_date     date,
   introduced_date      date,
-  source_last_modified timestamptz,            -- Legistar delta-poll watermark
+  source_last_modified timestamptz,            -- eLMS lastPublicationDate watermark
   change_hash          text,                   -- LegiScan change primitive
   source_url           text,
   full_text_url        text,
@@ -159,7 +161,7 @@ create index bill_action_timeline_idx on bill_action (bill_id, action_date desc,
 
 create table official (
   id                 uuid primary key default gen_random_uuid(),
-  -- {"legistar": PersonId, "legiscan": people_id}; null = manually added
+  -- {"chi_clerk": personId, "legiscan": people_id}; null = manually added
   -- contact (e.g. federal), which no ingest will ever try to match.
   source_person_ids  jsonb,
   full_name          text not null,
@@ -177,7 +179,7 @@ create table official (
   updated_at         timestamptz not null default now()
 );
 
--- Tier-1 sponsor match: source_person_ids @> '{"legistar": 123}'.
+-- Tier-1 sponsor match: source_person_ids @> '{"legiscan": 1004}'.
 create index official_source_person_ids_idx on official using gin (source_person_ids jsonb_path_ops);
 -- Tier-2 sponsor match: pg_trgm similarity on the normalized name.
 create index official_full_name_trgm_idx on official using gin (full_name gin_trgm_ops);
@@ -189,7 +191,7 @@ create trigger official_touch_updated_at
 create table committee (
   id             uuid primary key default gen_random_uuid(),
   source         bill_source not null,
-  source_body_id text not null,                -- Legistar BodyId / LegiScan committee_id
+  source_body_id text not null,                -- eLMS bodyId / LegiScan committee_id
   name           text not null,
   classification text,                         -- source vocab (committee / joint committee / ...)
   jurisdiction   jurisdiction not null,

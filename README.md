@@ -2,7 +2,7 @@
 
 **Signal-grade tracking for city & state legislation.**
 
-A self-hosted CRM + legislative-tracking tool for a Strong Towns Chicago organizer. Interlock pulls Chicago City Council (Legistar) and the Illinois General Assembly (LegiScan) into one canonical model, tracks the officials behind the bills, and logs every letter — routing conflicting signals safely into a single junction.
+A self-hosted CRM + legislative-tracking tool for a Strong Towns Chicago organizer. Interlock pulls Chicago City Council (the Clerk's eLMS) and the Illinois General Assembly (LegiScan) into one canonical model, tracks the officials behind the bills, and logs every letter — routing conflicting signals safely into a single junction.
 
 ## The three jobs
 

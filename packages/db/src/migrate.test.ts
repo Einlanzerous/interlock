@@ -81,7 +81,7 @@ describe.skipIf(!adminUrl)('migrate', () => {
   test('seeded bill is found via search_tsv on a title word', async () => {
     await pool.query(
       `insert into bill (source, source_bill_id, identifier, jurisdiction, title, summary, raw)
-       values ('legistar_chi', '12345', 'O2026-0001', 'chicago_council',
+       values ('chi_clerk', '7EC1A9AB-7C75-F111-AB0C-001DD80EDD69', 'O2026-0001', 'chicago_council',
                'Zoning reclassification of parcels near Western Ave',
                'Amends the zoning map for transit-oriented development', '{}')`,
     )

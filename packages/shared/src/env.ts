@@ -18,8 +18,9 @@ export const envSchema = z.object({
   SMTP_URL: z.string().optional(),
   ALERT_EMAIL_TO: z.string().email().optional(),
 
-  // Poll cadence (ITLK-4/5/6).
-  LEGISTAR_POLL_MINUTES: z.coerce.number().int().positive().default(30),
+  // Poll cadence (ITLK-4/5/6). Chicago source is the Clerk's eLMS — the city
+  // left Legistar in June 2023.
+  CHI_CLERK_POLL_MINUTES: z.coerce.number().int().positive().default(30),
   LEGISCAN_POLL_HOURS: z.coerce.number().int().positive().default(4),
 
   WEB_PORT: z.coerce.number().int().positive().default(3000),
