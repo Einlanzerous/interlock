@@ -1,0 +1,4 @@
+{
+  // Nuxt generates the real config (with all module/auto-import types) into .nuxt.
+  "extends": "./.nuxt/tsconfig.json"
+}
