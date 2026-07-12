@@ -2,7 +2,7 @@
 
 **Signal-grade tracking for city & state legislation.**
 
-A self-hosted CRM + legislative-tracking tool for a Strong Towns Chicago organizer. Interlock pulls Chicago City Council (Legistar) and the Illinois General Assembly (LegiScan) into one canonical model, tracks the officials behind the bills, and logs every letter — routing conflicting signals safely into a single junction.
+A self-hosted CRM + legislative-tracking tool for a Strong Towns Chicago organizer. Interlock pulls Chicago City Council (the Clerk's eLMS) and the Illinois General Assembly (LegiScan) into one canonical model, tracks the officials behind the bills, and logs every letter — routing conflicting signals safely into a single junction.
 
 ## The three jobs
 
@@ -31,8 +31,17 @@ The ingestion side sits behind a **language-agnostic Fetcher seam**: fetchers im
 - **In:** bill tracking, officials CRM, correspondence ledger, alerts.
 - **Out (schema-ready, not built):** campaigns/tasks, volunteer coordination, US Congress/federal bill ingest.
 
+## Getting started
+
+```sh
+bun install
+docker compose up -d db     # DB_PORT in .env if 5432 is taken on your box
+bun run db:migrate          # apply packages/db/migrations (idempotent)
+bun run dev
+```
+
 ## Status
 
-Design phase. The build is tracked as the **ITLK** project in switchyard; implementation starts once the v1 epic is approved.
+In build. The v1 epic is tracked as the **ITLK** project in switchyard: scaffold (ITLK-2) and the canonical schema + migrations (ITLK-3) are in; the Fetcher seam and ingest are next.
 
 Design brief: [Interlock Design Brief (Claude Design)](https://claude.ai/design/p/b94ff038-929d-425c-ac73-6562bb5292b0?file=Interlock+Design+Brief.dc.html)

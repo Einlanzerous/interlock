@@ -28,6 +28,17 @@
         "vue-tsc": "^2.1.10",
       },
     },
+    "packages/db": {
+      "name": "@interlock/db",
+      "version": "0.0.0",
+      "dependencies": {
+        "@interlock/shared": "workspace:*",
+        "pg": "^8.13.1",
+      },
+      "devDependencies": {
+        "@types/pg": "^8.11.10",
+      },
+    },
     "packages/shared": {
       "name": "@interlock/shared",
       "version": "0.0.0",
@@ -199,6 +210,8 @@
     "@humanwhocodes/module-importer": ["@humanwhocodes/module-importer@1.0.1", "", {}, "sha512-bxveV4V8v5Yb4ncFTT3rPSgZBOpCkjfK0y4oVVVJwIuDVBRMDXrPyXRL988i5ap9m9bnyEEjWfm5WkBmtffLfA=="],
 
     "@humanwhocodes/retry": ["@humanwhocodes/retry@0.4.3", "", {}, "sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ=="],
+
+    "@interlock/db": ["@interlock/db@workspace:packages/db"],
 
     "@interlock/shared": ["@interlock/shared@workspace:packages/shared"],
 
