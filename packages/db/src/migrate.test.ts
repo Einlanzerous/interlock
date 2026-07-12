@@ -38,7 +38,7 @@ describe.skipIf(!adminUrl)('migrate', () => {
 
   test('applies every migration on an empty database; second run is a no-op', async () => {
     const first = await migrate(pool)
-    expect(first).toEqual(['0001_canonical_schema.sql'])
+    expect(first).toEqual(['0001_canonical_schema.sql', '0002_fetch_cursor.sql'])
 
     const second = await migrate(pool)
     expect(second).toEqual([])
@@ -53,6 +53,7 @@ describe.skipIf(!adminUrl)('migrate', () => {
       'bill',
       'bill_action',
       'committee',
+      'fetch_cursor',
       'letter',
       'letter_bill',
       'letter_official',

@@ -9,8 +9,10 @@
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
+    "@interlock/db": "workspace:*",
     "@interlock/shared": "workspace:*",
-    "pg": "^8.13.1"
+    "pg": "^8.13.1",
+    "pg-boss": "^12.26.0"
   },
   "devDependencies": {
     "@types/pg": "^8.11.10"
