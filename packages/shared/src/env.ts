@@ -23,6 +23,14 @@ export const envSchema = z.object({
   CHI_CLERK_POLL_MINUTES: z.coerce.number().int().positive().default(30),
   LEGISCAN_POLL_HOURS: z.coerce.number().int().positive().default(4),
 
+  // Chicago eLMS fetcher (ITLK-5). Public API, no key.
+  CHI_CLERK_BASE_URL: z.string().url().default('https://api.chicityclerkelms.chicago.gov'),
+  // Initial-poll bound: only ingest matters published within this many days on
+  // the first poll, so a fresh box doesn't backfill all ~179k archived matters.
+  CHI_CLERK_BACKFILL_DAYS: z.coerce.number().int().positive().default(30),
+  // Self-imposed rate cap — eLMS publishes no SLA (US-gov Azure). Brief says ≤2/s.
+  CHI_CLERK_MAX_RPS: z.coerce.number().positive().default(2),
+
   WEB_PORT: z.coerce.number().int().positive().default(3000),
 })
 

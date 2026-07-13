@@ -4,12 +4,13 @@ import { parseEnv, type Fetcher } from '@interlock/shared'
 import { migrate } from '@interlock/db'
 import { ensureQueues, registerPipeline } from './seam/pipeline'
 import { startScheduler, type ScheduledSource } from './seam/scheduler'
+import { ChiClerkClient } from './sources/chi_clerk/client'
+import { ChiClerkFetcher } from './sources/chi_clerk/fetcher'
 
 /**
  * The Interlock worker: migrate → start pg-boss → register the pipeline →
- * schedule fetchers. The fetcher list is empty until ITLK-5/6 land their
- * implementations; everything they need (staging, queue, cursors,
- * single-flight, backoff) is live as of ITLK-4.
+ * schedule fetchers. Everything the fetchers need (staging, queue, cursors,
+ * single-flight, backoff) is the ITLK-4 seam; they only implement poll().
  */
 
 const env = parseEnv()
@@ -17,9 +18,16 @@ const pool = new Pool({ connectionString: env.DATABASE_URL })
 const boss = new PgBoss(env.DATABASE_URL)
 boss.on('error', (err) => console.error('[worker] pg-boss error', err))
 
-// ITLK-5: chi_clerk fetcher @ env.CHI_CLERK_POLL_MINUTES.
 // ITLK-6: legiscan_il fetcher @ env.LEGISCAN_POLL_HOURS.
-const fetchers: Fetcher[] = []
+const fetchers: Fetcher[] = [
+  new ChiClerkFetcher({
+    client: new ChiClerkClient({
+      baseUrl: env.CHI_CLERK_BASE_URL,
+      maxRps: env.CHI_CLERK_MAX_RPS,
+    }),
+    backfillDays: env.CHI_CLERK_BACKFILL_DAYS,
+  }),
+]
 
 async function main(): Promise<void> {
   console.log('[worker] starting Interlock worker')

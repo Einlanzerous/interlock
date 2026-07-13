@@ -16,6 +16,12 @@ export default tseslint.config(
   {
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
+      // `_`-prefixed args are deliberately unused — the pipeline's ITLK-7/8 stubs
+      // keep their signature while their body is still empty.
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
     },
   },
 )
