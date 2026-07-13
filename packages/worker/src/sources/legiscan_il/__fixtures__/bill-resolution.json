@@ -1,0 +1,158 @@
+{
+  "status": "OK",
+  "bill": {
+    "bill_id": 1906857,
+    "change_hash": "d19045a0afdae74964b3be9e082e2971",
+    "session_id": 2176,
+    "session": {
+      "session_id": 2176,
+      "state_id": 13,
+      "year_start": 2025,
+      "year_end": 2026,
+      "prefile": 0,
+      "sine_die": 1,
+      "prior": 0,
+      "special": 0,
+      "session_tag": "Regular Session",
+      "session_title": "2025-2026 Regular Session",
+      "session_name": "104th General Assembly"
+    },
+    "url": "https://legiscan.com/IL/bill/HR0001/2025",
+    "state_link": "https://www.ilga.gov/Legislation/BillStatus?DocNum=1&GAID=18&DocTypeID=HR&SessionID=114&GA=104",
+    "completed": 1,
+    "status": 4,
+    "status_date": "2025-01-08",
+    "progress": [
+      {
+        "date": "2025-01-08",
+        "event": 4
+      }
+    ],
+    "state": "IL",
+    "state_id": 13,
+    "bill_number": "HR0001",
+    "bill_type": "R",
+    "bill_type_id": "2",
+    "body": "H",
+    "body_id": 35,
+    "current_body": "H",
+    "current_body_id": 35,
+    "title": "HOUSE-ELECT CLERKS-DOORKEEPER",
+    "description": "Elects the following for the 104th General Assembly: John W. Hollman, as Chief Clerk of the House; Bradley S. Bolin, as Assistant Clerk of the House; Nicole Hill, as Doorkeeper of the House.",
+    "pending_committee_id": 0,
+    "committee": [],
+    "referrals": [],
+    "history": [
+      {
+        "date": "2024-12-11",
+        "action": "Prefiled with Clerk by Rep. Robyn Gabel",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-01-08",
+        "action": "Resolution Adopted",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 1
+      }
+    ],
+    "sponsors": [
+      {
+        "people_id": 4407,
+        "person_hash": "7by0zof7",
+        "party_id": "1",
+        "state_id": 13,
+        "party": "D",
+        "role_id": 1,
+        "role": "Rep",
+        "name": "Robyn Gabel",
+        "first_name": "Robyn",
+        "middle_name": "",
+        "last_name": "Gabel",
+        "suffix": "",
+        "nickname": "",
+        "district": "HD-018",
+        "ftm_eid": 2692346,
+        "votesmart_id": 116618,
+        "opensecrets_id": "",
+        "knowwho_pid": 287099,
+        "ballotpedia": "Robyn_Gabel",
+        "bioguide_id": "",
+        "sponsor_type_id": 1,
+        "sponsor_order": 1,
+        "committee_sponsor": 0,
+        "committee_id": 0,
+        "state_federal": 0,
+        "bio": {
+          "social": {
+            "capitol_phone": "217-782-8052",
+            "district_phone": "847-424-5401",
+            "email": "",
+            "webmail": "",
+            "biography": "https://ilga.gov/House/Members/Details/3278",
+            "image": "https://ilga.gov/https://cdn.ilga.gov/assets/img/members/%7B739CC8F9-E9E4-40A1-AB86-883EF9A5E313%7D.jpg",
+            "ballotpedia": "https://ballotpedia.org/Robyn_Gabel",
+            "votesmart": "https://justfacts.votesmart.org/candidate/biography/116618"
+          },
+          "capitol_address": {
+            "address1": "300 Capitol Building",
+            "address2": "",
+            "city": "Springfield",
+            "state": "IL",
+            "zip": "62706"
+          },
+          "links": {
+            "official": {
+              "bluesky": "",
+              "facebook": "",
+              "instagram": "",
+              "linkedin": "",
+              "tiktok": "",
+              "twitter": "",
+              "website": "https://ilga.gov/House/Members/Details/3278",
+              "youtube": ""
+            },
+            "personal": {
+              "bluesky": "",
+              "facebook": "https://www.facebook.com/robyn.gabel.9",
+              "instagram": "",
+              "linkedin": "https://www.linkedin.com/in/robyn-gabel-7794b017/",
+              "tiktok": "",
+              "twitter": "",
+              "website": "",
+              "youtube": ""
+            }
+          }
+        }
+      }
+    ],
+    "sasts": [],
+    "subjects": [],
+    "texts": [
+      {
+        "doc_id": 3043840,
+        "date": "2025-01-08",
+        "type": "Introduced",
+        "type_id": 1,
+        "mime": "text/html",
+        "mime_id": 1,
+        "url": "https://legiscan.com/IL/text/HR0001/id/3043840",
+        "state_link": "https://www.ilga.gov/Legislation/BillStatus/FullText?LegDocId=196747&DocName=10400HR0001&DocNum=1&DocTypeID=HR&LegID=156956&GAID=18&SessionID=114&SpecSess=&Session=",
+        "text_size": 1991,
+        "text_hash": "903464f3e733190c4498bc4c7edad637",
+        "alt_bill_text": 0,
+        "alt_mime": "",
+        "alt_mime_id": 0,
+        "alt_state_link": "",
+        "alt_text_size": 0,
+        "alt_text_hash": ""
+      }
+    ],
+    "votes": [],
+    "amendments": [],
+    "supplements": [],
+    "calendar": []
+  }
+}

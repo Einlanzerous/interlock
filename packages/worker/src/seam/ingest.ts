@@ -53,6 +53,35 @@ export async function commitPage(pool: Pool, source: Source, page: FetchPage): P
   }
 }
 
+/**
+ * The change hash we last staged for each `source_id` of a (source, kind).
+ *
+ * The other half of the seam's resume state, for sources that publish a change
+ * primitive instead of an ordering. A cursor answers "where was I in the walk";
+ * this answers "what did I already see" — and for LegiScan, whose master list
+ * hands over a `change_hash` for every bill in one query, the second question is
+ * the only one worth asking. The fetcher reads it through a port so it still
+ * touches no SQL; a Go ingester runs this same statement.
+ *
+ * `source_record` is append-only (one row per observation), so the latest row per
+ * source_id wins. A bill is only "seen" once its staging row is committed, which
+ * is what makes an interrupted poll re-detect exactly the work that never landed.
+ */
+export async function readChangeHashes(
+  pool: Pool,
+  source: Source,
+  kind: string,
+): Promise<Map<string, string>> {
+  const { rows } = await pool.query<{ source_id: string; change_hash: string }>(
+    `select distinct on (source_id) source_id, change_hash
+     from source_record
+     where source = $1 and kind = $2 and change_hash is not null
+     order by source_id, fetched_at desc, id desc`,
+    [source, kind],
+  )
+  return new Map(rows.map((row) => [row.source_id, row.change_hash]))
+}
+
 /** Resume point for a source; null = never polled. */
 export async function readCursor(pool: Pool, source: Source): Promise<string | null> {
   const { rows } = await pool.query<{ cursor: string }>(

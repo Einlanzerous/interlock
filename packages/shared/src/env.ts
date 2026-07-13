@@ -23,6 +23,18 @@ export const envSchema = z.object({
   CHI_CLERK_POLL_MINUTES: z.coerce.number().int().positive().default(30),
   LEGISCAN_POLL_HOURS: z.coerce.number().int().positive().default(4),
 
+  // LegiScan fetcher (ITLK-6). Metered: the free tier is ~30k queries/month.
+  LEGISCAN_BASE_URL: z.string().url().default('https://api.legiscan.com'),
+  LEGISCAN_STATE: z.string().length(2).default('IL'),
+  // Monthly query cap. Accounted durably in `api_budget`, so a worker restart can't
+  // reset the counter and spend the tier twice.
+  LEGISCAN_MONTHLY_QUERY_LIMIT: z.coerce.number().int().positive().default(30_000),
+  // Bills fetched per poll. Bounds a cold start: the 104th GA holds 12,022 bills, so
+  // an uncapped first poll would spend ~40% of the month's budget in one burst.
+  LEGISCAN_MAX_BILLS_PER_POLL: z.coerce.number().int().positive().default(500),
+  // Self-imposed rate cap — LegiScan publishes a monthly quota but no rate limit.
+  LEGISCAN_MAX_RPS: z.coerce.number().positive().default(2),
+
   // Chicago eLMS fetcher (ITLK-5). Public API, no key.
   CHI_CLERK_BASE_URL: z.string().url().default('https://api.chicityclerkelms.chicago.gov'),
   // Initial-poll bound: only ingest matters published within this many days on

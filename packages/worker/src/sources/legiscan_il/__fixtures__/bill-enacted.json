@@ -1,0 +1,1246 @@
+{
+  "status": "OK",
+  "bill": {
+    "bill_id": 1906359,
+    "change_hash": "8a90f2553b5c9f659ade847b7486eaca",
+    "session_id": 2176,
+    "session": {
+      "session_id": 2176,
+      "state_id": 13,
+      "year_start": 2025,
+      "year_end": 2026,
+      "prefile": 0,
+      "sine_die": 1,
+      "prior": 0,
+      "special": 0,
+      "session_tag": "Regular Session",
+      "session_title": "2025-2026 Regular Session",
+      "session_name": "104th General Assembly"
+    },
+    "url": "https://legiscan.com/IL/bill/HB0022/2025",
+    "state_link": "https://www.ilga.gov/Legislation/BillStatus?DocNum=22&GAID=18&DocTypeID=HB&SessionID=114&GA=104",
+    "completed": 1,
+    "status": 4,
+    "status_date": "2025-08-15",
+    "progress": [
+      {
+        "date": "2025-01-09",
+        "event": 1
+      },
+      {
+        "date": "2025-01-09",
+        "event": 9
+      },
+      {
+        "date": "2025-02-04",
+        "event": 9
+      },
+      {
+        "date": "2025-03-05",
+        "event": 10
+      },
+      {
+        "date": "2025-04-09",
+        "event": 2
+      },
+      {
+        "date": "2025-04-23",
+        "event": 9
+      },
+      {
+        "date": "2025-05-20",
+        "event": 9
+      },
+      {
+        "date": "2025-05-28",
+        "event": 10
+      },
+      {
+        "date": "2025-06-10",
+        "event": 3
+      },
+      {
+        "date": "2025-08-15",
+        "event": 8
+      },
+      {
+        "date": "2025-08-15",
+        "event": 4
+      }
+    ],
+    "state": "IL",
+    "state_id": 13,
+    "bill_number": "HB0022",
+    "bill_type": "B",
+    "bill_type_id": "1",
+    "body": "H",
+    "body_id": 35,
+    "current_body": "H",
+    "current_body_id": 35,
+    "title": "CROHNS AND COLITIS AWARENESS",
+    "description": "Amends the Illinois Municipal Code. In provisions concerning ordinances used to implement plans for the present and future development or redevelopment of a municipality, provides that developer donations and impact fees contemplated in implementing ordinances may include amounts to pay for the costs of constructing a new school building if the necessity of the new school building is specifically and uniquely attributed to the development or subdivision and the affected school district certifies the necessity and costs.",
+    "pending_committee_id": 0,
+    "committee": [],
+    "referrals": [
+      {
+        "date": "2025-01-09",
+        "committee_id": 235,
+        "chamber": "H",
+        "chamber_id": 35,
+        "name": "Rules"
+      },
+      {
+        "date": "2025-02-04",
+        "committee_id": 239,
+        "chamber": "H",
+        "chamber_id": 35,
+        "name": "State Government Administration"
+      },
+      {
+        "date": "2025-04-07",
+        "committee_id": 235,
+        "chamber": "H",
+        "chamber_id": 35,
+        "name": "Rules"
+      },
+      {
+        "date": "2025-04-08",
+        "committee_id": 187,
+        "chamber": "H",
+        "chamber_id": 35,
+        "name": "Cities & Villages"
+      },
+      {
+        "date": "2025-04-23",
+        "committee_id": 254,
+        "chamber": "S",
+        "chamber_id": 36,
+        "name": "Assignments"
+      },
+      {
+        "date": "2025-05-20",
+        "committee_id": 267,
+        "chamber": "S",
+        "chamber_id": 36,
+        "name": "Executive"
+      },
+      {
+        "date": "2025-05-26",
+        "committee_id": 254,
+        "chamber": "S",
+        "chamber_id": 36,
+        "name": "Assignments"
+      },
+      {
+        "date": "2025-05-27",
+        "committee_id": 267,
+        "chamber": "S",
+        "chamber_id": 36,
+        "name": "Executive"
+      },
+      {
+        "date": "2025-05-27",
+        "committee_id": 254,
+        "chamber": "S",
+        "chamber_id": 36,
+        "name": "Assignments"
+      },
+      {
+        "date": "2025-05-29",
+        "committee_id": 235,
+        "chamber": "H",
+        "chamber_id": 35,
+        "name": "Rules"
+      }
+    ],
+    "history": [
+      {
+        "date": "2024-12-05",
+        "action": "Prefiled with Clerk by Rep. Daniel Didech",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-01-09",
+        "action": "First Reading",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 1
+      },
+      {
+        "date": "2025-01-09",
+        "action": "Referred to Rules Committee",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 1
+      },
+      {
+        "date": "2025-02-04",
+        "action": "Assigned to State Government Administration Committee",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 1
+      },
+      {
+        "date": "2025-03-05",
+        "action": "Added Co-Sponsor Rep. Diane Blair-Sherlock",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-03-05",
+        "action": "Added Co-Sponsor Rep. Dan Swanson",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-03-05",
+        "action": "Do Pass / Short Debate State Government Administration Committee; 008-000-000",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 1
+      },
+      {
+        "date": "2025-03-05",
+        "action": "Removed Co-Sponsor Rep. Diane Blair-Sherlock",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-03-05",
+        "action": "Removed Co-Sponsor Rep. Dan Swanson",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-03-06",
+        "action": "Placed on Calendar 2nd Reading - Short Debate",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-03-18",
+        "action": "Second Reading - Short Debate",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-03-18",
+        "action": "Placed on Calendar Order of 3rd Reading - Short Debate",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-04-07",
+        "action": "Added Chief Co-Sponsor Rep. Laura Faver Dias",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-04-07",
+        "action": "House Floor Amendment No. 1 Filed with Clerk by Rep. Daniel Didech",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-04-07",
+        "action": "House Floor Amendment No. 1 Referred to Rules Committee",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-04-08",
+        "action": "House Floor Amendment No. 1 Rules Refers to Cities & Villages Committee",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-04-08",
+        "action": "House Floor Amendment No. 1 Recommends Be Adopted Cities & Villages Committee; 009-000-000",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-04-09",
+        "action": "Recalled to Second Reading - Short Debate",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-04-09",
+        "action": "House Floor Amendment No. 1 Adopted",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-04-09",
+        "action": "Placed on Calendar Order of 3rd Reading - Short Debate",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-04-09",
+        "action": "Third Reading - Short Debate - Passed 113-000-000",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 1
+      },
+      {
+        "date": "2025-04-09",
+        "action": "Motion Filed to Reconsider Vote Rep. Daniel Didech",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-04-11",
+        "action": "Motion to Reconsider Vote - Withdrawn Rep. Daniel Didech",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-04-14",
+        "action": "Arrive in Senate",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2025-04-14",
+        "action": "Placed on Calendar Order of First Reading",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2025-04-23",
+        "action": "Chief Senate Sponsor Sen. Mary Edly-Allen",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2025-04-23",
+        "action": "First Reading",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2025-04-23",
+        "action": "Referred to Assignments",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 1
+      },
+      {
+        "date": "2025-05-12",
+        "action": "Alternate Chief Sponsor Changed to Sen. Adriane Johnson",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-13",
+        "action": "Added as Alternate Co-Sponsor Sen. Mark L. Walker",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-13",
+        "action": "Added as Alternate Co-Sponsor Sen. Karina Villa",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-14",
+        "action": "Added as Alternate Co-Sponsor Sen. Michael W. Halpin",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-20",
+        "action": "Rule 2-10 Committee Deadline Established As May 23, 2025",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-20",
+        "action": "Assigned to Executive",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 1
+      },
+      {
+        "date": "2025-05-23",
+        "action": "Rule 2-10 Committee Deadline Established As June 1, 2025",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-26",
+        "action": "Senate Committee Amendment No. 1 Filed with Secretary by Sen. Adriane Johnson",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-26",
+        "action": "Senate Committee Amendment No. 1 Referred to Assignments",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-27",
+        "action": "Senate Committee Amendment No. 1 Assignments Refers to Executive",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-27",
+        "action": "Senate Committee Amendment No. 2 Filed with Secretary by Sen. Adriane Johnson",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-27",
+        "action": "Senate Committee Amendment No. 2 Referred to Assignments",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-28",
+        "action": "Senate Committee Amendment No. 2 Pursuant to Senate Rule 3-8(b-1), the following amendments will remain in the Committee on Assignments",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-28",
+        "action": "Rule 2-10 Third Reading/Passage Deadline Established As June 1, 2025",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-28",
+        "action": "Senate Committee Amendment No. 1 Adopted",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-28",
+        "action": "Do Pass as Amended Executive; 008-004-000",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 1
+      },
+      {
+        "date": "2025-05-28",
+        "action": "Placed on Calendar Order of 2nd Reading",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-28",
+        "action": "Second Reading",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-28",
+        "action": "Placed on Calendar Order of 3rd Reading May 29, 2025",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-29",
+        "action": "Third Reading - Passed; 033-021-001",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-29",
+        "action": "Senate Committee Amendment No. 2 Tabled Pursuant to Rule 5-4(a)",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-29",
+        "action": "Arrived in House",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-29",
+        "action": "Placed on Calendar Order of Concurrence Senate Amendment(s) 1",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-29",
+        "action": "Senate Committee Amendment No. 1 Motion Filed Concur Rep. Daniel Didech",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-29",
+        "action": "Senate Committee Amendment No. 1 Motion to Concur Referred to Rules Committee",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-30",
+        "action": "Senate Committee Amendment No. 1 Motion to Concur Recommends Be Adopted Rules Committee; 005-000-000",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-31",
+        "action": "Senate Committee Amendment No. 1 House Concurs 077-040-000",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-31",
+        "action": "House Concurs",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-31",
+        "action": "Motion Filed to Reconsider Vote Rep. Daniel Didech",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-06-10",
+        "action": "Motion to Reconsider Vote - Withdrawn Rep. Daniel Didech",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-06-10",
+        "action": "Passed Both Houses",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 1
+      },
+      {
+        "date": "2025-06-24",
+        "action": "Sent to the Governor",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-08-15",
+        "action": "Governor Approved",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-08-15",
+        "action": "Effective Date August 15, 2025",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-08-15",
+        "action": "Public Act . . . . . . . . . 104-0162",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 1
+      }
+    ],
+    "sponsors": [
+      {
+        "people_id": 21054,
+        "person_hash": "vdpy9yrh",
+        "party_id": "1",
+        "state_id": 13,
+        "party": "D",
+        "role_id": 1,
+        "role": "Rep",
+        "name": "Daniel Didech",
+        "first_name": "Daniel",
+        "middle_name": "",
+        "last_name": "Didech",
+        "suffix": "",
+        "nickname": "",
+        "district": "HD-059",
+        "ftm_eid": 2605184,
+        "votesmart_id": 177189,
+        "opensecrets_id": "",
+        "knowwho_pid": 645533,
+        "ballotpedia": "Daniel_Didech",
+        "bioguide_id": "",
+        "sponsor_type_id": 1,
+        "sponsor_order": 1,
+        "committee_sponsor": 0,
+        "committee_id": 0,
+        "state_federal": 0,
+        "bio": {
+          "social": {
+            "capitol_phone": "217-782-0499",
+            "district_phone": "847-478-9909",
+            "email": "",
+            "webmail": "",
+            "biography": "https://ilga.gov/House/Members/Details/3347",
+            "image": "https://ilga.gov/https://cdn.ilga.gov/assets/img/members/%7B1EA869A9-B93D-4E72-824B-E14992452581%7D.jpg",
+            "ballotpedia": "https://ballotpedia.org/Daniel_Didech",
+            "votesmart": "https://justfacts.votesmart.org/candidate/biography/177189"
+          },
+          "capitol_address": {
+            "address1": "273-S Stratton Office Building",
+            "address2": "",
+            "city": "Springfield",
+            "state": "IL",
+            "zip": "62706"
+          },
+          "links": {
+            "official": {
+              "bluesky": "",
+              "facebook": "https://www.facebook.com/RepDidech/",
+              "instagram": "https://www.instagram.com/repdidech/",
+              "linkedin": "",
+              "tiktok": "",
+              "twitter": "https://www.twitter.com/RepDidech",
+              "website": "https://ilga.gov/House/Members/Details/3347",
+              "youtube": ""
+            },
+            "personal": {
+              "bluesky": "",
+              "facebook": "https://www.facebook.com/daniel.didech",
+              "instagram": "",
+              "linkedin": "https://www.linkedin.com/in/daniel-didech-207b527a/",
+              "tiktok": "",
+              "twitter": "",
+              "website": "",
+              "youtube": ""
+            }
+          }
+        }
+      },
+      {
+        "people_id": 24648,
+        "person_hash": "81lt47g0",
+        "party_id": "1",
+        "state_id": 13,
+        "party": "D",
+        "role_id": 1,
+        "role": "Rep",
+        "name": "Laura Faver Dias",
+        "first_name": "Laura",
+        "middle_name": "",
+        "last_name": "Faver Dias",
+        "suffix": "",
+        "nickname": "",
+        "district": "HD-062",
+        "ftm_eid": 55357088,
+        "votesmart_id": 204467,
+        "opensecrets_id": "",
+        "knowwho_pid": 804453,
+        "ballotpedia": "Laura_Dias",
+        "bioguide_id": "",
+        "sponsor_type_id": 2,
+        "sponsor_order": 2,
+        "committee_sponsor": 0,
+        "committee_id": 0,
+        "state_federal": 0,
+        "bio": {
+          "social": {
+            "capitol_phone": "217-782-7320",
+            "district_phone": "224-541-4453",
+            "email": "",
+            "webmail": "",
+            "biography": "https://ilga.gov/House/Members/Details/3426",
+            "image": "https://ilga.gov/https://cdn.ilga.gov/assets/img/members/%7BB0DFD215-F36D-47A7-B7BE-909CDF14DC07%7D.jpg",
+            "ballotpedia": "https://ballotpedia.org/Laura_Dias",
+            "votesmart": "https://justfacts.votesmart.org/candidate/biography/204467"
+          },
+          "capitol_address": {
+            "address1": "282-S Stratton Office Building",
+            "address2": "",
+            "city": "Springfield",
+            "state": "IL",
+            "zip": "62706"
+          },
+          "links": {
+            "official": {
+              "bluesky": "",
+              "facebook": "https://www.facebook.com/repfaverdias",
+              "instagram": "https://www.instagram.com/repfaverdias/",
+              "linkedin": "",
+              "tiktok": "",
+              "twitter": "",
+              "website": "https://ilga.gov/House/Members/Details/3426",
+              "youtube": ""
+            },
+            "personal": {
+              "bluesky": "",
+              "facebook": "https://www.facebook.com/laura.faverdias",
+              "instagram": "https://www.instagram.com/lalamamadias/",
+              "linkedin": "",
+              "tiktok": "",
+              "twitter": "",
+              "website": "https://www.repfaverdias.com/",
+              "youtube": ""
+            }
+          }
+        }
+      },
+      {
+        "people_id": 21674,
+        "person_hash": "7hv4jmwj",
+        "party_id": "1",
+        "state_id": 13,
+        "party": "D",
+        "role_id": 2,
+        "role": "Sen",
+        "name": "Adriane Johnson",
+        "first_name": "Adriane",
+        "middle_name": "",
+        "last_name": "Johnson",
+        "suffix": "",
+        "nickname": "",
+        "district": "SD-030",
+        "ftm_eid": 0,
+        "votesmart_id": 195711,
+        "opensecrets_id": "",
+        "knowwho_pid": 753914,
+        "ballotpedia": "Adriane_Johnson",
+        "bioguide_id": "",
+        "sponsor_type_id": 1,
+        "sponsor_order": 3,
+        "committee_sponsor": 0,
+        "committee_id": 0,
+        "state_federal": 0,
+        "bio": {
+          "social": {
+            "capitol_phone": "217-782-8181",
+            "district_phone": "847-672-6201",
+            "email": "",
+            "webmail": "",
+            "biography": "https://ilga.gov/Senate/Members/Details/3378",
+            "image": "https://ilga.gov/https://cdn.ilga.gov/assets/img/members/%7B991EBDF6-BC13-4260-A2B8-E10751629780%7D.jpg",
+            "ballotpedia": "https://ballotpedia.org/Adriane_Johnson",
+            "votesmart": "https://justfacts.votesmart.org/candidate/biography/195711"
+          },
+          "capitol_address": {
+            "address1": "Stratton Office Building",
+            "address2": "Section F, Room E",
+            "city": "Springfield",
+            "state": "IL",
+            "zip": "62706"
+          },
+          "links": {
+            "official": {
+              "bluesky": "",
+              "facebook": "https://www.facebook.com/SenAlJohnson",
+              "instagram": "https://www.instagram.com/senaljohnson/",
+              "linkedin": "",
+              "tiktok": "",
+              "twitter": "https://www.twitter.com/SenALJohnson",
+              "website": "https://ilga.gov/Senate/Members/Details/3378",
+              "youtube": ""
+            },
+            "personal": {
+              "bluesky": "",
+              "facebook": "",
+              "instagram": "",
+              "linkedin": "https://www.linkedin.com/in/adrianeljohnson/",
+              "tiktok": "",
+              "twitter": "",
+              "website": "",
+              "youtube": ""
+            }
+          }
+        }
+      },
+      {
+        "people_id": 1010,
+        "person_hash": "obtbfp5n",
+        "party_id": "1",
+        "state_id": 13,
+        "party": "D",
+        "role_id": 2,
+        "role": "Sen",
+        "name": "Mark Walker",
+        "first_name": "Mark",
+        "middle_name": "L.",
+        "last_name": "Walker",
+        "suffix": "",
+        "nickname": "",
+        "district": "SD-027",
+        "ftm_eid": 2894080,
+        "votesmart_id": 101817,
+        "opensecrets_id": "",
+        "knowwho_pid": 270611,
+        "ballotpedia": "Mark_Walker_(Illinois)",
+        "bioguide_id": "",
+        "sponsor_type_id": 2,
+        "sponsor_order": 4,
+        "committee_sponsor": 0,
+        "committee_id": 0,
+        "state_federal": 0,
+        "bio": {
+          "social": {
+            "capitol_phone": "217-782-4471",
+            "district_phone": "847-749-1880",
+            "email": "",
+            "webmail": "",
+            "biography": "https://ilga.gov/Senate/Members/Details/3449",
+            "image": "https://ilga.gov/https://cdn.ilga.gov/assets/img/members/%7B7DE7B419-A9A5-4D3B-B60B-27796D630C6E%7D.jpg",
+            "ballotpedia": "https://ballotpedia.org/Mark_Walker_%28Illinois%29",
+            "votesmart": "https://justfacts.votesmart.org/candidate/biography/101817"
+          },
+          "capitol_address": {
+            "address1": "Stratton Office Building",
+            "address2": "Section F, Room H",
+            "city": "Springfield",
+            "state": "IL",
+            "zip": "62706"
+          },
+          "links": {
+            "official": {
+              "bluesky": "",
+              "facebook": "",
+              "instagram": "",
+              "linkedin": "",
+              "tiktok": "",
+              "twitter": "",
+              "website": "https://ilga.gov/Senate/Members/Details/3449",
+              "youtube": ""
+            },
+            "personal": {
+              "bluesky": "",
+              "facebook": "https://www.facebook.com/mark.l.walker.77",
+              "instagram": "",
+              "linkedin": "https://www.linkedin.com/in/mark-walker-337b9616/",
+              "tiktok": "",
+              "twitter": "https://www.twitter.com/walktalker1",
+              "website": "",
+              "youtube": ""
+            }
+          }
+        }
+      },
+      {
+        "people_id": 21112,
+        "person_hash": "8llvuj08",
+        "party_id": "1",
+        "state_id": 13,
+        "party": "D",
+        "role_id": 2,
+        "role": "Sen",
+        "name": "Karina Villa",
+        "first_name": "Karina",
+        "middle_name": "",
+        "last_name": "Villa",
+        "suffix": "",
+        "nickname": "",
+        "district": "SD-025",
+        "ftm_eid": 44164129,
+        "votesmart_id": 177178,
+        "opensecrets_id": "",
+        "knowwho_pid": 645527,
+        "ballotpedia": "Karina_Villa",
+        "bioguide_id": "",
+        "sponsor_type_id": 2,
+        "sponsor_order": 5,
+        "committee_sponsor": 0,
+        "committee_id": 0,
+        "state_federal": 0,
+        "bio": {
+          "social": {
+            "capitol_phone": "217-782-0471",
+            "district_phone": "630-326-9319",
+            "email": "",
+            "webmail": "",
+            "biography": "https://ilga.gov/Senate/Members/Details/3385",
+            "image": "https://ilga.gov/https://cdn.ilga.gov/assets/img/members/%7BC8126F4D-472E-4738-85B5-87A229F8174A%7D.jpg",
+            "ballotpedia": "https://ballotpedia.org/Karina_Villa",
+            "votesmart": "https://justfacts.votesmart.org/candidate/biography/177178"
+          },
+          "capitol_address": {
+            "address1": "Stratton Office Building",
+            "address2": "Section F, Room M",
+            "city": "Springfield",
+            "state": "IL",
+            "zip": "62706"
+          },
+          "links": {
+            "official": {
+              "bluesky": "",
+              "facebook": "https://www.facebook.com/StateSenatorKVilla",
+              "instagram": "https://www.instagram.com/senatorkarinavilla/",
+              "linkedin": "",
+              "tiktok": "",
+              "twitter": "",
+              "website": "https://ilga.gov/Senate/Members/Details/3385",
+              "youtube": ""
+            },
+            "personal": {
+              "bluesky": "",
+              "facebook": "https://www.facebook.com/kvilla433",
+              "instagram": "",
+              "linkedin": "https://www.linkedin.com/in/karina-villa-474524144",
+              "tiktok": "",
+              "twitter": "",
+              "website": "",
+              "youtube": ""
+            }
+          }
+        }
+      },
+      {
+        "people_id": 19126,
+        "person_hash": "7tcqphp6",
+        "party_id": "1",
+        "state_id": 13,
+        "party": "D",
+        "role_id": 2,
+        "role": "Sen",
+        "name": "Michael Halpin",
+        "first_name": "Michael",
+        "middle_name": "W.",
+        "last_name": "Halpin",
+        "suffix": "",
+        "nickname": "",
+        "district": "SD-036",
+        "ftm_eid": 38445085,
+        "votesmart_id": 166412,
+        "opensecrets_id": "",
+        "knowwho_pid": 561012,
+        "ballotpedia": "Michael_Halpin",
+        "bioguide_id": "",
+        "sponsor_type_id": 2,
+        "sponsor_order": 6,
+        "committee_sponsor": 0,
+        "committee_id": 0,
+        "state_federal": 0,
+        "bio": {
+          "social": {
+            "capitol_phone": "217-782-4307",
+            "district_phone": "309-558-3612",
+            "email": "",
+            "webmail": "",
+            "biography": "https://ilga.gov/Senate/Members/Details/3408",
+            "image": "https://ilga.gov/https://cdn.ilga.gov/assets/img/members/%7B35F1D456-C798-4A8B-9180-4608CB0FDB78%7D.jpg",
+            "ballotpedia": "https://ballotpedia.org/Michael_Halpin",
+            "votesmart": "https://justfacts.votesmart.org/candidate/biography/166412"
+          },
+          "capitol_address": {
+            "address1": "609 Capitol Building",
+            "address2": "Section C, Office J",
+            "city": "Springfield",
+            "state": "IL",
+            "zip": "62706"
+          },
+          "links": {
+            "official": {
+              "bluesky": "",
+              "facebook": "https://www.facebook.com/SenatorHalpin",
+              "instagram": "",
+              "linkedin": "",
+              "tiktok": "",
+              "twitter": "https://www.twitter.com/SenatorHalpin",
+              "website": "https://ilga.gov/Senate/Members/Details/3408",
+              "youtube": ""
+            },
+            "personal": {
+              "bluesky": "",
+              "facebook": "https://www.facebook.com/mike.halpin",
+              "instagram": "",
+              "linkedin": "https://www.linkedin.com/in/michael-halpin-136bb81/",
+              "tiktok": "",
+              "twitter": "",
+              "website": "",
+              "youtube": ""
+            }
+          }
+        }
+      }
+    ],
+    "sasts": [],
+    "subjects": [],
+    "texts": [
+      {
+        "doc_id": 3043743,
+        "date": "2025-01-08",
+        "type": "Introduced",
+        "type_id": 1,
+        "mime": "text/html",
+        "mime_id": 1,
+        "url": "https://legiscan.com/IL/text/HB0022/id/3043743",
+        "state_link": "https://www.ilga.gov/Legislation/BillStatus/FullText?LegDocId=195444&DocName=10400HB0022&DocNum=22&DocTypeID=HB&LegID=155678&GAID=18&SessionID=114&SpecSess=&Session=",
+        "text_size": 6967,
+        "text_hash": "e9e246f1abdca206efaacf270e18609e",
+        "alt_bill_text": 0,
+        "alt_mime": "",
+        "alt_mime_id": 0,
+        "alt_state_link": "",
+        "alt_text_size": 0,
+        "alt_text_hash": ""
+      },
+      {
+        "doc_id": 3180143,
+        "date": "2025-03-18",
+        "type": "Engrossed",
+        "type_id": 4,
+        "mime": "text/html",
+        "mime_id": 1,
+        "url": "https://legiscan.com/IL/text/HB0022/id/3180143",
+        "state_link": "https://www.ilga.gov/Legislation/BillStatus/FullText?LegDocId=195444&DocName=10400HB0022eng&DocNum=22&DocTypeID=HB&LegID=155678&GAID=18&SessionID=114&SpecSess=&Session=",
+        "text_size": 5337,
+        "text_hash": "017fb61243b76bb2e2bdd1e6d59be89e",
+        "alt_bill_text": 0,
+        "alt_mime": "",
+        "alt_mime_id": 0,
+        "alt_state_link": "",
+        "alt_text_size": 0,
+        "alt_text_hash": ""
+      },
+      {
+        "doc_id": 3253936,
+        "date": "2025-06-10",
+        "type": "Enrolled",
+        "type_id": 5,
+        "mime": "text/html",
+        "mime_id": 1,
+        "url": "https://legiscan.com/IL/text/HB0022/id/3253936",
+        "state_link": "https://www.ilga.gov/Legislation/BillStatus/FullText?LegDocId=195444&DocName=10400HB0022enr&DocNum=22&DocTypeID=HB&LegID=155678&GAID=18&SessionID=114&SpecSess=&Session=",
+        "text_size": 14958,
+        "text_hash": "7fcc7627b5a12f81a0dffa6115bc7895",
+        "alt_bill_text": 0,
+        "alt_mime": "",
+        "alt_mime_id": 0,
+        "alt_state_link": "",
+        "alt_text_size": 0,
+        "alt_text_hash": ""
+      }
+    ],
+    "votes": [
+      {
+        "roll_call_id": 1541679,
+        "date": "2025-04-09",
+        "desc": "Third Reading in House",
+        "yea": 113,
+        "nay": 0,
+        "nv": 3,
+        "absent": 0,
+        "total": 116,
+        "passed": 1,
+        "chamber": "H",
+        "chamber_id": 35,
+        "url": "https://legiscan.com/IL/rollcall/HB0022/id/1541679",
+        "state_link": "https://www.ilga.gov/legislation/votehistory/104/house/10400HB0022_04092025_023000T.pdf"
+      },
+      {
+        "roll_call_id": 1581393,
+        "date": "2025-05-29",
+        "desc": "Third Reading in Senate",
+        "yea": 33,
+        "nay": 21,
+        "nv": 5,
+        "absent": 0,
+        "total": 59,
+        "passed": 1,
+        "chamber": "S",
+        "chamber_id": 36,
+        "url": "https://legiscan.com/IL/rollcall/HB0022/id/1581393",
+        "state_link": "https://www.ilga.gov/legislation/votehistory/104/senate/10400HB0022_05292025_001000T.pdf"
+      },
+      {
+        "roll_call_id": 1582363,
+        "date": "2025-05-31",
+        "desc": "Concurrence in House",
+        "yea": 77,
+        "nay": 40,
+        "nv": 0,
+        "absent": 0,
+        "total": 117,
+        "passed": 1,
+        "chamber": "H",
+        "chamber_id": 35,
+        "url": "https://legiscan.com/IL/rollcall/HB0022/id/1582363",
+        "state_link": "https://www.ilga.gov/legislation/votehistory/104/house/10400HB0022sam001_05312025_010000C.pdf"
+      }
+    ],
+    "amendments": [
+      {
+        "amendment_id": 246605,
+        "adopted": 0,
+        "chamber": "H",
+        "chamber_id": 35,
+        "date": "2025-04-07",
+        "title": "House Amendment 001",
+        "description": "House Amendment 001",
+        "mime": "text/html",
+        "mime_id": 1,
+        "url": "https://legiscan.com/IL/amendment/HB0022/id/246605",
+        "state_link": "https://www.ilga.gov/Legislation/BillStatus/FullText?LegDocId=204179&DocName=10400HB0022ham001&DocNum=22&DocTypeID=HB&LegID=155678&GAID=18&SessionID=114&SpecSess=&Session=",
+        "amendment_size": 14713,
+        "amendment_hash": "44ff607bd4a678b28d6a1edd5eca7101",
+        "alt_amendment": 0,
+        "alt_mime": "",
+        "alt_mime_id": 0,
+        "alt_state_link": "",
+        "alt_amendment_size": 0,
+        "alt_amendment_hash": ""
+      },
+      {
+        "amendment_id": 259572,
+        "adopted": 0,
+        "chamber": "S",
+        "chamber_id": 36,
+        "date": "2025-05-26",
+        "title": "Senate Amendment 001",
+        "description": "Senate Amendment 001",
+        "mime": "text/html",
+        "mime_id": 1,
+        "url": "https://legiscan.com/IL/amendment/HB0022/id/259572",
+        "state_link": "https://www.ilga.gov/Legislation/BillStatus/FullText?LegDocId=205041&DocName=10400HB0022sam001&DocNum=22&DocTypeID=HB&LegID=155678&GAID=18&SessionID=114&SpecSess=&Session=",
+        "amendment_size": 1453,
+        "amendment_hash": "a0a6afdb6b0f85cb7addfc1262f50c9d",
+        "alt_amendment": 0,
+        "alt_mime": "",
+        "alt_mime_id": 0,
+        "alt_state_link": "",
+        "alt_amendment_size": 0,
+        "alt_amendment_hash": ""
+      },
+      {
+        "amendment_id": 259863,
+        "adopted": 0,
+        "chamber": "S",
+        "chamber_id": 36,
+        "date": "2025-05-27",
+        "title": "Senate Amendment 002",
+        "description": "Senate Amendment 002",
+        "mime": "text/html",
+        "mime_id": 1,
+        "url": "https://legiscan.com/IL/amendment/HB0022/id/259863",
+        "state_link": "https://www.ilga.gov/Legislation/BillStatus/FullText?LegDocId=205086&DocName=10400HB0022sam002&DocNum=22&DocTypeID=HB&LegID=155678&GAID=18&SessionID=114&SpecSess=&Session=",
+        "amendment_size": 15191,
+        "amendment_hash": "714bbfb1bf750ecd12861f41b9dddaa0",
+        "alt_amendment": 0,
+        "alt_mime": "",
+        "alt_mime_id": 0,
+        "alt_state_link": "",
+        "alt_amendment_size": 0,
+        "alt_amendment_hash": ""
+      }
+    ],
+    "supplements": [],
+    "calendar": [
+      {
+        "type_id": 1,
+        "event_hash": "e9445ba1",
+        "type": "Hearing",
+        "date": "2025-02-19",
+        "time": "14:30",
+        "location": "Room C-1 Stratton Building",
+        "description": "State Government Administration Committee Hearing"
+      },
+      {
+        "type_id": 1,
+        "event_hash": "aa4ac0b7",
+        "type": "Hearing",
+        "date": "2025-02-26",
+        "time": "14:00",
+        "location": "Room C-1 Stratton Building",
+        "description": "State Government Administration Committee Hearing"
+      },
+      {
+        "type_id": 1,
+        "event_hash": "54b510d2",
+        "type": "Hearing",
+        "date": "2025-03-05",
+        "time": "14:00",
+        "location": "115 and Virtual Room 4",
+        "description": "State Government Administration Committee Hearing"
+      },
+      {
+        "type_id": 1,
+        "event_hash": "ebc17fb6",
+        "type": "Hearing",
+        "date": "2025-04-08",
+        "time": "16:00",
+        "location": "Room 115",
+        "description": "Cities & Villages Committee Hearing"
+      },
+      {
+        "type_id": 1,
+        "event_hash": "8b219055",
+        "type": "Hearing",
+        "date": "2025-04-08",
+        "time": "16:00",
+        "location": "Room 122B",
+        "description": "Cities & Villages Committee Hearing"
+      },
+      {
+        "type_id": 1,
+        "event_hash": "73f17ee5",
+        "type": "Hearing",
+        "date": "2025-04-08",
+        "time": "16:00",
+        "location": "Room 118",
+        "description": "Cities & Villages Committee Hearing"
+      },
+      {
+        "type_id": 1,
+        "event_hash": "a0adeb8f",
+        "type": "Hearing",
+        "date": "2025-05-28",
+        "time": "14:00",
+        "location": "Room 212",
+        "description": "Executive Committee Hearing"
+      }
+    ]
+  }
+}

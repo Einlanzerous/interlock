@@ -1,0 +1,39 @@
+{
+  "status": "OK",
+  "sessions": [
+    {
+      "session_id": 2176,
+      "state_id": 13,
+      "state_abbr": "IL",
+      "year_start": 2025,
+      "year_end": 2026,
+      "prefile": 0,
+      "sine_die": 1,
+      "prior": 0,
+      "special": 0,
+      "session_tag": "Regular Session",
+      "session_title": "2025-2026 Regular Session",
+      "session_name": "104th General Assembly",
+      "dataset_hash": "fb0a593e7077291657e74b3b87a2c2fa",
+      "session_hash": "fb0a593e7077291657e74b3b87a2c2fa",
+      "name": "104th General Assembly"
+    },
+    {
+      "session_id": 2020,
+      "state_id": 13,
+      "state_abbr": "IL",
+      "year_start": 2023,
+      "year_end": 2024,
+      "prefile": 0,
+      "sine_die": 1,
+      "prior": 1,
+      "special": 0,
+      "session_tag": "Regular Session",
+      "session_title": "2023-2024 Regular Session",
+      "session_name": "103rd General Assembly",
+      "dataset_hash": "b16438021bd2e606759825d7ec0a592e",
+      "session_hash": "b16438021bd2e606759825d7ec0a592e",
+      "name": "103rd General Assembly"
+    }
+  ]
+}

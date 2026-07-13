@@ -1,7 +1,8 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
+import { readdirSync } from 'node:fs'
 import { randomUUID } from 'node:crypto'
 import { Pool } from 'pg'
-import { migrate } from './migrate'
+import { migrate, MIGRATIONS_DIR } from './migrate'
 
 /**
  * Integration tests for ITLK-3's acceptance criteria. They need a real
@@ -37,12 +38,21 @@ describe.skipIf(!adminUrl)('migrate', () => {
   })
 
   test('applies every migration on an empty database; second run is a no-op', async () => {
+    // Read the directory rather than freezing a list here: the claim worth testing is
+    // "every migration on disk ran, in order", not "there are exactly N of them".
+    const onDisk = readdirSync(MIGRATIONS_DIR)
+      .filter((f) => f.endsWith('.sql'))
+      .sort()
+
     const first = await migrate(pool)
-    expect(first).toEqual(['0001_canonical_schema.sql', '0002_fetch_cursor.sql'])
+    expect(first).toEqual(onDisk)
 
     const second = await migrate(pool)
     expect(second).toEqual([])
 
+    // The table list, by contrast, IS worth freezing — it is the schema the rest of the
+    // codebase is written against, so a migration that adds or drops a table should have
+    // to say so right here.
     const { rows } = await pool.query<{ table_name: string }>(
       `select table_name from information_schema.tables
        where table_schema = 'public' and table_type = 'BASE TABLE'
@@ -50,6 +60,7 @@ describe.skipIf(!adminUrl)('migrate', () => {
     )
     expect(rows.map((r) => r.table_name)).toEqual([
       'alert',
+      'api_budget',
       'bill',
       'bill_action',
       'committee',
