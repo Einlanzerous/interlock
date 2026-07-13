@@ -69,6 +69,32 @@ on conflict (source) do update set cursor = excluded.cursor
 
 One row per source; read it at poll start to resume.
 
+**A cursor is optional.** It answers *"where was I in the walk"*, which only matters
+for a source you have to walk. A source that publishes a change primitive for its
+whole corpus can resume from §4b instead and return `nextCursor: null` forever —
+`legiscan_il` does exactly that, and its `fetch_cursor` row never appears. See
+[legiscan-il.md](./legiscan-il.md).
+
+### 4b. Staged change hashes — the other resume state
+
+```sql
+select distinct on (source_id) source_id, change_hash
+from source_record
+where source = $1 and kind = $2 and change_hash is not null
+order by source_id, fetched_at desc, id desc
+```
+
+Where a cursor answers "where was I", this answers **"what have I already seen"**.
+For a source whose list endpoint hands over a `change_hash` per record (LegiScan's
+`getMasterListRaw` returns one for all 12,022 IL bills in a single query), change
+detection is a set difference against this map — and the record is only "seen" once
+its staging row is **committed**, so an interrupted poll re-detects exactly the work
+that never landed.
+
+Fetchers do not run this SQL themselves — the seam rule that they touch no app tables
+still holds. The worker injects it as a port (`readChangeHashes` in
+`packages/worker/src/seam/ingest.ts`); a Go ingester runs the statement above directly.
+
 ### 5. The single-flight advisory lock
 
 Two-int form, class id `4540004`, object id = `hash31(source)` — djb2-xor,

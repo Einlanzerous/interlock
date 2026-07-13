@@ -6,6 +6,7 @@ import {
   normalizeMatter,
   normalizePerson,
 } from '../sources/chi_clerk/adapters'
+import { normalizeBill } from '../sources/legiscan_il/adapters'
 
 /** A staged row as the pipeline sees it. */
 export interface StagedRecord {
@@ -19,15 +20,15 @@ export interface StagedRecord {
 
 /**
  * The worker's processing chain, in dependency order: normalize → match → diff.
- * Normalize is live as of ITLK-5 (chi_clerk); match (sponsor → official, ITLK-7) and
- * diff (change detection → alerts, ITLK-8) are still stubs. The chain shape and the
+ * Normalize is live for both sources as of ITLK-6; match (sponsor → official, ITLK-7)
+ * and diff (change detection → alerts, ITLK-8) are still stubs. The chain shape and the
  * queue feeding it are fixed by the seam, so those tickets slot in without touching it.
  */
 
 /**
  * Route a staged record to its source+kind adapter. Unknown pairs are logged, not
- * thrown: a source that stages a kind we don't normalize yet (LegiScan lands in
- * ITLK-6) shouldn't wedge the queue with a permanently failing job.
+ * thrown: a source that stages a kind we don't normalize yet shouldn't wedge the queue
+ * with a permanently failing job.
  */
 async function normalize(db: PoolClient, record: StagedRecord): Promise<void> {
   if (record.source === 'chi_clerk') {
@@ -42,6 +43,10 @@ async function normalize(db: PoolClient, record: StagedRecord): Promise<void> {
         await normalizeBody(db, record.payload)
         return
     }
+  }
+  if (record.source === 'legiscan_il' && record.kind === 'bill') {
+    await normalizeBill(db, record.payload)
+    return
   }
   console.warn(
     `[pipeline] no adapter for ${record.source}/${record.kind} — source_record ${record.id} staged but not normalized`,

@@ -1,0 +1,43 @@
+{
+  "status": "OK",
+  "masterlist": {
+    "session": {
+      "session_id": 2176,
+      "state_id": 13,
+      "year_start": 2025,
+      "year_end": 2026,
+      "prefile": 0,
+      "sine_die": 1,
+      "prior": 0,
+      "special": 0,
+      "session_tag": "Regular Session",
+      "session_title": "2025-2026 Regular Session",
+      "session_name": "104th General Assembly"
+    },
+    "0": {
+      "bill_id": 1906128,
+      "number": "HB0001",
+      "change_hash": "de5a15db59919526ad984c07431410b6"
+    },
+    "1": {
+      "bill_id": 1906254,
+      "number": "HB0002",
+      "change_hash": "726fbd45a608782aff7f4c424e261ba5"
+    },
+    "2": {
+      "bill_id": 1906601,
+      "number": "HB0003",
+      "change_hash": "1e0f599f7cd1899dc7a3f04428555ec3"
+    },
+    "3": {
+      "bill_id": 1906477,
+      "number": "HB0004",
+      "change_hash": "f9e08387702220d7e2bdecaeffb4eb71"
+    },
+    "4": {
+      "bill_id": 1906335,
+      "number": "HB0005",
+      "change_hash": "46279d8c042d06f973161ca327d79b2f"
+    }
+  }
+}

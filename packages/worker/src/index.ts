@@ -2,10 +2,14 @@ import { Pool } from 'pg'
 import { PgBoss } from 'pg-boss'
 import { parseEnv, type Fetcher } from '@interlock/shared'
 import { migrate } from '@interlock/db'
+import { readChangeHashes } from './seam/ingest'
 import { ensureQueues, registerPipeline } from './seam/pipeline'
 import { startScheduler, type ScheduledSource } from './seam/scheduler'
 import { ChiClerkClient } from './sources/chi_clerk/client'
 import { ChiClerkFetcher } from './sources/chi_clerk/fetcher'
+import { PgQueryBudget } from './sources/legiscan_il/budget'
+import { LegiScanClient } from './sources/legiscan_il/client'
+import { LegiScanFetcher } from './sources/legiscan_il/fetcher'
 
 /**
  * The Interlock worker: migrate → start pg-boss → register the pipeline →
@@ -18,7 +22,6 @@ const pool = new Pool({ connectionString: env.DATABASE_URL })
 const boss = new PgBoss(env.DATABASE_URL)
 boss.on('error', (err) => console.error('[worker] pg-boss error', err))
 
-// ITLK-6: legiscan_il fetcher @ env.LEGISCAN_POLL_HOURS.
 const fetchers: Fetcher[] = [
   new ChiClerkFetcher({
     client: new ChiClerkClient({
@@ -28,6 +31,33 @@ const fetchers: Fetcher[] = [
     backfillDays: env.CHI_CLERK_BACKFILL_DAYS,
   }),
 ]
+
+// LegiScan is the only keyed source, and the app must boot without one (ITLK-2):
+// no key simply means no Illinois ingest, loudly, rather than a failed start.
+if (env.LEGISCAN_API_KEY) {
+  const budget = new PgQueryBudget({
+    pool,
+    source: 'legiscan_il',
+    limit: env.LEGISCAN_MONTHLY_QUERY_LIMIT,
+  })
+  fetchers.push(
+    new LegiScanFetcher({
+      client: new LegiScanClient({
+        apiKey: env.LEGISCAN_API_KEY,
+        baseUrl: env.LEGISCAN_BASE_URL,
+        state: env.LEGISCAN_STATE,
+        maxRps: env.LEGISCAN_MAX_RPS,
+        budget,
+      }),
+      budget,
+      // The seam owns persistence; the fetcher reads its resume state through this port.
+      knownHashes: () => readChangeHashes(pool, 'legiscan_il', 'bill'),
+      maxBillsPerPoll: env.LEGISCAN_MAX_BILLS_PER_POLL,
+    }),
+  )
+} else {
+  console.warn('[worker] LEGISCAN_API_KEY is unset — Illinois GA ingest is disabled')
+}
 
 async function main(): Promise<void> {
   console.log('[worker] starting Interlock worker')
@@ -55,9 +85,7 @@ async function main(): Promise<void> {
     onError: (source, err) => console.error(`[worker] poll failed for ${source}`, err),
   })
   console.log(
-    sources.length > 0
-      ? `[worker] scheduling ${sources.length} fetcher(s)`
-      : '[worker] no fetchers registered yet (ITLK-5/6) — pipeline is idle but live',
+    `[worker] scheduling ${sources.length} fetcher(s): ${fetchers.map((f) => f.source).join(', ')}`,
   )
 
   let shuttingDown = false

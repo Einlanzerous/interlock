@@ -1,0 +1,1256 @@
+{
+  "status": "OK",
+  "bill": {
+    "bill_id": 1906249,
+    "change_hash": "2314cedfb9f1e7c851161ed7c03395b5",
+    "session_id": 2176,
+    "session": {
+      "session_id": 2176,
+      "state_id": 13,
+      "year_start": 2025,
+      "year_end": 2026,
+      "prefile": 0,
+      "sine_die": 1,
+      "prior": 0,
+      "special": 0,
+      "session_tag": "Regular Session",
+      "session_title": "2025-2026 Regular Session",
+      "session_name": "104th General Assembly"
+    },
+    "url": "https://legiscan.com/IL/bill/HB0111/2025",
+    "state_link": "https://www.ilga.gov/Legislation/BillStatus?DocNum=111&GAID=18&DocTypeID=HB&SessionID=114&GA=104",
+    "completed": 0,
+    "status": 5,
+    "status_date": "2026-06-16",
+    "progress": [
+      {
+        "date": "2025-01-09",
+        "event": 1
+      },
+      {
+        "date": "2025-01-09",
+        "event": 9
+      },
+      {
+        "date": "2025-03-04",
+        "event": 9
+      },
+      {
+        "date": "2025-03-12",
+        "event": 10
+      },
+      {
+        "date": "2025-05-29",
+        "event": 2
+      },
+      {
+        "date": "2025-05-29",
+        "event": 9
+      },
+      {
+        "date": "2025-05-29",
+        "event": 9
+      },
+      {
+        "date": "2025-05-29",
+        "event": 9
+      },
+      {
+        "date": "2026-06-01",
+        "event": 3
+      },
+      {
+        "date": "2026-06-16",
+        "event": 5
+      }
+    ],
+    "state": "IL",
+    "state_id": 13,
+    "bill_number": "HB0111",
+    "bill_type": "B",
+    "bill_type_id": "1",
+    "body": "H",
+    "body_id": 35,
+    "current_body": "H",
+    "current_body_id": 35,
+    "title": "$FY 2027 BUDGET",
+    "description": "Amends Public Act 104-3 by adding, changing, and repealing various State Fiscal Year 2026 appropriations. Makes appropriations and reappropriations for capital and operating expenditures and other purposes for State Fiscal Year 2027. Some provisions are effective immediately; other provisions are effective July 1, 2026.",
+    "pending_committee_id": 0,
+    "committee": [],
+    "referrals": [
+      {
+        "date": "2025-01-09",
+        "committee_id": 235,
+        "chamber": "H",
+        "chamber_id": 35,
+        "name": "Rules"
+      },
+      {
+        "date": "2025-03-04",
+        "committee_id": 202,
+        "chamber": "H",
+        "chamber_id": 35,
+        "name": "Executive"
+      },
+      {
+        "date": "2025-05-29",
+        "committee_id": 254,
+        "chamber": "S",
+        "chamber_id": 36,
+        "name": "Assignments"
+      },
+      {
+        "date": "2025-05-29",
+        "committee_id": 4500,
+        "chamber": "S",
+        "chamber_id": 36,
+        "name": "Appropriations"
+      },
+      {
+        "date": "2025-05-29",
+        "committee_id": 254,
+        "chamber": "S",
+        "chamber_id": 36,
+        "name": "Assignments"
+      },
+      {
+        "date": "2026-06-01",
+        "committee_id": 235,
+        "chamber": "H",
+        "chamber_id": 35,
+        "name": "Rules"
+      }
+    ],
+    "history": [
+      {
+        "date": "2024-12-16",
+        "action": "Prefiled with Clerk by Rep. Emanuel \"Chris\" Welch",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-01-09",
+        "action": "First Reading",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 1
+      },
+      {
+        "date": "2025-01-09",
+        "action": "Referred to Rules Committee",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 1
+      },
+      {
+        "date": "2025-03-04",
+        "action": "Assigned to Executive Committee",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 1
+      },
+      {
+        "date": "2025-03-12",
+        "action": "Do Pass / Short Debate Executive Committee; 012-000-000",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 1
+      },
+      {
+        "date": "2025-03-12",
+        "action": "Placed on Calendar 2nd Reading - Short Debate **",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-03-21",
+        "action": "Second Reading - Short Debate",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-03-21",
+        "action": "Held on Calendar Order of Second Reading - Short Debate",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-29",
+        "action": "Added Chief Co-Sponsor Rep. Robyn Gabel",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-29",
+        "action": "Added Chief Co-Sponsor Rep. Will Guzzardi",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-29",
+        "action": "Added Chief Co-Sponsor Rep. Eva-Dina Delgado",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-29",
+        "action": "Added Chief Co-Sponsor Rep. Kam Buckner",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-29",
+        "action": "Placed on Calendar Order of 3rd Reading - Short Debate",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-29",
+        "action": "Third Reading - Short Debate - Passed 076-038-000",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 1
+      },
+      {
+        "date": "2025-05-29",
+        "action": "Arrive in Senate",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-29",
+        "action": "Placed on Calendar Order of First Reading",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-29",
+        "action": "Chief Senate Sponsor Sen. Don Harmon",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-29",
+        "action": "First Reading",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-29",
+        "action": "Referred to Assignments",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 1
+      },
+      {
+        "date": "2025-05-29",
+        "action": "Assigned to Appropriations",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 1
+      },
+      {
+        "date": "2025-05-29",
+        "action": "Re-referred to Assignments",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 1
+      },
+      {
+        "date": "2025-05-29",
+        "action": "Approved for Consideration Assignments",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-29",
+        "action": "Placed on Calendar Order of 2nd Reading May 30, 2025",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-30",
+        "action": "Second Reading",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2025-05-30",
+        "action": "Placed on Calendar Order of 3rd Reading May 31, 2025",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2025-07-02",
+        "action": "Pursuant to Senate Rule 3-9(b) / Referred to Assignments",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2026-05-30",
+        "action": "Approved for Consideration Assignments",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2026-05-30",
+        "action": "Placed on Calendar Order of 3rd Reading",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2026-05-30",
+        "action": "Senate Floor Amendment No. 1 Filed with Secretary by Sen. Elgie R. Sims, Jr.",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2026-05-30",
+        "action": "Senate Floor Amendment No. 1 Referred to Assignments",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2026-05-31",
+        "action": "Senate Floor Amendment No. 2 Filed with Secretary by Sen. Elgie R. Sims, Jr.",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2026-05-31",
+        "action": "Senate Floor Amendment No. 2 Referred to Assignments",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2026-06-01",
+        "action": "Senate Floor Amendment No. 3 Filed with Secretary by Sen. Elgie R. Sims, Jr.",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2026-06-01",
+        "action": "Senate Floor Amendment No. 3 Referred to Assignments",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2026-06-01",
+        "action": "Senate Floor Amendment No. 3 Be Approved for Consideration Assignments",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2026-06-01",
+        "action": "Alternate Chief Sponsor Changed to Sen. Elgie R. Sims, Jr.",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2026-06-01",
+        "action": "Recalled to Second Reading",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2026-06-01",
+        "action": "Senate Floor Amendment No. 3 Adopted; Sims",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2026-06-01",
+        "action": "Placed on Calendar Order of 3rd Reading",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2026-06-01",
+        "action": "3/5 Vote Required",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2026-06-01",
+        "action": "Third Reading - Passed; 037-021-000",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2026-06-01",
+        "action": "Arrived in House",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2026-06-01",
+        "action": "Placed on Calendar Order of Concurrence Senate Amendment(s) 3",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2026-06-01",
+        "action": "Senate Floor Amendment No. 3 Motion Filed Concur Rep. Emanuel \"Chris\" Welch",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2026-06-01",
+        "action": "Senate Floor Amendment No. 3 Motion to Concur Referred to Rules Committee",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2026-06-01",
+        "action": "Added as Alternate Chief Co-Sponsor Sen. Mattie Hunter",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2026-06-01",
+        "action": "Senate Floor Amendment No. 3 Motion to Concur Recommends Be Adopted Rules Committee; 005-000-000",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2026-06-01",
+        "action": "Motion Filed to Suspend House Rule(s) for Immediate Consideration Rep. Robyn Gabel",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2026-06-01",
+        "action": "3/5 Vote Required",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2026-06-01",
+        "action": "Motion Prevailed 075-038-001",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2026-06-01",
+        "action": "Added as Alternate Co-Sponsor Sen. Napoleon Harris, III",
+        "chamber": "S",
+        "chamber_id": 36,
+        "importance": 0
+      },
+      {
+        "date": "2026-06-01",
+        "action": "Senate Floor Amendment No. 3 House Concurs 076-039-000",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2026-06-01",
+        "action": "House Concurs",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2026-06-01",
+        "action": "3/5 Vote Required",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2026-06-01",
+        "action": "Passed Both Houses",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 1
+      },
+      {
+        "date": "2026-06-10",
+        "action": "Sent to the Governor",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2026-06-16",
+        "action": "Effective Date June 16, 2026",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2026-06-16",
+        "action": "Effective Date July 1, 2026; some provisions.",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 0
+      },
+      {
+        "date": "2026-06-16",
+        "action": "Governor Item/Reduction Veto PA 104-0464",
+        "chamber": "H",
+        "chamber_id": 35,
+        "importance": 1
+      }
+    ],
+    "sponsors": [
+      {
+        "people_id": 14572,
+        "person_hash": "p4rs79jo",
+        "party_id": "1",
+        "state_id": 13,
+        "party": "D",
+        "role_id": 1,
+        "role": "Rep",
+        "name": "Emanuel Welch",
+        "first_name": "Emanuel",
+        "middle_name": "",
+        "last_name": "Welch",
+        "suffix": "",
+        "nickname": "Chris",
+        "district": "HD-007",
+        "ftm_eid": 2814076,
+        "votesmart_id": 58207,
+        "opensecrets_id": "",
+        "knowwho_pid": 385437,
+        "ballotpedia": "Chris_Welch",
+        "bioguide_id": "",
+        "sponsor_type_id": 1,
+        "sponsor_order": 1,
+        "committee_sponsor": 0,
+        "committee_id": 0,
+        "state_federal": 0,
+        "bio": {
+          "social": {
+            "capitol_phone": "217-782-5350",
+            "district_phone": "708-450-1000",
+            "email": "",
+            "webmail": "",
+            "biography": "https://ilga.gov/House/Members/Details/3298",
+            "image": "https://ilga.gov/https://cdn.ilga.gov/assets/img/members/%7B5D419B94-66B4-4F3B-86F1-BFF37B3FA55C%7D.jpg",
+            "ballotpedia": "https://ballotpedia.org/Chris_Welch",
+            "votesmart": "https://justfacts.votesmart.org/candidate/biography/58207"
+          },
+          "capitol_address": {
+            "address1": "300 Capitol Building",
+            "address2": "",
+            "city": "Springfield",
+            "state": "IL",
+            "zip": "62706"
+          },
+          "links": {
+            "official": {
+              "bluesky": "",
+              "facebook": "https://www.facebook.com/SpeakerWelchIL",
+              "instagram": "https://www.instagram.com/speakerwelchil/",
+              "linkedin": "",
+              "tiktok": "",
+              "twitter": "https://www.twitter.com/SpeakerWelchIL",
+              "website": "https://ilga.gov/House/Members/Details/3298",
+              "youtube": "https://www.youtube.com/@SpeakerWelchIL/"
+            },
+            "personal": {
+              "bluesky": "",
+              "facebook": "https://www.facebook.com/EmanuelChrisWelch",
+              "instagram": "",
+              "linkedin": "https://www.linkedin.com/in/emanuelchriswelch/",
+              "tiktok": "",
+              "twitter": "",
+              "website": "",
+              "youtube": ""
+            }
+          }
+        }
+      },
+      {
+        "people_id": 4407,
+        "person_hash": "7by0zof7",
+        "party_id": "1",
+        "state_id": 13,
+        "party": "D",
+        "role_id": 1,
+        "role": "Rep",
+        "name": "Robyn Gabel",
+        "first_name": "Robyn",
+        "middle_name": "",
+        "last_name": "Gabel",
+        "suffix": "",
+        "nickname": "",
+        "district": "HD-018",
+        "ftm_eid": 2692346,
+        "votesmart_id": 116618,
+        "opensecrets_id": "",
+        "knowwho_pid": 287099,
+        "ballotpedia": "Robyn_Gabel",
+        "bioguide_id": "",
+        "sponsor_type_id": 2,
+        "sponsor_order": 2,
+        "committee_sponsor": 0,
+        "committee_id": 0,
+        "state_federal": 0,
+        "bio": {
+          "social": {
+            "capitol_phone": "217-782-8052",
+            "district_phone": "847-424-5401",
+            "email": "",
+            "webmail": "",
+            "biography": "https://ilga.gov/House/Members/Details/3278",
+            "image": "https://ilga.gov/https://cdn.ilga.gov/assets/img/members/%7B739CC8F9-E9E4-40A1-AB86-883EF9A5E313%7D.jpg",
+            "ballotpedia": "https://ballotpedia.org/Robyn_Gabel",
+            "votesmart": "https://justfacts.votesmart.org/candidate/biography/116618"
+          },
+          "capitol_address": {
+            "address1": "300 Capitol Building",
+            "address2": "",
+            "city": "Springfield",
+            "state": "IL",
+            "zip": "62706"
+          },
+          "links": {
+            "official": {
+              "bluesky": "",
+              "facebook": "",
+              "instagram": "",
+              "linkedin": "",
+              "tiktok": "",
+              "twitter": "",
+              "website": "https://ilga.gov/House/Members/Details/3278",
+              "youtube": ""
+            },
+            "personal": {
+              "bluesky": "",
+              "facebook": "https://www.facebook.com/robyn.gabel.9",
+              "instagram": "",
+              "linkedin": "https://www.linkedin.com/in/robyn-gabel-7794b017/",
+              "tiktok": "",
+              "twitter": "",
+              "website": "",
+              "youtube": ""
+            }
+          }
+        }
+      },
+      {
+        "people_id": 17366,
+        "person_hash": "up1j78vb",
+        "party_id": "1",
+        "state_id": 13,
+        "party": "D",
+        "role_id": 1,
+        "role": "Rep",
+        "name": "Will Guzzardi",
+        "first_name": "Will",
+        "middle_name": "",
+        "last_name": "Guzzardi",
+        "suffix": "",
+        "nickname": "",
+        "district": "HD-039",
+        "ftm_eid": 6514941,
+        "votesmart_id": 135062,
+        "opensecrets_id": "",
+        "knowwho_pid": 387428,
+        "ballotpedia": "Will_Guzzardi",
+        "bioguide_id": "",
+        "sponsor_type_id": 2,
+        "sponsor_order": 3,
+        "committee_sponsor": 0,
+        "committee_id": 0,
+        "state_federal": 0,
+        "bio": {
+          "social": {
+            "capitol_phone": "217-558-1032",
+            "district_phone": "773-853-2570",
+            "email": "",
+            "webmail": "",
+            "biography": "https://ilga.gov/House/Members/Details/3311",
+            "image": "https://ilga.gov/https://cdn.ilga.gov/assets/img/members/%7BC127AF36-0EAE-48B6-8C31-86AAE3935790%7D.jpg",
+            "ballotpedia": "https://ballotpedia.org/Will_Guzzardi",
+            "votesmart": "https://justfacts.votesmart.org/candidate/biography/135062"
+          },
+          "capitol_address": {
+            "address1": "259-S Stratton Office Building",
+            "address2": "",
+            "city": "Springfield",
+            "state": "IL",
+            "zip": "62706"
+          },
+          "links": {
+            "official": {
+              "bluesky": "",
+              "facebook": "https://www.facebook.com/RepGuzzardi39/",
+              "instagram": "https://www.instagram.com/rep.willguzzardi/",
+              "linkedin": "",
+              "tiktok": "",
+              "twitter": "https://www.twitter.com/RepGuzzardi39",
+              "website": "https://ilga.gov/House/Members/Details/3311",
+              "youtube": "https://www.youtube.com/@staterep.willguzzardi998/"
+            },
+            "personal": {
+              "bluesky": "",
+              "facebook": "https://www.facebook.com/willguzzo",
+              "instagram": "https://www.instagram.com/wguzzardi/",
+              "linkedin": "",
+              "tiktok": "",
+              "twitter": "",
+              "website": "",
+              "youtube": ""
+            }
+          }
+        }
+      },
+      {
+        "people_id": 21538,
+        "person_hash": "78278ns4",
+        "party_id": "1",
+        "state_id": 13,
+        "party": "D",
+        "role_id": 1,
+        "role": "Rep",
+        "name": "Eva Dina Delgado",
+        "first_name": "Eva",
+        "middle_name": "",
+        "last_name": "Dina Delgado",
+        "suffix": "",
+        "nickname": "",
+        "district": "HD-003",
+        "ftm_eid": 47065759,
+        "votesmart_id": 187929,
+        "opensecrets_id": "",
+        "knowwho_pid": 723683,
+        "ballotpedia": "Eva_Dina_Delgado",
+        "bioguide_id": "",
+        "sponsor_type_id": 2,
+        "sponsor_order": 4,
+        "committee_sponsor": 0,
+        "committee_id": 0,
+        "state_federal": 0,
+        "bio": {
+          "social": {
+            "capitol_phone": "217-782-0480",
+            "district_phone": "773-237-4558",
+            "email": "",
+            "webmail": "",
+            "biography": "https://ilga.gov/House/Members/Details/3373",
+            "image": "https://ilga.gov/https://cdn.ilga.gov/assets/img/members/%7BD02A93E7-7D84-4429-92AB-60B61084EBA1%7D.jpg",
+            "ballotpedia": "https://ballotpedia.org/Eva_Dina_Delgado",
+            "votesmart": "https://justfacts.votesmart.org/candidate/biography/187929"
+          },
+          "capitol_address": {
+            "address1": "523-A Stratton Office Building",
+            "address2": "",
+            "city": "Springfield",
+            "state": "IL",
+            "zip": "62706"
+          },
+          "links": {
+            "official": {
+              "bluesky": "",
+              "facebook": "https://www.facebook.com/RepDelgado/",
+              "instagram": "https://www.instagram.com/repdelgado3/",
+              "linkedin": "",
+              "tiktok": "",
+              "twitter": "",
+              "website": "https://ilga.gov/House/Members/Details/3373",
+              "youtube": ""
+            },
+            "personal": {
+              "bluesky": "",
+              "facebook": "https://www.facebook.com/evadina.delgado",
+              "instagram": "",
+              "linkedin": "https://www.linkedin.com/in/eva-dina-delgado-a64b594/",
+              "tiktok": "",
+              "twitter": "",
+              "website": "",
+              "youtube": ""
+            }
+          }
+        }
+      },
+      {
+        "people_id": 21119,
+        "person_hash": "e9aqetbd",
+        "party_id": "1",
+        "state_id": 13,
+        "party": "D",
+        "role_id": 1,
+        "role": "Rep",
+        "name": "Kambium Buckner",
+        "first_name": "Kambium",
+        "middle_name": "",
+        "last_name": "Buckner",
+        "suffix": "",
+        "nickname": "Kam",
+        "district": "HD-026",
+        "ftm_eid": 46610455,
+        "votesmart_id": 186201,
+        "opensecrets_id": "",
+        "knowwho_pid": 265587,
+        "ballotpedia": "Kambium_Buckner",
+        "bioguide_id": "",
+        "sponsor_type_id": 2,
+        "sponsor_order": 5,
+        "committee_sponsor": 0,
+        "committee_id": 0,
+        "state_federal": 0,
+        "bio": {
+          "social": {
+            "capitol_phone": "217-782-2023",
+            "district_phone": "773-924-1755",
+            "email": "Buckner@illinois26.com",
+            "webmail": "",
+            "biography": "https://ilga.gov/House/Members/Details/3366",
+            "image": "https://ilga.gov/https://cdn.ilga.gov/assets/img/members/%7B37E72FD2-6318-45FD-9FF1-C750EB26137D%7D.jpg",
+            "ballotpedia": "https://ballotpedia.org/Kambium_Buckner",
+            "votesmart": "https://justfacts.votesmart.org/candidate/biography/186201"
+          },
+          "capitol_address": {
+            "address1": "300 Capitol Building",
+            "address2": "",
+            "city": "Springfield",
+            "state": "IL",
+            "zip": "62706"
+          },
+          "links": {
+            "official": {
+              "bluesky": "",
+              "facebook": "https://www.facebook.com/RepKamBuckner/",
+              "instagram": "",
+              "linkedin": "",
+              "tiktok": "",
+              "twitter": "https://www.twitter.com/RepKamBuckner",
+              "website": "https://ilga.gov/House/Members/Details/3366",
+              "youtube": ""
+            },
+            "personal": {
+              "bluesky": "",
+              "facebook": "",
+              "instagram": "",
+              "linkedin": "https://www.linkedin.com/in/kam-buckner-7b29613a/",
+              "tiktok": "",
+              "twitter": "",
+              "website": "",
+              "youtube": ""
+            }
+          }
+        }
+      },
+      {
+        "people_id": 13973,
+        "person_hash": "dhwfvf52",
+        "party_id": "1",
+        "state_id": 13,
+        "party": "D",
+        "role_id": 2,
+        "role": "Sen",
+        "name": "Elgie Sims",
+        "first_name": "Elgie",
+        "middle_name": "R.",
+        "last_name": "Sims",
+        "suffix": "Jr.",
+        "nickname": "",
+        "district": "SD-017",
+        "ftm_eid": 6514877,
+        "votesmart_id": 135053,
+        "opensecrets_id": "",
+        "knowwho_pid": 386901,
+        "ballotpedia": "Elgie_R._Sims,_Jr.",
+        "bioguide_id": "",
+        "sponsor_type_id": 1,
+        "sponsor_order": 6,
+        "committee_sponsor": 0,
+        "committee_id": 0,
+        "state_federal": 0,
+        "bio": {
+          "social": {
+            "capitol_phone": "217-782-3201",
+            "district_phone": "773-933-7715",
+            "email": "",
+            "webmail": "",
+            "biography": "https://ilga.gov/Senate/Members/Details/3331",
+            "image": "https://ilga.gov/https://cdn.ilga.gov/assets/img/members/%7B1EAF7721-A189-4CD1-B31D-CD39F79DBD04%7D.jpg",
+            "ballotpedia": "https://ballotpedia.org/Elgie_R._Sims%2C_Jr.",
+            "votesmart": "https://justfacts.votesmart.org/candidate/biography/135053"
+          },
+          "capitol_address": {
+            "address1": "218 Capitol Building",
+            "address2": "",
+            "city": "Springfield",
+            "state": "IL",
+            "zip": "62706"
+          },
+          "links": {
+            "official": {
+              "bluesky": "",
+              "facebook": "https://www.facebook.com/SenElgieSims17/",
+              "instagram": "https://www.instagram.com/elgie_sims/",
+              "linkedin": "",
+              "tiktok": "https://www.tiktok.com/@senatorelgiesims",
+              "twitter": "https://www.twitter.com/ElgieSims",
+              "website": "https://ilga.gov/Senate/Members/Details/3331",
+              "youtube": ""
+            },
+            "personal": {
+              "bluesky": "",
+              "facebook": "https://www.facebook.com/Elgie.Sims",
+              "instagram": "",
+              "linkedin": "https://www.linkedin.com/in/elgie-sims-jr-b023735/",
+              "tiktok": "",
+              "twitter": "",
+              "website": "",
+              "youtube": ""
+            }
+          }
+        }
+      },
+      {
+        "people_id": 1095,
+        "person_hash": "rsue5xxg",
+        "party_id": "1",
+        "state_id": 13,
+        "party": "D",
+        "role_id": 2,
+        "role": "Sen",
+        "name": "Mattie Hunter",
+        "first_name": "Mattie",
+        "middle_name": "",
+        "last_name": "Hunter",
+        "suffix": "",
+        "nickname": "",
+        "district": "SD-003",
+        "ftm_eid": 2684958,
+        "votesmart_id": 33592,
+        "opensecrets_id": "",
+        "knowwho_pid": 214463,
+        "ballotpedia": "Mattie_Hunter",
+        "bioguide_id": "",
+        "sponsor_type_id": 2,
+        "sponsor_order": 7,
+        "committee_sponsor": 0,
+        "committee_id": 0,
+        "state_federal": 0,
+        "bio": {
+          "social": {
+            "capitol_phone": "217-782-5966",
+            "district_phone": "312-949-1908",
+            "email": "",
+            "webmail": "",
+            "biography": "https://ilga.gov/Senate/Members/Details/3269",
+            "image": "https://ilga.gov/https://cdn.ilga.gov/assets/img/members/%7BF4630DDB-11F0-417E-8C0A-B4ED6426116F%7D.jpg",
+            "ballotpedia": "https://ballotpedia.org/Mattie_Hunter",
+            "votesmart": "https://justfacts.votesmart.org/candidate/biography/33592"
+          },
+          "capitol_address": {
+            "address1": "417-C Capitol Building",
+            "address2": "",
+            "city": "Springfield",
+            "state": "IL",
+            "zip": "62706"
+          },
+          "links": {
+            "official": {
+              "bluesky": "",
+              "facebook": "https://www.facebook.com/SenatorMattieHunter/",
+              "instagram": "https://www.instagram.com/senatormattiehunter/",
+              "linkedin": "",
+              "tiktok": "",
+              "twitter": "https://www.twitter.com/SenMattieHunter",
+              "website": "https://ilga.gov/Senate/Members/Details/3269",
+              "youtube": ""
+            },
+            "personal": {
+              "bluesky": "",
+              "facebook": "https://www.facebook.com/mattie.hunter.5",
+              "instagram": "",
+              "linkedin": "https://www.linkedin.com/in/mattie-hunter-4b192514/",
+              "tiktok": "",
+              "twitter": "",
+              "website": "",
+              "youtube": ""
+            }
+          }
+        }
+      },
+      {
+        "people_id": 14316,
+        "person_hash": "gx00oc3o",
+        "party_id": "1",
+        "state_id": 13,
+        "party": "D",
+        "role_id": 2,
+        "role": "Sen",
+        "name": "Napoleon Harris",
+        "first_name": "Napoleon",
+        "middle_name": "",
+        "last_name": "Harris",
+        "suffix": "III",
+        "nickname": "",
+        "district": "SD-015",
+        "ftm_eid": 2886281,
+        "votesmart_id": 134977,
+        "opensecrets_id": "",
+        "knowwho_pid": 387379,
+        "ballotpedia": "Napoleon_Harris",
+        "bioguide_id": "",
+        "sponsor_type_id": 2,
+        "sponsor_order": 8,
+        "committee_sponsor": 0,
+        "committee_id": 0,
+        "state_federal": 0,
+        "bio": {
+          "social": {
+            "capitol_phone": "217-782-8066",
+            "district_phone": "708-893-0552",
+            "email": "",
+            "webmail": "",
+            "biography": "https://ilga.gov/Senate/Members/Details/3292",
+            "image": "https://ilga.gov/https://cdn.ilga.gov/assets/img/members/%7B87402198-6E85-4CFE-BDD2-B9DC58948869%7D.jpg",
+            "ballotpedia": "https://ballotpedia.org/Napoleon_Harris",
+            "votesmart": "https://justfacts.votesmart.org/candidate/biography/134977"
+          },
+          "capitol_address": {
+            "address1": "413 Capitol Building",
+            "address2": "",
+            "city": "Springfield",
+            "state": "IL",
+            "zip": "62706"
+          },
+          "links": {
+            "official": {
+              "bluesky": "",
+              "facebook": "https://www.facebook.com/SenatorNapoleonBHarrisIII/",
+              "instagram": "https://www.instagram.com/napoleonforillinois/",
+              "linkedin": "",
+              "tiktok": "",
+              "twitter": "https://www.twitter.com/SenHarrisIL",
+              "website": "https://ilga.gov/Senate/Members/Details/3292",
+              "youtube": ""
+            },
+            "personal": {
+              "bluesky": "",
+              "facebook": "https://www.facebook.com/napoleon.harrisiii",
+              "instagram": "",
+              "linkedin": "https://www.linkedin.com/in/napoleon-harris-9b132a8/",
+              "tiktok": "",
+              "twitter": "https://www.twitter.com/Napoleon_Harris",
+              "website": "",
+              "youtube": ""
+            }
+          }
+        }
+      }
+    ],
+    "sasts": [],
+    "subjects": [],
+    "texts": [
+      {
+        "doc_id": 3044777,
+        "date": "2025-01-08",
+        "type": "Introduced",
+        "type_id": 1,
+        "mime": "text/html",
+        "mime_id": 1,
+        "url": "https://legiscan.com/IL/text/HB0111/id/3044777",
+        "state_link": "https://www.ilga.gov/Legislation/BillStatus/FullText?LegDocId=195553&DocName=10400HB0111&DocNum=111&DocTypeID=HB&LegID=155787&GAID=18&SessionID=114&SpecSess=&Session=",
+        "text_size": 3184,
+        "text_hash": "11a7b03dc249268eaeec0d7ce521ef34",
+        "alt_bill_text": 0,
+        "alt_mime": "",
+        "alt_mime_id": 0,
+        "alt_state_link": "",
+        "alt_text_size": 0,
+        "alt_text_hash": ""
+      },
+      {
+        "doc_id": 3247798,
+        "date": "2025-05-29",
+        "type": "Engrossed",
+        "type_id": 4,
+        "mime": "text/html",
+        "mime_id": 1,
+        "url": "https://legiscan.com/IL/text/HB0111/id/3247798",
+        "state_link": "https://www.ilga.gov/Legislation/BillStatus/FullText?LegDocId=195553&DocName=10400HB0111eng&DocNum=111&DocTypeID=HB&LegID=155787&GAID=18&SessionID=114&SpecSess=&Session=",
+        "text_size": 1987,
+        "text_hash": "5d653242c7eade5960f2a939f2e1a572",
+        "alt_bill_text": 0,
+        "alt_mime": "",
+        "alt_mime_id": 0,
+        "alt_state_link": "",
+        "alt_text_size": 0,
+        "alt_text_hash": ""
+      },
+      {
+        "doc_id": 3443695,
+        "date": "2026-06-01",
+        "type": "Enrolled",
+        "type_id": 5,
+        "mime": "text/html",
+        "mime_id": 1,
+        "url": "https://legiscan.com/IL/text/HB0111/id/3443695",
+        "state_link": "https://www.ilga.gov/Legislation/BillStatus/FullText?LegDocId=195553&DocName=10400HB0111enr&DocNum=111&DocTypeID=HB&LegID=155787&GAID=18&SessionID=114&SpecSess=&Session=",
+        "text_size": 15907138,
+        "text_hash": "592449332f749ea9f884f57818cf59df",
+        "alt_bill_text": 0,
+        "alt_mime": "",
+        "alt_mime_id": 0,
+        "alt_state_link": "",
+        "alt_text_size": 0,
+        "alt_text_hash": ""
+      },
+      {
+        "doc_id": 3448631,
+        "date": "2026-06-16",
+        "type": "Veto Message",
+        "type_id": 12,
+        "mime": "text/html",
+        "mime_id": 1,
+        "url": "https://legiscan.com/IL/text/HB0111/id/3448631",
+        "state_link": "https://www.ilga.gov/Legislation/BillStatus/FullText?LegDocId=195553&DocName=10400HB0111gms&DocNum=111&DocTypeID=HB&LegID=155787&GAID=18&SessionID=114&SpecSess=&Session=",
+        "text_size": 69518,
+        "text_hash": "d323fe8a96236d69952b483a98b3d713",
+        "alt_bill_text": 0,
+        "alt_mime": "",
+        "alt_mime_id": 0,
+        "alt_state_link": "",
+        "alt_text_size": 0,
+        "alt_text_hash": ""
+      }
+    ],
+    "votes": [
+      {
+        "roll_call_id": 1581001,
+        "date": "2025-05-29",
+        "desc": "Third Reading in House",
+        "yea": 76,
+        "nay": 38,
+        "nv": 1,
+        "absent": 0,
+        "total": 115,
+        "passed": 1,
+        "chamber": "H",
+        "chamber_id": 35,
+        "url": "https://legiscan.com/IL/rollcall/HB0111/id/1581001",
+        "state_link": "https://www.ilga.gov/legislation/votehistory/104/house/10400HB0111_05292025_002000T.pdf"
+      }
+    ],
+    "amendments": [
+      {
+        "amendment_id": 299826,
+        "adopted": 0,
+        "chamber": "S",
+        "chamber_id": 36,
+        "date": "2026-05-30",
+        "title": "Senate Amendment 001",
+        "description": "Senate Amendment 001",
+        "mime": "text/html",
+        "mime_id": 1,
+        "url": "https://legiscan.com/IL/amendment/HB0111/id/299826",
+        "state_link": "https://www.ilga.gov/Legislation/BillStatus/FullText?LegDocId=211414&DocName=10400HB0111sam001&DocNum=111&DocTypeID=HB&LegID=155787&GAID=18&SessionID=114&SpecSess=&Session=",
+        "amendment_size": 15271444,
+        "amendment_hash": "caa2968d29b7248d441e78380a4a58e8",
+        "alt_amendment": 0,
+        "alt_mime": "",
+        "alt_mime_id": 0,
+        "alt_state_link": "",
+        "alt_amendment_size": 0,
+        "alt_amendment_hash": ""
+      },
+      {
+        "amendment_id": 299845,
+        "adopted": 0,
+        "chamber": "S",
+        "chamber_id": 36,
+        "date": "2026-05-31",
+        "title": "Senate Amendment 002",
+        "description": "Senate Amendment 002",
+        "mime": "text/html",
+        "mime_id": 1,
+        "url": "https://legiscan.com/IL/amendment/HB0111/id/299845",
+        "state_link": "https://www.ilga.gov/Legislation/BillStatus/FullText?LegDocId=211452&DocName=10400HB0111sam002&DocNum=111&DocTypeID=HB&LegID=155787&GAID=18&SessionID=114&SpecSess=&Session=",
+        "amendment_size": 15745509,
+        "amendment_hash": "55a18384efb47b830fffacf4d18f09fb",
+        "alt_amendment": 0,
+        "alt_mime": "",
+        "alt_mime_id": 0,
+        "alt_state_link": "",
+        "alt_amendment_size": 0,
+        "alt_amendment_hash": ""
+      },
+      {
+        "amendment_id": 299857,
+        "adopted": 0,
+        "chamber": "S",
+        "chamber_id": 36,
+        "date": "2026-06-01",
+        "title": "Senate Amendment 003",
+        "description": "Senate Amendment 003",
+        "mime": "text/html",
+        "mime_id": 1,
+        "url": "https://legiscan.com/IL/amendment/HB0111/id/299857",
+        "state_link": "https://www.ilga.gov/Legislation/BillStatus/FullText?LegDocId=211459&DocName=10400HB0111sam003&DocNum=111&DocTypeID=HB&LegID=155787&GAID=18&SessionID=114&SpecSess=&Session=",
+        "amendment_size": 15914659,
+        "amendment_hash": "881a6d0d71f8c83b1d20cc5f1811b88d",
+        "alt_amendment": 0,
+        "alt_mime": "",
+        "alt_mime_id": 0,
+        "alt_state_link": "",
+        "alt_amendment_size": 0,
+        "alt_amendment_hash": ""
+      }
+    ],
+    "supplements": [],
+    "calendar": [
+      {
+        "type_id": 1,
+        "event_hash": "5e2de8bf",
+        "type": "Hearing",
+        "date": "2025-03-12",
+        "time": "10:00",
+        "location": "Room 118",
+        "description": "Executive Committee Hearing"
+      }
+    ]
+  }
+}

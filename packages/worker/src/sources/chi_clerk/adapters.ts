@@ -213,7 +213,9 @@ async function writeCommitteeReferral(
 /**
  * Sponsor rows. `official_id` stays null — resolving a sponsor to an official is
  * ITLK-7's job, and guessing an identity here is exactly what the brief forbids. The
- * `personId` GUID survives in the bill's `raw` payload as ITLK-7's tier-1 match key.
+ * eLMS `personId` GUID is carried onto the row as `source_person_id` (0003), which is
+ * ITLK-7's tier-1 match key: ingest is the only stage that holds it, and re-deriving it
+ * from `bill.raw` later would put a source payload back in the matcher's hands.
  */
 async function writeSponsors(
   db: PoolClient,
@@ -229,16 +231,17 @@ async function writeSponsors(
     seen.add(name)
 
     const sponsorType = toSponsorType(str(sponsor.sponsorType))
+    const sourcePersonId = str(sponsor.personId)
 
     // Insert only when this bill has no row for the name yet — checking regardless of
     // official_id, so a sponsor ITLK-7 has already matched isn't re-inserted as a
     // second, unmatched row.
     const inserted = await db.query(
-      `insert into sponsorship (bill_id, sponsor_name, sponsor_type, sequence)
-       select $1, $2, $3, $4
+      `insert into sponsorship (bill_id, sponsor_name, sponsor_type, sequence, source_person_id)
+       select $1, $2, $3, $4, $5
        where not exists (select 1 from sponsorship where bill_id = $1 and sponsor_name = $2)
        on conflict do nothing`, // two staged observations of one matter can race here
-      [billId, name, sponsorType, index],
+      [billId, name, sponsorType, index, sourcePersonId],
     )
     if (inserted.rowCount) {
       writes += inserted.rowCount
@@ -246,10 +249,11 @@ async function writeSponsors(
     }
 
     const updated = await db.query(
-      `update sponsorship set sponsor_type = $3, sequence = $4
+      `update sponsorship set sponsor_type = $3, sequence = $4, source_person_id = $5
        where bill_id = $1 and sponsor_name = $2
-         and (sponsor_type, sequence) is distinct from ($3::sponsor_type, $4::int)`,
-      [billId, name, sponsorType, index],
+         and (sponsor_type, sequence, source_person_id)
+             is distinct from ($3::sponsor_type, $4::int, $5::text)`,
+      [billId, name, sponsorType, index, sourcePersonId],
     )
     writes += updated.rowCount ?? 0
   }
