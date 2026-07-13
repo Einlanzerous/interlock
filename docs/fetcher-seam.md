@@ -129,6 +129,7 @@ decision.
 | Contract types + zod schemas | `packages/shared/src/seam.ts` |
 | Atomic page commit (`commitPage`) | `packages/worker/src/seam/ingest.ts` |
 | Poll loop, single-flight, backoff | `packages/worker/src/seam/scheduler.ts` |
-| Pipeline consumer + Normalizer→Matcher→Differ stubs | `packages/worker/src/seam/pipeline.ts` |
+| Pipeline consumer + `(source, kind)` → adapter dispatch | `packages/worker/src/seam/pipeline.ts` |
 | `source_record` / `fetch_cursor` DDL | `packages/db/migrations/` |
 | Acceptance-criteria tests | `packages/worker/src/seam/seam.test.ts` |
+| `chi_clerk` fetcher + adapters (ITLK-5) | `packages/worker/src/sources/chi_clerk/` — see [chi-clerk-elms.md](./chi-clerk-elms.md) |

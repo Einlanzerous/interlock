@@ -1,0 +1,134 @@
+{
+  "matterId": "7D29E6F7-439A-F011-B4CB-001DD802A35E",
+  "fileYear": 2025,
+  "recordNumber": "SO2025-0019977",
+  "legacyRecordNumber": "",
+  "status": "5-Council Consideration",
+  "legacyStatus": null,
+  "subStatus": "Recommended to Pass",
+  "statusDescription": "5-Council Consideration",
+  "filingOffice": "15",
+  "filingSponsor": "Lopez, Raymond A.",
+  "filingSponsorId": "0AD4F54F-FC88-EC11-8D20-001DD804FD38",
+  "introductionDate": "2025-09-25T15:00:00+00:00",
+  "finalActionDate": null,
+  "shortTitle": null,
+  "committeReferral": "Committee on Budget and Government Operations",
+  "routine": "NO",
+  "introductionType": "Council Introduction",
+  "controllingBody": "City Council",
+  "controllingBodyId": null,
+  "keyLegislation": "YES",
+  "economicDisclosure": "NO",
+  "title": "Amendment of Municipal Code Chapter 2-74 by adding new Section 2-74-076 to establish Department of Human Resources hiring preference for children and spouses of Chicago first responders killed in line of duty",
+  "nicknameAlias": "",
+  "recordCreateDate": "2025-09-25T19:15:19+00:00",
+  "matterCategory": "MUNICIPAL CODE AMENDMENTS",
+  "type": "Ordinance",
+  "originalRecordNumber": "O2025-0019977",
+  "supersededBy": null,
+  "actions": [
+    {
+      "actionDate": "2026-07-08T05:00:00+00:00",
+      "journalPage": "",
+      "actionByName": "",
+      "actionName": "Substituted",
+      "actionText": "",
+      "meetingId": "",
+      "historyId": "DA23A690-FC7A-F111-AB0D-001DD806636B",
+      "name": null,
+      "sort": 80,
+      "votes": []
+    },
+    {
+      "actionDate": "2026-07-08T05:00:00+00:00",
+      "journalPage": "",
+      "actionByName": "Committee on Budget and Government Operations",
+      "actionName": "Recommended to Pass",
+      "actionText": "The matter was recommended to Pass by controlling legislative body.",
+      "meetingId": "",
+      "historyId": "255BA3C1-FC7A-F111-AB0D-001DD806636B",
+      "name": null,
+      "sort": 90,
+      "votes": []
+    },
+    {
+      "actionDate": "2025-09-25T05:00:00+00:00",
+      "journalPage": "32778",
+      "actionByName": "City Council",
+      "actionName": "Referred",
+      "actionText": "The matter was Referred to Committee.",
+      "meetingId": "",
+      "historyId": "D484E47B-079E-F011-B4CB-001DD8071880",
+      "name": null,
+      "sort": 70,
+      "votes": []
+    }
+  ],
+  "sponsors": [
+    {
+      "office": "15",
+      "sponsorName": "Lopez, Raymond A.",
+      "sponsorType": "Sponsor",
+      "personId": "0AD4F54F-FC88-EC11-8D20-001DD804FD38"
+    },
+    {
+      "office": "03",
+      "sponsorName": "Dowell, Pat",
+      "sponsorType": "CoSponsor",
+      "personId": "B66788C7-FA88-EC11-8D20-001DD804FD38"
+    },
+    {
+      "office": "36",
+      "sponsorName": "Villegas, Gilbert",
+      "sponsorType": "CoSponsor",
+      "personId": "9E0A3436-FB88-EC11-8D20-001DD804FD38"
+    },
+    {
+      "office": "50",
+      "sponsorName": "Silverstein, Debra L.",
+      "sponsorType": "CoSponsor",
+      "personId": "0F96F023-FB88-EC11-8D20-001DD804FD38"
+    },
+    {
+      "office": "45",
+      "sponsorName": "Gardiner, James M.",
+      "sponsorType": "CoSponsor",
+      "personId": "A29D73BA-F988-EC11-8D20-001DD804FD38"
+    }
+  ],
+  "attachments": [
+    {
+      "fileName": "SO2025-0019977 Substitute Ordinance.pdf",
+      "path": "https://occprodstoragev1.blob.core.usgovcloudapi.net/matterattachmentspublic/6da3660d-ff20-4edb-b5e4-c4c50773b7d6.pdf",
+      "attachmentType": "Legislation"
+    },
+    {
+      "fileName": "w15 - o19977.pdf",
+      "path": "https://occprodstoragev1.blob.core.usgovcloudapi.net/matterattachmentspublic/b277122a-e89e-42df-9d56-95abd24c8549.pdf",
+      "attachmentType": "Legislation"
+    }
+  ],
+  "relations": [
+    "SO2025-0019977"
+  ],
+  "agreedCalendar": "NO",
+  "timeline": [
+    {
+      "eventName": "AcceptedOn",
+      "timestamp": "2025-09-26T13:46:26+00:00",
+      "eventText": ""
+    },
+    {
+      "eventName": "PostedOn",
+      "timestamp": "2025-09-26T13:48:53+00:00",
+      "eventText": ""
+    },
+    {
+      "eventName": "SubmittedOn",
+      "timestamp": "1900-01-01T00:00:00+00:00",
+      "eventText": ""
+    }
+  ],
+  "lastPublicationDate": "2026-07-10T22:45:01+00:00"
+}
