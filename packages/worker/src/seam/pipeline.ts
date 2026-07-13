@@ -1,6 +1,7 @@
 import type { Pool, PoolClient } from 'pg'
 import type { PgBoss } from 'pg-boss'
 import { PROCESS_RECORD_QUEUE, processRecordJobSchema, type Source } from '@interlock/shared'
+import { DEFAULT_SIMILARITY_THRESHOLD, matchBill, type MatchBillResult } from '@interlock/db'
 import {
   normalizeBody,
   normalizeMatter,
@@ -29,41 +30,51 @@ export interface StagedRecord {
  * Route a staged record to its source+kind adapter. Unknown pairs are logged, not
  * thrown: a source that stages a kind we don't normalize yet shouldn't wedge the queue
  * with a permanently failing job.
+ *
+ * Returns the bill it touched, if any — that is what the matcher needs next.
  */
-async function normalize(db: PoolClient, record: StagedRecord): Promise<void> {
+async function normalize(db: PoolClient, record: StagedRecord): Promise<string | null> {
   if (record.source === 'chi_clerk') {
     switch (record.kind) {
       case 'matter':
-        await normalizeMatter(db, record.payload)
-        return
+        return (await normalizeMatter(db, record.payload)).billId ?? null
       case 'person':
         await normalizePerson(db, record.payload)
-        return
+        return null
       case 'body':
         await normalizeBody(db, record.payload)
-        return
+        return null
     }
   }
   if (record.source === 'legiscan_il' && record.kind === 'bill') {
-    await normalizeBill(db, record.payload)
-    return
+    return (await normalizeBill(db, record.payload)).billId ?? null
   }
   console.warn(
     `[pipeline] no adapter for ${record.source}/${record.kind} — source_record ${record.id} staged but not normalized`,
   )
+  return null
 }
 
 /**
  * The real normalizer: one transaction per staged record, so a partial normalize can
  * never land. A throw rolls the record back and lets pg-boss retry it, then fail it
  * visibly in pgboss.job rather than dropping it.
+ *
+ * Matching runs **inside that same transaction**. A sponsorship row and the decision
+ * about who it points at are one fact, and a crash between them would leave the model
+ * in a state no re-poll would revisit: the bill's change_hash is already stored, so the
+ * next poll short-circuits and the half-matched row sits there forever.
  */
-export function makeNormalizer(pool: Pool): (record: StagedRecord) => Promise<void> {
+export function makeNormalizer(
+  pool: Pool,
+  threshold: number = DEFAULT_SIMILARITY_THRESHOLD,
+): (record: StagedRecord) => Promise<void> {
   return async (record: StagedRecord): Promise<void> => {
     const db = await pool.connect()
     try {
       await db.query('begin')
-      await normalize(db, record)
+      const billId = await normalize(db, record)
+      if (billId) await matchRecord(db, billId, threshold)
       await db.query('commit')
     } catch (err) {
       await db.query('rollback')
@@ -71,13 +82,27 @@ export function makeNormalizer(pool: Pool): (record: StagedRecord) => Promise<vo
     } finally {
       db.release()
     }
-    await matchRecord(record)
+    await diffRecord(record)
   }
 }
 
-/** ITLK-7: sponsor → official identity resolution. */
-export async function matchRecord(record: StagedRecord): Promise<void> {
-  await diffRecord(record)
+/**
+ * ITLK-7: sponsor → official identity resolution.
+ *
+ * Runs on every bill, including one whose payload was unchanged and short-circuited
+ * in the adapter. That is deliberate: matching depends on the state of the `official`
+ * table, not on the bill. A sponsor queued for review last week becomes tier-1
+ * matchable the moment ingest seeds the Official it was waiting for — and the bill it
+ * sits on may never change again.
+ *
+ * The scoring itself lives in @interlock/db, shared with the review-queue API.
+ */
+export async function matchRecord(
+  db: PoolClient,
+  billId: string,
+  threshold: number = DEFAULT_SIMILARITY_THRESHOLD,
+): Promise<MatchBillResult> {
+  return matchBill(db, billId, threshold)
 }
 
 /** ITLK-8: change detection → alerts. */

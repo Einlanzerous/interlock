@@ -43,6 +43,12 @@ export const envSchema = z.object({
   // Self-imposed rate cap — eLMS publishes no SLA (US-gov Azure). Brief says ≤2/s.
   CHI_CLERK_MAX_RPS: z.coerce.number().positive().default(2),
 
+  // Sponsor → Official matching (ITLK-7). The brief flags this as a number we should
+  // expect to tune, so it is configuration rather than a constant in the matcher.
+  // At or above this pg_trgm similarity a name match auto-links; below it, a human
+  // resolves it from the review queue.
+  MATCH_NAME_SIMILARITY_THRESHOLD: z.coerce.number().min(0).max(1).default(0.85),
+
   WEB_PORT: z.coerce.number().int().positive().default(3000),
 })
 

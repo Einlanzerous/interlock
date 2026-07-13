@@ -1,36 +1,21 @@
 <script setup lang="ts">
-import { SIGNALS, SIGNAL_LABEL, signalColor } from '@interlock/shared'
-
-const { data: health } = await useFetch('/api/health')
+/**
+ * The app shell. Screens live in `pages/` from ITLK-7 on — the routes themselves land in
+ * ITLK-9 (Officials) through ITLK-12 (Dashboard); this just gives them somewhere to hang.
+ */
 </script>
 
 <template>
-  <main class="shell">
+  <div class="shell">
     <header class="masthead">
-      <h1>Interlock</h1>
-      <p class="tagline">Signal-grade tracking for city &amp; state legislation.</p>
+      <NuxtLink to="/" class="brand">Interlock</NuxtLink>
+      <nav>
+        <NuxtLink to="/officials/review">Review queue</NuxtLink>
+      </nav>
     </header>
 
-    <section class="card">
-      <h2>Signal legend</h2>
-      <ul class="legend">
-        <li v-for="signal in SIGNALS" :key="signal">
-          <span class="dot" :style="{ background: signalColor(signal) }" />
-          {{ SIGNAL_LABEL[signal] }}
-        </li>
-      </ul>
-    </section>
-
-    <section class="card">
-      <h2>System</h2>
-      <p v-if="health?.ok" class="ok">Database reachable.</p>
-      <p v-else class="down">
-        Database {{ health?.db ?? 'unknown' }}<span v-if="health?.error">: {{ health.error }}</span>
-      </p>
-    </section>
-
-    <footer class="foot">Scaffold — ITLK-2. Screens land in ITLK-9 through ITLK-12.</footer>
-  </main>
+    <NuxtPage />
+  </div>
 </template>
 
 <style>
@@ -41,6 +26,9 @@ const { data: health } = await useFetch('/api/health')
   --ink: #eef1f4;
   --muted: #8a929c;
   --accent: #4db6d9;
+  --ok: #57c88a;
+  --warn: #e0b76b;
+  --bad: #e07a6b;
 }
 * { box-sizing: border-box; }
 body { margin: 0; }
@@ -50,12 +38,33 @@ body { margin: 0; }
   color: var(--ink);
   font-family: system-ui, sans-serif;
   line-height: 1.6;
-  max-width: 720px;
+  max-width: 940px;
   margin: 0 auto;
-  padding: 64px 24px;
+  padding: 40px 24px 64px;
 }
-.masthead h1 { margin: 0; color: var(--accent); letter-spacing: -0.02em; }
-.tagline { color: var(--muted); margin-top: 4px; }
+.masthead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.brand {
+  color: var(--accent);
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+}
+.masthead nav a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+.masthead nav a:hover,
+.masthead nav a.router-link-active { color: var(--ink); }
+
 .card {
   background: var(--panel);
   border: 1px solid var(--line);
@@ -63,11 +72,32 @@ body { margin: 0; }
   padding: 20px 24px;
   margin-top: 24px;
 }
-.card h2 { margin: 0 0 12px; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
-.legend { list-style: none; padding: 0; margin: 0; display: flex; gap: 20px; flex-wrap: wrap; }
-.legend li { display: flex; align-items: center; gap: 8px; }
-.dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
-.ok { color: #57c88a; margin: 0; }
-.down { color: #e07a6b; margin: 0; }
-.foot { color: var(--muted); font-size: 0.85rem; margin-top: 32px; }
+.card h2 {
+  margin: 0 0 12px;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.muted { color: var(--muted); }
+button {
+  font: inherit;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: #1d2229;
+  color: var(--ink);
+  padding: 6px 12px;
+  cursor: pointer;
+}
+button:hover:not(:disabled) { border-color: var(--accent); }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #08121a; font-weight: 600; }
+input, select {
+  font: inherit;
+  background: #0f1216;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 6px 10px;
+}
 </style>
