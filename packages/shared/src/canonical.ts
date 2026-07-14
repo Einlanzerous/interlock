@@ -86,3 +86,27 @@ export const OFFICIAL_ROLES = [
 ] as const
 export const officialRoleSchema = z.enum(OFFICIAL_ROLES)
 export type OfficialRole = z.infer<typeof officialRoleSchema>
+
+/** `letter_direction` — did we send it, or did it arrive? */
+export const LETTER_DIRECTIONS = ['sent', 'received'] as const
+export const letterDirectionSchema = z.enum(LETTER_DIRECTIONS)
+export type LetterDirection = z.infer<typeof letterDirectionSchema>
+
+/**
+ * `letter_channel` — how the exchange happened. `phone` and `in_person` are why the ledger
+ * is a correspondence log and not an email client: a logged call is a first-class row with
+ * no email-shaped fields required of it.
+ */
+export const LETTER_CHANNELS = ['email', 'mail', 'web_form', 'phone', 'in_person'] as const
+export const letterChannelSchema = z.enum(LETTER_CHANNELS)
+export type LetterChannel = z.infer<typeof letterChannelSchema>
+
+/** `letter_status` — the ledger's lifecycle: draft → sent → responded → closed. */
+export const LETTER_STATUSES = ['draft', 'sent', 'responded', 'closed'] as const
+export const letterStatusSchema = z.enum(LETTER_STATUSES)
+export type LetterStatus = z.infer<typeof letterStatusSchema>
+
+/** `letter_official_role` — how an official featured in one exchange. */
+export const LETTER_OFFICIAL_ROLES = ['recipient', 'sender', 'cc'] as const
+export const letterOfficialRoleSchema = z.enum(LETTER_OFFICIAL_ROLES)
+export type LetterOfficialRole = z.infer<typeof letterOfficialRoleSchema>

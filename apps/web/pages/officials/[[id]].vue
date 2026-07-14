@@ -52,7 +52,8 @@ interface Correspondence {
   direction: string
   channel: string
   status: string
-  role: string
+  /** Plural: one person can be both recipient and cc on the same letter. */
+  roles: string[]
   sentDate: string | null
   receivedDate: string | null
   followupDate: string | null
@@ -483,17 +484,23 @@ function day(iso: string | null): string {
           <div v-else>
             <p v-if="!detail.letters.length" class="faint tab-empty">
               Nothing sent, nothing received.
+              <NuxtLink :to="`/letters?officialId=${detail.id}`">Log the first one →</NuxtLink>
             </p>
-            <ul v-else class="rows letters">
-              <li v-for="l in detail.letters" :key="l.id">
-                <span class="status" :data-status="l.status">{{ l.status }}</span>
-                <span class="subject">{{ l.subject }}</span>
-                <span class="pill">{{ l.direction }}</span>
-                <span class="pill">{{ l.channel }}</span>
-                <span class="pill">{{ l.role }}</span>
-                <span class="when faint">{{ day(l.sentDate ?? l.receivedDate) }}</span>
-              </li>
-            </ul>
+            <template v-else>
+              <ul class="rows letters">
+                <li v-for="l in detail.letters" :key="l.id">
+                  <span class="status" :data-status="l.status">{{ l.status }}</span>
+                  <span class="subject">{{ l.subject }}</span>
+                  <span class="pill">{{ l.direction }}</span>
+                  <span class="pill">{{ l.channel }}</span>
+                  <span class="pill">{{ l.roles.join(' · ') }}</span>
+                  <span class="when faint">{{ day(l.sentDate ?? l.receivedDate) }}</span>
+                </li>
+              </ul>
+              <p class="tab-more">
+                <NuxtLink :to="`/letters?officialId=${detail.id}`">Open in the ledger →</NuxtLink>
+              </p>
+            </template>
           </div>
         </div>
       </section>
@@ -605,6 +612,7 @@ h1 { margin: 0; font-size: 30px; }
 /* --- Tabs ----------------------------------------------------------------- */
 .tabs { display: flex; gap: 8px; margin: 22px 0 14px; border-top: 1px solid var(--linesoft); padding-top: 18px; }
 .tab-empty { font-size: 13px; padding: 14px 0; }
+.tab-more { font-family: var(--font-mono); font-size: 12px; margin: 10px 0 0; }
 
 /* --- Tab rows ------------------------------------------------------------- */
 .bills li, .letters li {
