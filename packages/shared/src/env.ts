@@ -17,6 +17,8 @@ export const envSchema = z.object({
   // Email alerts (ITLK-8). Absent = in-app feed only, which must still work.
   SMTP_URL: z.string().optional(),
   ALERT_EMAIL_TO: z.string().email().optional(),
+  // Envelope sender; some SMTP relays require it. Defaults to ALERT_EMAIL_TO.
+  ALERT_EMAIL_FROM: z.string().email().optional(),
 
   // Poll cadence (ITLK-4/5/6). Chicago source is the Clerk's eLMS — the city
   // left Legistar in June 2023.

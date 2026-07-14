@@ -11,10 +11,12 @@
   "dependencies": {
     "@interlock/db": "workspace:*",
     "@interlock/shared": "workspace:*",
+    "nodemailer": "^9.0.3",
     "pg": "^8.13.1",
     "pg-boss": "^12.26.0"
   },
   "devDependencies": {
+    "@types/nodemailer": "^8.0.1",
     "@types/pg": "^8.11.10"
   }
 }

@@ -7,9 +7,34 @@
  *   CLEAR   passed / enacted
  *   STOP    failed / vetoed
  */
+import type { BillStatus } from './canonical'
+
 export const SIGNALS = ['watch', 'caution', 'clear', 'stop'] as const
 
 export type Signal = (typeof SIGNALS)[number]
+
+/**
+ * bill_status → signal, per the legend above (and the enum comment in 0001).
+ * The two statuses the legend doesn't name: `withdrawn` is a terminal dead end
+ * like failed/vetoed → STOP; `unknown` hasn't earned anything past WATCH.
+ */
+export const STATUS_SIGNAL: Record<BillStatus, Signal> = {
+  introduced: 'watch',
+  referred: 'watch',
+  unknown: 'watch',
+  in_committee: 'caution',
+  engrossed: 'caution',
+  enrolled: 'caution',
+  passed: 'clear',
+  enacted: 'clear',
+  vetoed: 'stop',
+  failed: 'stop',
+  withdrawn: 'stop',
+}
+
+export function signalForStatus(status: BillStatus): Signal {
+  return STATUS_SIGNAL[status]
+}
 
 export const SIGNAL_COLOR: Record<Signal, string> = {
   watch: '#6ea8e0',

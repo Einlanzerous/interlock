@@ -8,6 +8,8 @@ import {
   normalizePerson,
 } from '../sources/chi_clerk/adapters'
 import { normalizeBill } from '../sources/legiscan_il/adapters'
+import { diffTrackedBill, snapshotTrackedBill, type FiredAlert, type TrackedBillContext } from '../alerts/differ'
+import type { AlertSink } from '../alerts/deliver'
 
 /** A staged row as the pipeline sees it. */
 export interface StagedRecord {
@@ -21,9 +23,9 @@ export interface StagedRecord {
 
 /**
  * The worker's processing chain, in dependency order: normalize → match → diff.
- * Normalize is live for both sources as of ITLK-6; match (sponsor → official, ITLK-7)
- * and diff (change detection → alerts, ITLK-8) are still stubs. The chain shape and the
- * queue feeding it are fixed by the seam, so those tickets slot in without touching it.
+ * All three stages are live: normalize (ITLK-5/6), match (sponsor → official, ITLK-7),
+ * diff (change detection → alerts, ITLK-8). The chain shape and the queue feeding it
+ * are fixed by the seam.
  */
 
 /**
@@ -64,17 +66,30 @@ async function normalize(db: PoolClient, record: StagedRecord): Promise<string |
  * about who it points at are one fact, and a crash between them would leave the model
  * in a state no re-poll would revisit: the bill's change_hash is already stored, so the
  * next poll short-circuits and the half-matched row sits there forever.
+ *
+ * The differ (ITLK-8) brackets normalize inside the transaction too — snapshot before,
+ * diff + alert writes after — for the same atomicity reason: the alert and the canonical
+ * change it reports must land together or not at all, which is also what makes re-polls
+ * duplicate-proof. Only channel fan-out (email) waits for the commit; `alertSink` is
+ * best-effort and must not throw (see makeAlerter).
  */
 export function makeNormalizer(
   pool: Pool,
   threshold: number = DEFAULT_SIMILARITY_THRESHOLD,
+  alertSink: AlertSink = async () => {},
 ): (record: StagedRecord) => Promise<void> {
   return async (record: StagedRecord): Promise<void> => {
     const db = await pool.connect()
+    let fired: { ctx: TrackedBillContext; alerts: FiredAlert[] } | null = null
     try {
       await db.query('begin')
+      const tracked = await snapshotTrackedBill(db, record.source, record.sourceId)
       const billId = await normalize(db, record)
       if (billId) await matchRecord(db, billId, threshold)
+      if (tracked) {
+        const alerts = await diffRecord(db, tracked)
+        if (alerts.length > 0) fired = { ctx: tracked, alerts }
+      }
       await db.query('commit')
     } catch (err) {
       await db.query('rollback')
@@ -82,7 +97,7 @@ export function makeNormalizer(
     } finally {
       db.release()
     }
-    await diffRecord(record)
+    if (fired) await alertSink(fired.ctx, fired.alerts)
   }
 }
 
@@ -105,9 +120,16 @@ export async function matchRecord(
   return matchBill(db, billId, threshold)
 }
 
-/** ITLK-8: change detection → alerts. */
-export async function diffRecord(_record: StagedRecord): Promise<void> {
-  // Intentionally empty until ITLK-8.
+/**
+ * ITLK-8: change detection → alerts. Compares the pre-normalize snapshot against
+ * canonical state now, writes one alert row per change_type that moved. The real
+ * logic lives in ../alerts/differ; this is the pipeline's named stage.
+ */
+export async function diffRecord(
+  db: PoolClient,
+  tracked: TrackedBillContext,
+): Promise<FiredAlert[]> {
+  return diffTrackedBill(db, tracked)
 }
 
 /** Queue rows are worker-owned: created once at boot, never by fetchers. */

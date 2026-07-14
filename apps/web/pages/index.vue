@@ -3,6 +3,7 @@ import { SIGNALS, SIGNAL_LABEL, signalColor } from '@interlock/shared'
 
 const { data: health } = await useFetch('/api/health')
 const { data: review } = await useFetch('/api/review-queue', { query: { limit: 1 } })
+const { data: alerts } = await useFetch('/api/alerts', { query: { unread: '1', limit: 1 } })
 </script>
 
 <template>
@@ -17,6 +18,17 @@ const { data: review } = await useFetch('/api/review-queue', { query: { limit: 1
           {{ SIGNAL_LABEL[signal] }}
         </li>
       </ul>
+    </section>
+
+    <section class="card">
+      <h2>Alerts</h2>
+      <p v-if="alerts?.unreadTotal">
+        <NuxtLink to="/alerts" class="link">
+          {{ alerts.unreadTotal }} unread alert{{ alerts.unreadTotal === 1 ? '' : 's' }}
+        </NuxtLink>
+        — tracked bills moved.
+      </p>
+      <p v-else class="muted">No unread alerts. Tracked bills are quiet.</p>
     </section>
 
     <section class="card">
