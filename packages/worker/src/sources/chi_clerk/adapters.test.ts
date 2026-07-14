@@ -309,4 +309,87 @@ describe.skipIf(!adminUrl)('chi_clerk adapters', () => {
     // Same personId → same official row, not a second one.
     expect(await count('official')).toBe(seededByBody)
   })
+
+  /**
+   * ITLK-9. The CRM's whole value is the column ingest must never touch: the organizer's
+   * notes on a person. That guarantee is structural — no ingest statement names
+   * `relationship_notes` — but "structural" is only true until someone adds a column to an
+   * upsert, so it is pinned here rather than left to be rediscovered.
+   *
+   * `party` and `district` ride along for the same reason: the eLMS person payload carries
+   * neither, so they too are the organizer's on a sourced official, and the CRM offers them
+   * as editable on that basis.
+   */
+  test('re-ingest refreshes contact fields but never the organizer’s columns', async () => {
+    const { officialId } = await normalizePerson(db, PERSON)
+
+    await db.query(
+      `update official
+         set relationship_notes = $2, party = $3, district = $4
+       where id = $1`,
+      [officialId, 'Chief of staff is the one who answers.', 'D', 'sw-side'],
+    )
+
+    // The Clerk republishes the person with new contact details and a reactivated seat.
+    const republished = {
+      ...PERSON,
+      email: 'ward23.new@cityofchicago.org',
+      phone: '(773) 582-9999',
+      isActive: true,
+    }
+    const again = await normalizePerson(db, republished)
+    expect(again.writes).toBe(1) // it really did rewrite the row
+    expect(await count('official')).toBe(1) // and did not fork a second one
+
+    const { rows } = await db.query(
+      `select email, phone, active, relationship_notes, party, district
+       from official where id = $1`,
+      [officialId],
+    )
+    const official = rows[0]!
+
+    // Ingest owns these, and refreshed them.
+    expect(official.email).toBe('ward23.new@cityofchicago.org')
+    expect(official.phone).toBe('(773) 582-9999')
+    expect(official.active).toBe(true)
+
+    // The organizer owns these, and re-ingest left them alone.
+    expect(official.relationship_notes).toBe('Chief of staff is the one who answers.')
+    expect(official.party).toBe('D')
+    expect(official.district).toBe('sw-side')
+  })
+
+  /**
+   * ITLK-9's federal variance: a hand-added contact has no `source_person_ids`, so an
+   * ingest poll has no key to find it by and cannot touch it. The Clerk publishing an
+   * unrelated alder must not so much as bump its updated_at.
+   */
+  test('an ingest poll never touches a manually-added official', async () => {
+    const { rows: created } = await db.query<{ id: string; updated_at: Date }>(
+      `insert into official (source_person_ids, full_name, role, district, email, relationship_notes)
+       values (null, 'Tammy Duckworth', 'us_sen', 'IL', 'senator@duckworth.senate.gov', 'Prefers the web form.')
+       returning id, updated_at`,
+    )
+    const manual = created[0]!
+
+    await normalizePerson(db, PERSON)
+
+    const { rows } = await db.query<{
+      full_name: string
+      email: string
+      relationship_notes: string
+      updated_at: Date
+    }>(
+      `select full_name, email, relationship_notes, updated_at from official where id = $1`,
+      [manual.id],
+    )
+    const after = rows[0]!
+
+    expect(after.full_name).toBe('Tammy Duckworth')
+    expect(after.email).toBe('senator@duckworth.senate.gov')
+    expect(after.relationship_notes).toBe('Prefers the web form.')
+    // Untouched means untouched — the updated_at trigger never fired.
+    expect(after.updated_at).toEqual(manual.updated_at)
+    expect(await count('official')).toBe(2) // the alder landed alongside, not on top of, her
+  })
 })
