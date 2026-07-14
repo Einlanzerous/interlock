@@ -19,3 +19,32 @@ test('coerces numeric overrides from strings', () => {
 test('rejects an env with no DATABASE_URL', () => {
   expect(() => parseEnv({})).toThrow()
 })
+
+/**
+ * The shape `.env.example` actually ships: every optional key present and blank, because
+ * it tells the operator to leave them blank. This used to throw "Invalid email" on
+ * ALERT_EMAIL_TO and take down anything that parsed env, `db:migrate` included.
+ */
+test('treats a blank optional key as absent, the way .env.example ships it', () => {
+  const env = parseEnv({
+    DATABASE_URL: 'postgres://u:p@localhost:5432/interlock',
+    LEGISCAN_API_KEY: '',
+    OPENSTATES_API_KEY: '',
+    SMTP_URL: '',
+    ALERT_EMAIL_TO: '',
+    ALERT_EMAIL_FROM: '',
+  })
+  expect(env.ALERT_EMAIL_TO).toBeUndefined()
+  expect(env.ALERT_EMAIL_FROM).toBeUndefined()
+  expect(env.SMTP_URL).toBeUndefined()
+  expect(env.LEGISCAN_API_KEY).toBeUndefined()
+})
+
+test('still rejects a non-blank malformed email', () => {
+  expect(() =>
+    parseEnv({
+      DATABASE_URL: 'postgres://u:p@localhost:5432/interlock',
+      ALERT_EMAIL_TO: 'not-an-email',
+    }),
+  ).toThrow()
+})

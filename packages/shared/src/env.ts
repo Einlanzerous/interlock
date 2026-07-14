@@ -5,20 +5,35 @@ import { z } from 'zod'
  * Both the Nuxt server and the worker parse the same schema so a misconfigured
  * box fails fast in one place instead of surfacing as a mystery later.
  */
+/**
+ * A key present but blank means *unset*, not "set to empty".
+ *
+ * `.env.example` ships every optional key with an empty value and tells the operator to
+ * "leave blank for in-app-only alerts" — but a bare `.optional()` admits `undefined`, not
+ * `''`, so `ALERT_EMAIL_TO=` failed `.email()` and took the whole process down with it.
+ * That made the documented default setup (copy .env.example, fill in nothing) fail to boot
+ * anything that parses env, `db:migrate` included.
+ *
+ * Blank-is-absent is applied to every optional string so the rule is one rule, rather than
+ * a property of whichever fields happened to carry a format check.
+ */
+const optional = <T extends z.ZodTypeAny>(schema: T) =>
+  z.preprocess((v) => (typeof v === 'string' && v.trim() === '' ? undefined : v), schema.optional())
+
 export const envSchema = z.object({
   // Postgres is the source of truth, the queue, and the search index.
   DATABASE_URL: z.string().url(),
 
   // Illinois GA ingest (ITLK-6). Optional so the app boots before a key exists.
-  LEGISCAN_API_KEY: z.string().optional(),
+  LEGISCAN_API_KEY: optional(z.string()),
   // Open States v3 fallback for IL (ITLK-6).
-  OPENSTATES_API_KEY: z.string().optional(),
+  OPENSTATES_API_KEY: optional(z.string()),
 
   // Email alerts (ITLK-8). Absent = in-app feed only, which must still work.
-  SMTP_URL: z.string().optional(),
-  ALERT_EMAIL_TO: z.string().email().optional(),
+  SMTP_URL: optional(z.string()),
+  ALERT_EMAIL_TO: optional(z.string().email()),
   // Envelope sender; some SMTP relays require it. Defaults to ALERT_EMAIL_TO.
-  ALERT_EMAIL_FROM: z.string().email().optional(),
+  ALERT_EMAIL_FROM: optional(z.string().email()),
 
   // Poll cadence (ITLK-4/5/6). Chicago source is the Clerk's eLMS — the city
   // left Legistar in June 2023.
