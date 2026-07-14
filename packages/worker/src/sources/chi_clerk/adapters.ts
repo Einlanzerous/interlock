@@ -86,6 +86,10 @@ export async function normalizeMatter(
     lastPublicationDate,
     `${PUBLIC_MATTER_URL}?matterId=${matterId}`,
     fullTextUrl(payload),
+    // ITLK-11: the committee the Clerk says has this matter, verbatim. A bare name — eLMS
+    // attaches no body id to the referral — which is why linkCommittee resolves by name.
+    // (`committeReferral` is misspelled in their API, not here.)
+    str(payload.committeReferral)?.trim() ?? null,
     JSON.stringify(payload),
   ]
 
@@ -93,9 +97,9 @@ export async function normalizeMatter(
     `insert into bill (
        source, source_bill_id, identifier, jurisdiction, session, title, bill_type, status,
        last_action_text, last_action_date, introduced_date, source_last_modified,
-       source_url, full_text_url, raw
+       source_url, full_text_url, source_committee, raw
      )
-     values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
+     values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
      on conflict (source, source_bill_id) do update set
        identifier           = excluded.identifier,
        session              = excluded.session,
@@ -108,6 +112,7 @@ export async function normalizeMatter(
        source_last_modified = excluded.source_last_modified,
        source_url           = excluded.source_url,
        full_text_url        = excluded.full_text_url,
+       source_committee     = excluded.source_committee,
        raw                  = excluded.raw
      returning id`,
     billValues,

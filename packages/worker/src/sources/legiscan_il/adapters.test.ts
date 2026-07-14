@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { randomUUID } from 'node:crypto'
 import { Pool, type PoolClient } from 'pg'
-import { migrate } from '@interlock/db'
+import { linkCommittee, migrate } from '@interlock/db'
 import { normalizeBill } from './adapters'
 
 /**
@@ -140,8 +140,8 @@ describe.skipIf(!adminUrl)('legiscan_il adapters', () => {
     expect(rows[0]!.status).toBe('referred')
 
     // The committee rides along on getBill, so it costs no extra query.
-    const committees = await db.query<{ name: string; source: string; jurisdiction: string }>(
-      `select name, source, jurisdiction from committee`,
+    const committees = await db.query<{ id: string; name: string; source: string; jurisdiction: string }>(
+      `select id, name, source, jurisdiction from committee`,
     )
     expect(committees.rows).toHaveLength(1)
     expect(committees.rows[0]!).toMatchObject({
@@ -149,6 +149,18 @@ describe.skipIf(!adminUrl)('legiscan_il adapters', () => {
       source: 'legiscan_il',
       jurisdiction: 'il_ga',
     })
+
+    // ITLK-11: the claim is captured verbatim on the bill, and — because LegiScan ships the
+    // committee in the same payload as the bill — the pipeline's linkCommittee stage resolves
+    // it on the first pass. (Chicago's cannot: its bodies arrive from a different endpoint.)
+    const { rows: claim } = await db.query<{ source_committee: string }>(
+      `select source_committee from bill where id = $1`,
+      [billId],
+    )
+    expect(claim[0]!.source_committee).toBe('Rules')
+
+    const linked = await linkCommittee(db, billId!)
+    expect(linked.committeeId).toBe(committees.rows[0]!.id)
   })
 
   test('an adopted resolution is `passed`, not `enacted` — same status int as the Public Act', async () => {

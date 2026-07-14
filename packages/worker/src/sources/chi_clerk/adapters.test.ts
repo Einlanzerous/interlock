@@ -311,6 +311,24 @@ describe.skipIf(!adminUrl)('chi_clerk adapters', () => {
   })
 
   /**
+   * ITLK-11. The referral is captured verbatim onto the bill so the linkCommittee stage can
+   * resolve it later against whatever committees have been ingested by then. The adapter
+   * itself resolves nothing — it cannot, because the body may not have arrived yet.
+   */
+  test('captures the committee the Clerk named, verbatim, without resolving it', async () => {
+    const { billId } = await normalizeMatter(db, MATTER)
+
+    const { rows } = await db.query<{ source_committee: string; committee_id: string | null }>(
+      `select source_committee, committee_id from bill where id = $1`,
+      [billId],
+    )
+    // eLMS spells it `committeReferral`. The value is a bare name — no body id attached.
+    expect(rows[0]!.source_committee).toBe('Committee on Budget and Government Operations')
+    // Unresolved at ingest: no committee row exists yet in this test, and that is the norm.
+    expect(rows[0]!.committee_id).toBeNull()
+  })
+
+  /**
    * ITLK-9. The CRM's whole value is the column ingest must never touch: the organizer's
    * notes on a person. That guarantee is structural — no ingest statement names
    * `relationship_notes` — but "structural" is only true until someone adds a column to an

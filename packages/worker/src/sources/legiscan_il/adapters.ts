@@ -76,6 +76,11 @@ export async function normalizeBill(
     // one a user checking our work would open.
     str(payload.state_link) ?? str(payload.url),
     fullTextUrl(payload),
+    // ITLK-11: the committee the bill is pending before, verbatim. Unlike eLMS, LegiScan
+    // does attach an id (`committee.committee_id`, which writeCommittee below upserts) —
+    // but linkCommittee resolves by name for both sources rather than keeping two lookups,
+    // and a LegiScan committee row's name comes from this same field.
+    str(obj(payload.committee)?.name)?.trim() ?? null,
     JSON.stringify(payload),
   ]
 
@@ -83,9 +88,9 @@ export async function normalizeBill(
     `insert into bill (
        source, source_bill_id, identifier, jurisdiction, session, title, summary, bill_type,
        status, last_action_text, last_action_date, introduced_date, change_hash,
-       source_url, full_text_url, raw
+       source_url, full_text_url, source_committee, raw
      )
-     values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
+     values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
      on conflict (source, source_bill_id) do update set
        identifier       = excluded.identifier,
        session          = excluded.session,
@@ -99,6 +104,7 @@ export async function normalizeBill(
        change_hash      = excluded.change_hash,
        source_url       = excluded.source_url,
        full_text_url    = excluded.full_text_url,
+       source_committee = excluded.source_committee,
        raw              = excluded.raw
      returning id`,
     billValues,

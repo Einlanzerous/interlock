@@ -30,6 +30,7 @@
         <span>Interlock</span>
       </NuxtLink>
       <nav>
+        <NuxtLink to="/bills">Bills</NuxtLink>
         <NuxtLink to="/officials">Officials</NuxtLink>
         <NuxtLink to="/letters">Letters</NuxtLink>
         <NuxtLink to="/alerts">Alerts</NuxtLink>
