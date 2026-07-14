@@ -1,6 +1,7 @@
 import {
   BILL_STATUSES,
   JURISDICTIONS,
+  TRACKED_POSITIONS,
   signalForStatus,
   type BillStatus,
   type Jurisdiction,
@@ -61,7 +62,18 @@ export default defineEventHandler(async (event): Promise<BillSummary[]> => {
   }
 
   const committeeId = query.committeeId ? String(query.committeeId) : null
-  const trackedOnly = query.tracked === '1' || query.tracked === 'true'
+
+  // The dashboard's tracked tiles land here: /bills?position=oppose is "everything we're
+  // fighting". A position implies tracked — an untracked bill has no stance to hold.
+  const position = query.position ? String(query.position) : null
+  if (position && !(TRACKED_POSITIONS as readonly string[]).includes(position)) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: `position must be one of: ${TRACKED_POSITIONS.join(', ')}`,
+    })
+  }
+
+  const trackedOnly = query.tracked === '1' || query.tracked === 'true' || position !== null
 
   try {
     const { rows } = await db().query<{
@@ -97,13 +109,14 @@ export default defineEventHandler(async (event): Promise<BillSummary[]> => {
          and ($3::bill_status is null or b.status = $3)
          and ($4::uuid is null or b.committee_id = $4)
          and ($5 = false or tb.id is not null)
+         and ($6::tracked_position is null or tb.position = $6)
        order by
          case when $1 = '' then 0
               else ts_rank(b.search_tsv, websearch_to_tsquery('english', $1)) end desc,
          b.last_action_date desc nulls last,
          b.identifier
-       limit $6`,
-      [q, jurisdiction, status, committeeId, trackedOnly, limit],
+       limit $7`,
+      [q, jurisdiction, status, committeeId, trackedOnly, position, limit],
     )
 
     return rows.map((row) => ({
