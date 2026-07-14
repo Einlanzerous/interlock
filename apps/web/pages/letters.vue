@@ -404,10 +404,10 @@ function seat(o: OfficialSummary): string {
               :to="`/officials/${o.id}`"
               class="pill who"
             >{{ o.fullName }} · {{ o.role }}</NuxtLink>
-            <span v-for="b in l.bills" :key="b.id" class="pill bill">
+            <NuxtLink v-for="b in l.bills" :key="b.id" :to="`/bills/${b.id}`" class="pill bill">
               <SignalDot :signal="b.signal" />
               <span class="ident">{{ b.identifier }}</span>
-            </span>
+            </NuxtLink>
             <span v-if="!l.officials.length && !l.bills.length" class="faint unlinked">
               linked to nobody
             </span>
@@ -471,12 +471,10 @@ function seat(o: OfficialSummary): string {
           <template v-if="viewing.bills.length">
             <dt class="label">About</dt>
             <dd>
-              <!-- Not a link yet: the bill screens land in ITLK-11, and a chip that navigates
-                   to a 404 is worse than a chip that doesn't navigate. -->
-              <span v-for="b in viewing.bills" :key="b.id" class="pill bill">
+              <NuxtLink v-for="b in viewing.bills" :key="b.id" :to="`/bills/${b.id}`" class="pill bill">
                 <SignalDot :signal="b.signal" />
                 <span class="ident">{{ b.identifier }}</span>
-              </span>
+              </NuxtLink>
             </dd>
           </template>
           <template v-if="viewing.sentDate">
@@ -712,6 +710,7 @@ h1 { margin: 0; font-size: 30px; }
 .row-links { display: flex; gap: 6px; margin-top: 5px; flex-wrap: wrap; align-items: center; }
 .pill.who:hover { border-color: var(--accent); color: var(--ink); }
 .pill.bill { display: inline-flex; align-items: center; gap: 6px; }
+a.pill.bill:hover { border-color: var(--accent); }
 .unlinked { font-size: 12px; font-family: var(--font-mono); }
 
 .row-when { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex: none; }

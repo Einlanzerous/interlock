@@ -1,4 +1,5 @@
 export { migrate, MIGRATIONS_DIR } from './migrate'
+export { linkCommittee, type LinkCommitteeResult } from './committees'
 export {
   confirmMatch,
   createOfficialAndConfirm,

@@ -1,7 +1,12 @@
 import type { Pool, PoolClient } from 'pg'
 import type { PgBoss } from 'pg-boss'
 import { PROCESS_RECORD_QUEUE, processRecordJobSchema, type Source } from '@interlock/shared'
-import { DEFAULT_SIMILARITY_THRESHOLD, matchBill, type MatchBillResult } from '@interlock/db'
+import {
+  DEFAULT_SIMILARITY_THRESHOLD,
+  linkCommittee,
+  matchBill,
+  type MatchBillResult,
+} from '@interlock/db'
 import {
   normalizeBody,
   normalizeMatter,
@@ -85,7 +90,10 @@ export function makeNormalizer(
       await db.query('begin')
       const tracked = await snapshotTrackedBill(db, record.source, record.sourceId)
       const billId = await normalize(db, record)
-      if (billId) await matchRecord(db, billId, threshold)
+      if (billId) {
+        await matchRecord(db, billId, threshold)
+        await linkRecord(db, billId)
+      }
       if (tracked) {
         const alerts = await diffRecord(db, tracked)
         if (alerts.length > 0) fired = { ctx: tracked, alerts }
@@ -118,6 +126,22 @@ export async function matchRecord(
   threshold: number = DEFAULT_SIMILARITY_THRESHOLD,
 ): Promise<MatchBillResult> {
   return matchBill(db, billId, threshold)
+}
+
+/**
+ * ITLK-11: bill → committee resolution.
+ *
+ * Runs on every bill for exactly the reason the matcher does, one stage up: the answer
+ * depends on the state of the `committee` table, not on the bill. A Chicago matter is
+ * routinely normalized before the body that defines its committee has been fetched — resolve
+ * the name inside the adapter and that bill's committee_id is null forever, because its
+ * watermark short-circuits the next poll and the adapter never revisits it. Here, the link
+ * appears on the first poll after the committee does.
+ *
+ * The scoring — such as it is — lives in @interlock/db, shared with the Bills API.
+ */
+export async function linkRecord(db: PoolClient, billId: string): Promise<void> {
+  await linkCommittee(db, billId)
 }
 
 /**
