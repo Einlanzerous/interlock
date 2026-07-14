@@ -100,11 +100,15 @@ const selectedId = computed(() => (route.params.id as string | undefined) || nul
 
 /* ── Search + facets (left pane) ────────────────────────────────────────── */
 
+/* `committeeId` and `position` seed from the URL: the bill detail's committee pill and the
+   dashboard's tracked tiles (ITLK-12) both land here pre-filtered, and a filter you arrived
+   by has to be visible — and clearable — or the list looks broken. */
 const filters = reactive({
   q: '',
   jurisdiction: '',
   status: '',
-  committeeId: '',
+  committeeId: (route.query.committeeId as string) ?? '',
+  position: (route.query.position as string) ?? '',
 })
 
 const { data: committees } = await useFetch<CommitteeOption[]>('/api/committees')
@@ -115,13 +119,22 @@ const { data: bills, pending: listPending } = await useFetch<BillRow[]>('/api/bi
     jurisdiction: filters.jurisdiction || undefined,
     status: filters.status || undefined,
     committeeId: filters.committeeId || undefined,
+    position: filters.position || undefined,
   })),
 })
 
 const anyFilter = computed(
-  () => !!(filters.q || filters.jurisdiction || filters.status || filters.committeeId),
+  () =>
+    !!(
+      filters.q ||
+      filters.jurisdiction ||
+      filters.status ||
+      filters.committeeId ||
+      filters.position
+    ),
 )
 function clearFilters(): void {
+  filters.position = ''
   filters.q = ''
   filters.jurisdiction = ''
   filters.status = ''
@@ -290,6 +303,15 @@ function seat(s: Sponsor): string | null {
               {{ c.name }} ({{ c.billCount }})
             </option>
           </select>
+
+          <!-- Arriving from a dashboard tile pre-filters the list. Say so, rather than let
+               it look like the corpus only has four bills in it. -->
+          <div v-if="filters.position" class="active-filter">
+            <span class="label">Tracked</span>
+            <span class="pill stance">{{ filters.position }}</span>
+            <button class="x" title="Show every bill again" @click="filters.position = ''">×</button>
+          </div>
+
           <button v-if="anyFilter" @click="clearFilters">Clear filters</button>
         </div>
 
@@ -511,6 +533,24 @@ h1 { margin: 28px 0 0; font-size: 30px; }
 .filter-row { display: flex; gap: 6px; }
 .filter-row select { flex: 1; min-width: 0; }
 .loading { margin-top: 14px; font-size: 13px; }
+.active-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  background: var(--accdim);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+}
+.active-filter .x {
+  margin-left: auto;
+  border: none;
+  background: none;
+  padding: 0 2px;
+  color: var(--faint);
+  font-size: 14px;
+}
+.active-filter .x:hover:not(:disabled) { color: var(--ink); border: none; }
 
 .rows { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
 .rows a {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import {
   LETTER_CHANNELS,
   LETTER_DIRECTIONS,
@@ -164,6 +164,24 @@ const viewing = ref<LetterRow | null>(null)
 
 const officialPick = useTypeahead<OfficialSummary>('/api/officials', { active: 'all' })
 const billPick = useTypeahead<BillSummary>('/api/bills')
+
+/**
+ * `/letters?letterId=…` opens that letter straight to the read view.
+ *
+ * The dashboard's follow-up panel (ITLK-12) needs to point at *one letter* — "chase this
+ * one" is useless if it only gets you to a list you then have to search. A letter isn't a
+ * route of its own (the ledger is the surface, and the drawer is a layer on it), so the id
+ * is a query param that the ledger opens on arrival.
+ *
+ * Done on mount rather than watched: the drawer is a transient layer, and re-opening it every
+ * time the URL happened to still carry the param would fight the user closing it.
+ */
+onMounted(() => {
+  const wanted = route.query.letterId as string | undefined
+  if (!wanted) return
+  const letter = ledger.value?.items.find((l) => l.id === wanted)
+  if (letter) view(letter)
+})
 
 function compose(): void {
   draft.value = blank()

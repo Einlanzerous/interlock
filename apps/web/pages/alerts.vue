@@ -45,27 +45,12 @@ async function markAllRead(): Promise<void> {
   }
 }
 
-const CHANGE_LABEL: Record<string, string> = {
-  new_action: 'New action',
-  status_change: 'Status change',
-  new_sponsor: 'New sponsor',
-  vote: 'Vote',
-  hearing: 'Hearing',
-}
-
-/** One human line per alert, straight from the differ's payload. */
-function summarize(alert: AlertRow): string {
-  const p = alert.payload
-  if (alert.changeType === 'status_change') {
-    return `${p.from} → ${p.to}`
-  }
-  if (alert.changeType === 'new_sponsor') {
-    const sponsors = (p.sponsors ?? []) as Array<{ name: string }>
-    return sponsors.map((s) => s.name).join(', ')
-  }
-  const actions = (p.actions ?? []) as Array<{ date: string; description: string }>
-  return actions.map((a) => `${a.date} — ${a.description}`).join(' · ')
-}
+/**
+ * How an alert reads is shared with the dashboard (ITLK-12) — see utils/alerts.ts. Two copies
+ * of "what does a status_change payload look like" would drift the moment the differ learned
+ * a new change_type, and the drift would be invisible until someone compared the screens.
+ * `changeLabel` and `summarizeAlert` are auto-imported from there.
+ */
 
 function when(iso: string): string {
   return new Date(iso).toLocaleString()
@@ -95,12 +80,12 @@ function when(iso: string): string {
           <div class="body">
             <div class="head">
               <strong>{{ alert.identifier }}</strong>
-              <span class="chip">{{ CHANGE_LABEL[alert.changeType] ?? alert.changeType }}</span>
+              <span class="chip">{{ changeLabel(alert.changeType) }}</span>
               <span v-if="alert.position" class="chip stance">{{ alert.position }}</span>
               <span v-if="alert.deliveredChannels.includes('email')" class="chip muted-chip">emailed</span>
             </div>
             <div class="title muted">{{ alert.title }}</div>
-            <div class="summary">{{ summarize(alert) }}</div>
+            <div class="summary">{{ summarizeAlert(alert.changeType, alert.payload) }}</div>
             <div class="meta muted">{{ when(alert.detectedAt) }}</div>
           </div>
           <button v-if="!alert.readAt" @click="markRead(alert)">Read</button>

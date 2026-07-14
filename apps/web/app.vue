@@ -142,7 +142,10 @@ h1, h2, h3 { font-family: var(--font-display); color: var(--ink); letter-spacing
   text-transform: uppercase;
   color: var(--muted);
 }
-.card > h2 {
+/* A card's heading is an eyebrow, not a title — mono, uppercase, tracked out.
+   Descendant selector, not child: a heading inside a header row (a card with an action
+   button beside its title) is still that card's eyebrow, and `>` quietly missed it. */
+.card h2 {
   font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 400;
