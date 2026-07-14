@@ -10,6 +10,7 @@
     "typecheck": "nuxi prepare && nuxi typecheck"
   },
   "dependencies": {
+    "@interlock/db": "workspace:*",
     "@interlock/shared": "workspace:*",
     "nuxt": "^3.14.1592",
     "pg": "^8.13.1",

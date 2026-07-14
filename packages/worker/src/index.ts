@@ -3,7 +3,7 @@ import { PgBoss } from 'pg-boss'
 import { parseEnv, type Fetcher } from '@interlock/shared'
 import { migrate } from '@interlock/db'
 import { readChangeHashes } from './seam/ingest'
-import { ensureQueues, registerPipeline } from './seam/pipeline'
+import { ensureQueues, makeNormalizer, registerPipeline } from './seam/pipeline'
 import { startScheduler, type ScheduledSource } from './seam/scheduler'
 import { ChiClerkClient } from './sources/chi_clerk/client'
 import { ChiClerkFetcher } from './sources/chi_clerk/fetcher'
@@ -71,8 +71,10 @@ async function main(): Promise<void> {
 
   await boss.start()
   await ensureQueues(boss)
-  await registerPipeline(boss, pool)
-  console.log('[worker] pipeline consumer registered')
+  await registerPipeline(boss, pool, makeNormalizer(pool, env.MATCH_NAME_SIMILARITY_THRESHOLD))
+  console.log(
+    `[worker] pipeline consumer registered (match threshold ${env.MATCH_NAME_SIMILARITY_THRESHOLD})`,
+  )
 
   const sources: ScheduledSource[] = fetchers.map((fetcher) => ({
     fetcher,

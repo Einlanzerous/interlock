@@ -1,1 +1,21 @@
 export { migrate, MIGRATIONS_DIR } from './migrate'
+export {
+  confirmMatch,
+  createOfficialAndConfirm,
+  decideMatch,
+  DEFAULT_SIMILARITY_THRESHOLD,
+  findBySourcePersonId,
+  findCandidates,
+  matchBill,
+  reviewQueue,
+  reviewQueueCount,
+  ReviewError,
+  type Candidate,
+  type Db,
+  type MatchBillResult,
+  type MatchOutcome,
+  type NewOfficial,
+  type ReviewItem,
+  type SponsorshipToMatch,
+  type UnmatchedReason,
+} from './matching'

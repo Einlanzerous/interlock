@@ -214,13 +214,17 @@ async function writeSponsors(
     const sponsorType = toSponsorType(num(sponsor.sponsor_type_id), num(sponsor.sponsor_order))
     const sequence = num(sponsor.sponsor_order) ?? index
     const sourcePersonId = peopleId != null ? String(peopleId) : null
+    // "HD-059" / "SD-030" — the seat the source attributed to this sponsor. The matcher
+    // (ITLK-7) owns interpreting it.
+    const sourceDistrict = str(sponsor.district)
 
     const inserted = await db.query(
-      `insert into sponsorship (bill_id, sponsor_name, sponsor_type, sequence, source_person_id)
-       select $1, $2, $3, $4, $5
+      `insert into sponsorship
+         (bill_id, sponsor_name, sponsor_type, sequence, source_person_id, source_district)
+       select $1, $2, $3, $4, $5, $6
        where not exists (select 1 from sponsorship where bill_id = $1 and sponsor_name = $2)
        on conflict do nothing`,
-      [billId, name, sponsorType, sequence, sourcePersonId],
+      [billId, name, sponsorType, sequence, sourcePersonId, sourceDistrict],
     )
     if (inserted.rowCount) {
       writes += inserted.rowCount
@@ -230,11 +234,12 @@ async function writeSponsors(
     // Already present — update in place. Never touches official_id or match_method:
     // a re-poll must not undo a match ITLK-7 has already made.
     const updated = await db.query(
-      `update sponsorship set sponsor_type = $3, sequence = $4, source_person_id = $5
+      `update sponsorship
+       set sponsor_type = $3, sequence = $4, source_person_id = $5, source_district = $6
        where bill_id = $1 and sponsor_name = $2
-         and (sponsor_type, sequence, source_person_id)
-             is distinct from ($3::sponsor_type, $4::int, $5::text)`,
-      [billId, name, sponsorType, sequence, sourcePersonId],
+         and (sponsor_type, sequence, source_person_id, source_district)
+             is distinct from ($3::sponsor_type, $4::int, $5::text, $6::text)`,
+      [billId, name, sponsorType, sequence, sourcePersonId, sourceDistrict],
     )
     writes += updated.rowCount ?? 0
   }
