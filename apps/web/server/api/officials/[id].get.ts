@@ -47,8 +47,12 @@ export interface OfficialLetter {
   direction: string
   channel: string
   status: string
-  /** recipient / sender / cc — how this official featured in the exchange. */
-  role: string
+  /**
+   * How this official featured in the exchange. Plural because they can feature more than
+   * once — `letter_official`'s key is (letter, official, role), so the same person may be
+   * both `recipient` and `cc` on one letter.
+   */
+  roles: string[]
   sentDate: string | null
   receivedDate: string | null
   followupDate: string | null
@@ -138,24 +142,35 @@ export default defineEventHandler(async (event): Promise<OfficialDetail> => {
       // Newest first, by the date the exchange actually happened — a letter drafted last
       // week but sent today belongs at the top. Drafts have neither date, so they fall
       // back to created_at rather than sorting to the bottom forever.
+      //
+      // Grouped by letter, NOT one row per letter_official: that table's primary key is
+      // (letter_id, official_id, role), so one person can legitimately be both `recipient`
+      // and `cc` on the same letter — and a plain join would then list that letter twice on
+      // their correspondence tab. The roles are aggregated into one field instead, which is
+      // also what the reader wants to know ("we wrote to them, and copied them").
       pool.query<{
         id: string
         subject: string
         direction: string
         channel: string
         status: string
-        role: string
+        roles: string[]
         sent_date: string | null
         received_date: string | null
         followup_date: string | null
         followup_done: boolean
       }>(
-        `select l.id, l.subject, l.direction, l.channel, l.status, lo.role,
+        // `lo.role::text`, not bare `lo.role`: node-postgres has no array parser registered
+        // for a custom enum type, so array_agg over the enum comes back as the raw literal
+        // string '{recipient,cc}' rather than an array. Casting to text lands a real string[].
+        `select l.id, l.subject, l.direction, l.channel, l.status,
+                array_agg(lo.role::text order by lo.role) as roles,
                 l.sent_date::text, l.received_date::text,
                 l.followup_date::text, l.followup_done
          from letter_official lo
          join letter l on l.id = lo.letter_id
          where lo.official_id = $1
+         group by l.id
          order by coalesce(l.sent_date, l.received_date, l.created_at::date) desc,
                   l.created_at desc`,
         [id],
@@ -199,7 +214,7 @@ export default defineEventHandler(async (event): Promise<OfficialDetail> => {
         direction: l.direction,
         channel: l.channel,
         status: l.status,
-        role: l.role,
+        roles: l.roles,
         sentDate: l.sent_date,
         receivedDate: l.received_date,
         followupDate: l.followup_date,
