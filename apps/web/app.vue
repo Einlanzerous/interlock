@@ -31,6 +31,7 @@
       </NuxtLink>
       <nav>
         <NuxtLink to="/officials">Officials</NuxtLink>
+        <NuxtLink to="/letters">Letters</NuxtLink>
         <NuxtLink to="/alerts">Alerts</NuxtLink>
       </nav>
     </header>

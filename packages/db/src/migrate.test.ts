@@ -171,4 +171,121 @@ describe.skipIf(!adminUrl)('migrate', () => {
     )
     expect(after!.updated_at.getTime()).toBeGreaterThan(before!.updated_at.getTime())
   })
+
+  /**
+   * ITLK-10. `letter_official`'s primary key is (letter_id, official_id, role), which means
+   * one person can legitimately be BOTH `recipient` and `cc` on the same letter.
+   *
+   * That is the right model — it is a true fact about a letter — but it is a trap for any
+   * read that joins the table and forgets to group: the official's correspondence tab
+   * (ITLK-9) listed such a letter twice until it did. The shape is pinned here so the next
+   * query written against this table is written against a known one.
+   */
+  test('one official can hold two roles on one letter — reads must group, not join', async () => {
+    const {
+      rows: [official],
+    } = await pool.query<{ id: string }>(
+      `insert into official (source_person_ids, full_name, role)
+       values (null, 'Dual Role Person', 'alder') returning id`,
+    )
+    const {
+      rows: [letter],
+    } = await pool.query<{ id: string }>(
+      `insert into letter (direction, channel, subject) values ('sent', 'email', 'Dual role')
+       returning id`,
+    )
+
+    // Both inserts succeed: the role is part of the key.
+    await pool.query(
+      `insert into letter_official (letter_id, official_id, role) values ($1, $2, 'recipient')`,
+      [letter!.id, official!.id],
+    )
+    await pool.query(
+      `insert into letter_official (letter_id, official_id, role) values ($1, $2, 'cc')`,
+      [letter!.id, official!.id],
+    )
+
+    // …so a naive join returns the letter twice for that one person.
+    const naive = await pool.query(
+      `select l.id from letter_official lo join letter l on l.id = lo.letter_id
+       where lo.official_id = $1`,
+      [official!.id],
+    )
+    expect(naive.rowCount).toBe(2)
+
+    // The correspondence tab groups, and gets one letter carrying both roles.
+    //
+    // `lo.role::text` is load-bearing: node-postgres registers no array parser for a custom
+    // enum, so `array_agg(lo.role)` returns the raw literal '{recipient,cc}' as a *string*
+    // and any caller that treats it as string[] breaks. Casting inside the aggregate is what
+    // makes it an array on this side of the wire.
+    //
+    // The order is the enum's, not the alphabet's: letter_official_role is declared
+    // (recipient, sender, cc), so `order by lo.role` sorts recipient before cc.
+    const grouped = await pool.query<{ id: string; roles: string[] }>(
+      `select l.id, array_agg(lo.role::text order by lo.role) as roles
+       from letter_official lo join letter l on l.id = lo.letter_id
+       where lo.official_id = $1
+       group by l.id`,
+      [official!.id],
+    )
+    expect(grouped.rowCount).toBe(1)
+    expect(grouped.rows[0]!.roles).toEqual(['recipient', 'cc'])
+
+    // The same (letter, official, role) twice is still a duplicate, though.
+    await expect(
+      pool.query(
+        `insert into letter_official (letter_id, official_id, role) values ($1, $2, 'cc')`,
+        [letter!.id, official!.id],
+      ),
+    ).rejects.toThrow(/letter_official_pkey/)
+  })
+
+  /**
+   * ITLK-10's delete leans on this: removing a mistaken draft must not leave an official's
+   * correspondence tab pointing at a letter that no longer exists.
+   */
+  test('deleting a letter cascades its links to officials and bills', async () => {
+    const {
+      rows: [official],
+    } = await pool.query<{ id: string }>(
+      `insert into official (source_person_ids, full_name, role)
+       values (null, 'Cascade Person', 'us_sen') returning id`,
+    )
+    const {
+      rows: [bill],
+    } = await pool.query<{ id: string }>(`select id from bill where identifier = 'HB1234'`)
+    const {
+      rows: [letter],
+    } = await pool.query<{ id: string }>(
+      `insert into letter (direction, channel, subject) values ('sent', 'mail', 'Cascade me')
+       returning id`,
+    )
+
+    await pool.query(
+      `insert into letter_official (letter_id, official_id, role) values ($1, $2, 'recipient')`,
+      [letter!.id, official!.id],
+    )
+    await pool.query(`insert into letter_bill (letter_id, bill_id) values ($1, $2)`, [
+      letter!.id,
+      bill!.id,
+    ])
+
+    await pool.query(`delete from letter where id = $1`, [letter!.id])
+
+    const links = await pool.query(
+      `select 1 from letter_official where letter_id = $1
+       union all
+       select 1 from letter_bill where letter_id = $1`,
+      [letter!.id],
+    )
+    expect(links.rowCount).toBe(0)
+
+    // The official and the bill outlive the letter — only the link died.
+    const survivors = await pool.query(
+      `select 1 from official where id = $1 union all select 1 from bill where id = $2`,
+      [official!.id, bill!.id],
+    )
+    expect(survivors.rowCount).toBe(2)
+  })
 })
