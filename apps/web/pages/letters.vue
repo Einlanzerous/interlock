@@ -267,15 +267,24 @@ async function patch(id: string, body: Record<string, unknown>): Promise<void> {
     busy.value = false
   }
 }
-async function remove(letter: LetterRow): Promise<void> {
-  if (!confirm(`Delete “${letter.subject}”? This cannot be undone.`)) return
+/** The letter the delete dialog is asking about. Null = no dialog. */
+const deleting = ref<LetterRow | null>(null)
+
+async function remove(): Promise<void> {
+  const letter = deleting.value
+  if (!letter) return
   busy.value = true
   error.value = null
   try {
     await $fetch(`/api/letters/${letter.id}`, { method: 'DELETE' })
+    deleting.value = null
+    // If the deleted letter was open in the drawer, that drawer is now showing a row that
+    // no longer exists. Close it rather than leave a ghost on screen.
+    if (viewing.value?.id === letter.id || draft.value.id === letter.id) open.value = false
     await refresh()
   } catch (err: unknown) {
     error.value = messageOf(err)
+    deleting.value = null
   } finally {
     busy.value = false
   }
@@ -424,7 +433,7 @@ function seat(o: OfficialSummary): string {
             </option>
           </select>
           <button :disabled="busy" @click="edit(l)">Edit</button>
-          <button :disabled="busy" class="danger" title="Delete" @click="remove(l)">×</button>
+          <button :disabled="busy" class="danger" title="Delete" @click="deleting = l">×</button>
         </div>
       </li>
     </ul>
@@ -615,6 +624,19 @@ function seat(o: OfficialSummary): string {
         </div>
       </aside>
     </div>
+
+    <!-- Deleting. Its own surface, above the drawer, because it is the one irreversible
+         thing on this screen. -->
+    <ConfirmDialog
+      v-if="deleting"
+      title="Delete this letter?"
+      :subject="deleting.subject"
+      body="It disappears from the ledger, from every official's correspondence tab, and from the bills it was linked to."
+      confirm-label="Delete"
+      :busy="busy"
+      @confirm="remove"
+      @cancel="deleting = null"
+    />
   </main>
 </template>
 
