@@ -151,16 +151,40 @@ const draft = ref<Draft>(blank())
 const busy = ref(false)
 const error = ref<string | null>(null)
 
+/**
+ * The drawer does double duty: reading a letter and writing one.
+ *
+ * Reading needs to exist as its own thing. The body of a letter *is* the record — for a
+ * logged phone call it is the entire content — and reaching it only through the edit form
+ * means you open a form to read, which invites changing something by accident and makes the
+ * commonest action (look at what we said) the one that feels dangerous.
+ */
+const mode = ref<'view' | 'edit'>('edit')
+const viewing = ref<LetterRow | null>(null)
+
 const officialPick = useTypeahead<OfficialSummary>('/api/officials', { active: 'all' })
 const billPick = useTypeahead<BillSummary>('/api/bills')
 
 function compose(): void {
   draft.value = blank()
   error.value = null
+  mode.value = 'edit'
   open.value = true
 }
 
+function view(letter: LetterRow): void {
+  viewing.value = letter
+  error.value = null
+  mode.value = 'view'
+  open.value = true
+}
+
+function editFromView(): void {
+  if (viewing.value) edit(viewing.value)
+}
+
 function edit(letter: LetterRow): void {
+  mode.value = 'edit'
   draft.value = {
     id: letter.id,
     direction: letter.direction,
@@ -357,7 +381,10 @@ function seat(o: OfficialSummary): string {
 
         <div class="row-body">
           <div class="row-top">
-            <span class="subject">{{ l.subject }}</span>
+            <!-- The subject opens the letter to *read*. Editing is a separate, deliberate act. -->
+            <button class="subject" :title="l.body ? 'Read this one' : 'Open'" @click="view(l)">
+              {{ l.subject }}
+            </button>
             <span class="pill">{{ l.direction }}</span>
             <span class="pill">{{ CHANNEL_LABEL[l.channel] ?? l.channel }}</span>
           </div>
@@ -402,9 +429,81 @@ function seat(o: OfficialSummary): string {
       </li>
     </ul>
 
-    <!-- ── Compose drawer ───────────────────────────────────────────────── -->
+    <!-- ── Drawer: read a letter, or write one ──────────────────────────── -->
     <div v-if="open" class="scrim" @click.self="open = false">
-      <aside class="drawer">
+      <!-- Reading. The body is the record — for a logged call it is the whole record — so it
+           gets a surface of its own rather than being reachable only through the edit form. -->
+      <aside v-if="mode === 'view' && viewing" class="drawer">
+        <div class="drawer-head">
+          <span class="label">Letter</span>
+          <button class="x" @click="open = false">×</button>
+        </div>
+
+        <h2 class="read-subject">{{ viewing.subject }}</h2>
+
+        <div class="read-tags">
+          <span class="status" :data-status="viewing.status">{{ viewing.status }}</span>
+          <span class="pill">{{ viewing.direction }}</span>
+          <span class="pill">{{ CHANNEL_LABEL[viewing.channel] ?? viewing.channel }}</span>
+        </div>
+
+        <dl class="read-meta">
+          <template v-if="viewing.officials.length">
+            <dt class="label">{{ viewing.direction === 'sent' ? 'To' : 'From' }}</dt>
+            <dd>
+              <NuxtLink
+                v-for="o in viewing.officials"
+                :key="o.id"
+                :to="`/officials/${o.id}`"
+                class="pill who"
+              >{{ o.fullName }} · {{ o.role }}</NuxtLink>
+            </dd>
+          </template>
+          <template v-if="viewing.bills.length">
+            <dt class="label">About</dt>
+            <dd>
+              <!-- Not a link yet: the bill screens land in ITLK-11, and a chip that navigates
+                   to a 404 is worse than a chip that doesn't navigate. -->
+              <span v-for="b in viewing.bills" :key="b.id" class="pill bill">
+                <SignalDot :signal="b.signal" />
+                <span class="ident">{{ b.identifier }}</span>
+              </span>
+            </dd>
+          </template>
+          <template v-if="viewing.sentDate">
+            <dt class="label">Sent</dt><dd class="mono">{{ day(viewing.sentDate) }}</dd>
+          </template>
+          <template v-if="viewing.receivedDate">
+            <dt class="label">Received</dt><dd class="mono">{{ day(viewing.receivedDate) }}</dd>
+          </template>
+          <template v-if="viewing.followupDate">
+            <dt class="label">Follow up</dt>
+            <dd class="mono" :class="{ hot: overdue(viewing) }">
+              {{ day(viewing.followupDate) }}
+              <span v-if="viewing.followupDone" class="faint">· done</span>
+              <span v-else-if="overdue(viewing)">· overdue</span>
+            </dd>
+          </template>
+        </dl>
+
+        <div class="read-body">
+          <div class="label">
+            {{ viewing.channel === 'phone' || viewing.channel === 'in_person' ? 'Notes' : 'Body' }}
+          </div>
+          <p v-if="viewing.body" class="read-text">{{ viewing.body }}</p>
+          <p v-else class="faint read-text">
+            Nothing written down — only the fact that this happened.
+          </p>
+        </div>
+
+        <div class="drawer-actions">
+          <button class="primary" @click="editFromView">Edit</button>
+          <button @click="open = false">Close</button>
+        </div>
+      </aside>
+
+      <!-- Writing. -->
+      <aside v-else class="drawer">
         <div class="drawer-head">
           <span class="label">{{ draft.id ? 'Edit letter' : 'Log a letter' }}</span>
           <button class="x" @click="open = false">×</button>
@@ -575,7 +674,19 @@ h1 { margin: 0; font-size: 30px; }
 
 .row-body { flex: 1; min-width: 0; }
 .row-top { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
-.subject { color: var(--ink); font-size: 14px; }
+/* A button, because it opens the letter — but it is the row's title, so it reads as prose
+   and not as a control (the global button style is mono, bordered and boxed). */
+.subject {
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 14px;
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+}
+.subject:hover:not(:disabled) { color: var(--accent-bright); border: none; }
 .row-links { display: flex; gap: 6px; margin-top: 5px; flex-wrap: wrap; align-items: center; }
 .pill.who:hover { border-color: var(--accent); color: var(--ink); }
 .pill.bill { display: inline-flex; align-items: center; gap: 6px; }
@@ -665,18 +776,44 @@ button.x:hover:not(:disabled) { color: var(--ink); border: none; }
   z-index: 10;
 }
 .drawer {
-  width: min(520px, 100%);
+  /* Half the viewport, floored so it stays usable on a laptop and capped so the body text
+     doesn't run to an unreadable line length on a wide monitor. */
+  width: min(max(50vw, 520px), 100%);
+  max-width: 860px;
   height: 100%;
   overflow-y: auto;
   background: var(--panel);
   border-left: 1px solid var(--line);
-  padding: 24px 26px 40px;
+  padding: 24px 30px 40px;
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
 .drawer-head { display: flex; align-items: center; justify-content: space-between; }
 .drawer-head .x { font-size: 20px; }
+
+/* --- Reading a letter ----------------------------------------------------- */
+.read-subject { margin: 4px 0 0; font-size: 20px; line-height: 1.3; }
+.read-tags { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.read-meta {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr);
+  gap: 8px 14px;
+  margin: 6px 0 0;
+  font-size: 14px;
+}
+.read-meta dt { padding-top: 3px; }
+.read-meta dd { margin: 0; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.read-meta .hot { color: var(--stop); }
+.read-body { margin-top: 8px; border-top: 1px solid var(--linesoft); padding-top: 16px; }
+/* pre-wrap: a letter's paragraphs and a call's scribbled line breaks are content. */
+.read-text {
+  margin: 8px 0 0;
+  font-size: 14px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
 .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .pair label, .field { display: flex; flex-direction: column; gap: 4px; }
 .field input, .field textarea, .pair input, .pair select { width: 100%; }
