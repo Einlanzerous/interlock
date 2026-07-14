@@ -1,3 +1,5 @@
+import { hostname } from 'node:os'
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2025-01-01',
@@ -9,6 +11,28 @@ export default defineNuxtConfig({
   },
   devServer: {
     port: Number(process.env.WEB_PORT ?? 3000),
+  },
+  vite: {
+    server: {
+      /**
+       * Vite refuses any request whose `Host` header it doesn't recognize — DNS-rebinding
+       * protection, and worth keeping. But it means that the moment you run the dev server
+       * with `--host` to reach it from another machine, browsing to it by its *name*
+       * ("Blocked request. This host is not allowed.") fails, while its IP works. Which is a
+       * confusing way to learn about a security feature.
+       *
+       * The box's own hostname is not a rebinding risk — resolving it already requires being
+       * on the network the server was deliberately exposed to — so it is allowed by default,
+       * on whatever machine this happens to be. WEB_ALLOWED_HOSTS (comma-separated) covers
+       * anything else: a tailnet name, a reverse proxy, a LAN alias.
+       *
+       * Dev only. `nuxi build` output never sees this.
+       */
+      allowedHosts: [
+        hostname(),
+        ...(process.env.WEB_ALLOWED_HOSTS?.split(',').map((h) => h.trim()) ?? []),
+      ].filter(Boolean),
+    },
   },
   app: {
     head: {
