@@ -10,6 +10,7 @@
     <header class="masthead">
       <NuxtLink to="/" class="brand">Interlock</NuxtLink>
       <nav>
+        <NuxtLink to="/alerts">Alerts</NuxtLink>
         <NuxtLink to="/officials/review">Review queue</NuxtLink>
       </nav>
     </header>
@@ -57,6 +58,7 @@ body { margin: 0; }
   letter-spacing: -0.02em;
   text-decoration: none;
 }
+.masthead nav { display: flex; gap: 16px; }
 .masthead nav a {
   color: var(--muted);
   text-decoration: none;

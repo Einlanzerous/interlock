@@ -2,6 +2,8 @@ import { Pool } from 'pg'
 import { PgBoss } from 'pg-boss'
 import { parseEnv, type Fetcher } from '@interlock/shared'
 import { migrate } from '@interlock/db'
+import { makeAlerter, type AlertChannelPort } from './alerts/deliver'
+import { EmailAlertChannel } from './alerts/email'
 import { readChangeHashes } from './seam/ingest'
 import { ensureQueues, makeNormalizer, registerPipeline } from './seam/pipeline'
 import { startScheduler, type ScheduledSource } from './seam/scheduler'
@@ -71,9 +73,30 @@ async function main(): Promise<void> {
 
   await boss.start()
   await ensureQueues(boss)
-  await registerPipeline(boss, pool, makeNormalizer(pool, env.MATCH_NAME_SIMILARITY_THRESHOLD))
+
+  // Channel fan-out (ITLK-8). In-app is the alert row itself; email joins only
+  // when configured — absent SMTP must not degrade anything but email.
+  const channels: AlertChannelPort[] = []
+  if (env.SMTP_URL && env.ALERT_EMAIL_TO) {
+    channels.push(
+      new EmailAlertChannel({
+        smtpUrl: env.SMTP_URL,
+        to: env.ALERT_EMAIL_TO,
+        from: env.ALERT_EMAIL_FROM,
+      }),
+    )
+  } else {
+    console.warn('[worker] SMTP_URL/ALERT_EMAIL_TO unset — alerts are in-app only')
+  }
+
+  await registerPipeline(
+    boss,
+    pool,
+    makeNormalizer(pool, env.MATCH_NAME_SIMILARITY_THRESHOLD, makeAlerter(pool, channels)),
+  )
   console.log(
-    `[worker] pipeline consumer registered (match threshold ${env.MATCH_NAME_SIMILARITY_THRESHOLD})`,
+    `[worker] pipeline consumer registered (match threshold ${env.MATCH_NAME_SIMILARITY_THRESHOLD}, ` +
+      `alert channels: in_app${channels.map((c) => `, ${c.channel}`).join('')})`,
   )
 
   const sources: ScheduledSource[] = fetchers.map((fetcher) => ({

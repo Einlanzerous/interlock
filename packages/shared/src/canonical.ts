@@ -53,6 +53,27 @@ export const JURISDICTIONS = ['chicago_council', 'il_ga'] as const
 export const jurisdictionSchema = z.enum(JURISDICTIONS)
 export type Jurisdiction = z.infer<typeof jurisdictionSchema>
 
+/** `tracked_position` — the stance a tracked bill is held with. */
+export const TRACKED_POSITIONS = ['support', 'oppose', 'watch'] as const
+export const trackedPositionSchema = z.enum(TRACKED_POSITIONS)
+export type TrackedPosition = z.infer<typeof trackedPositionSchema>
+
+/** `alert_channel` — where a tracked bill's alerts fan out (in-app is always on). */
+export const ALERT_CHANNELS = ['in_app', 'email', 'both'] as const
+export const alertChannelSchema = z.enum(ALERT_CHANNELS)
+export type AlertChannel = z.infer<typeof alertChannelSchema>
+
+/** `alert_change_type` — what the differ decided moved. */
+export const ALERT_CHANGE_TYPES = [
+  'new_action',
+  'status_change',
+  'new_sponsor',
+  'vote',
+  'hearing',
+] as const
+export const alertChangeTypeSchema = z.enum(ALERT_CHANGE_TYPES)
+export type AlertChangeType = z.infer<typeof alertChangeTypeSchema>
+
 /** `official_role` — us_rep/us_sen/other exist for manually-added federal contacts. */
 export const OFFICIAL_ROLES = [
   'alder',
