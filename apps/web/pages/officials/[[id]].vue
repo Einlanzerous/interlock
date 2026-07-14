@@ -91,18 +91,41 @@ const { data: roster, refresh: refreshRoster } = await useFetch<OfficialSummary[
 
 /* ── The person (right pane) ────────────────────────────────────────────── */
 
+/**
+ * The key varies with the id, and that is the whole trick.
+ *
+ * `useAsyncData` caches by key. With a constant key, selecting someone from the roster
+ * remounts this page on the new route, Nuxt finds data already sitting under that key — the
+ * "nobody is selected" entry — decides the fetch has already happened, and never calls the
+ * handler. No request goes out at all, and every branch of the template is false, so the
+ * pane renders *empty*. The `watch` doesn't save you: the watcher is newly created on the
+ * remount, so the id it starts life with never counts as a change.
+ *
+ * A per-id key makes each person their own cache entry, so a new id is a real fetch.
+ *
+ * Vicious to catch, because a *direct load* of /officials/:id works perfectly — the server
+ * had an id from the first moment. Only clicking a row is broken, which is the one way
+ * anyone actually uses a two-pane screen.
+ *
+ * The wrapper object (rather than a bare `null`) is a smaller point: useAsyncData warns that
+ * a null return "must return a value", and a warning that fires on every visit trains you to
+ * ignore warnings.
+ */
 const {
-  data: detail,
+  data: fetched,
   refresh: refreshDetail,
   pending: detailPending,
-} = await useAsyncData<OfficialDetail | null>(
-  'official-detail',
-  () =>
-    selectedId.value
-      ? $fetch<OfficialDetail>(`/api/officials/${selectedId.value}`)
-      : Promise.resolve(null),
+} = await useAsyncData(
+  () => `official-${selectedId.value ?? 'none'}`,
+  async (): Promise<{ official: OfficialDetail | null }> => {
+    const id = selectedId.value
+    if (!id) return { official: null }
+    return { official: await $fetch<OfficialDetail>(`/api/officials/${id}`) }
+  },
   { watch: [selectedId] },
 )
+
+const detail = computed(() => fetched.value?.official ?? null)
 
 const tab = ref<'bills' | 'letters'>('bills')
 watch(selectedId, () => {
