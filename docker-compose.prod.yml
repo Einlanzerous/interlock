@@ -1,0 +1,88 @@
+name: interlock
+
+# Production stack for a single self-hosted box (ITLK-13). Everything Interlock needs —
+# web, worker, Postgres — with restart policies, healthchecks and a persisted DB volume.
+#
+#   docker compose -f docker-compose.prod.yml up -d --build
+#
+# The dev-oriented docker-compose.yml (db-only by default) is unchanged; this file is the
+# one you deploy. See docs/deploy.md for the fresh-VPS runbook.
+
+services:
+  # Source of truth, pg-boss queue, and FTS index. Not published to the host — only web and
+  # worker reach it over the compose network. To take backups from the host, either exec into
+  # this container (see docs/deploy.md) or add a `127.0.0.1:5432:5432` port mapping.
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: interlock
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-interlock}
+      POSTGRES_DB: interlock
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U interlock -d interlock"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  # Nuxt/Nitro app + API, behind the login. Reads secrets (AUTH_*, SESSION_PASSWORD, keys)
+  # from .env; DATABASE_URL is forced to the compose `db` service regardless of what .env says.
+  web:
+    build:
+      context: .
+      dockerfile: docker/web.Dockerfile
+    env_file: [.env]
+    environment:
+      DATABASE_URL: postgres://interlock:${POSTGRES_PASSWORD:-interlock}@db:5432/interlock
+      NODE_ENV: production
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      # Bun is in the runtime image, so the probe needs no extra tools. /api/health is public.
+      test:
+        [
+          "CMD",
+          "bun",
+          "-e",
+          "fetch('http://127.0.0.1:3000/api/health').then(r=>r.json()).then(h=>process.exit(h.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+
+  # The poller + normalizer + alerter. Headless. `restart: unless-stopped` plus the persisted
+  # `fetch_cursor` is the crash-resume story: kill it and Compose brings it back polling from
+  # where it left off, no manual step.
+  worker:
+    build:
+      context: .
+      dockerfile: docker/worker.Dockerfile
+    env_file: [.env]
+    environment:
+      DATABASE_URL: postgres://interlock:${POSTGRES_PASSWORD:-interlock}@db:5432/interlock
+      NODE_ENV: production
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Optional local LLM for letter drafts + change summaries (ITLK-14). Off unless you opt in
+  # with `--profile ai`.
+  ollama:
+    image: ollama/ollama:latest
+    volumes:
+      - ollama:/root/.ollama
+    profiles: ["ai"]
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  ollama:
