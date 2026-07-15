@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+
 /**
  * The app shell, and the design system every screen borrows from.
  *
@@ -14,6 +16,17 @@
  *   - **Depth is layering, never shadow.** `--bg` → `--panel` → `--panel2` plus 1px borders.
  *     There is not one box-shadow in the brief, and there should not be one here.
  */
+const route = useRoute()
+
+// The login screen is the one place without a session, so it carries neither the nav (every
+// link would just bounce back to login) nor a sign-out. Everywhere else is authenticated by
+// the route guard, so showing them there is always correct.
+const chromeless = computed(() => route.path === '/login')
+
+async function signOut() {
+  await $fetch('/api/auth/logout', { method: 'POST' })
+  await navigateTo('/login')
+}
 </script>
 
 <template>
@@ -29,11 +42,12 @@
         </svg>
         <span>Interlock</span>
       </NuxtLink>
-      <nav>
+      <nav v-if="!chromeless">
         <NuxtLink to="/bills">Bills</NuxtLink>
         <NuxtLink to="/officials">Officials</NuxtLink>
         <NuxtLink to="/letters">Letters</NuxtLink>
         <NuxtLink to="/alerts">Alerts</NuxtLink>
+        <button type="button" class="signout" @click="signOut">Sign out</button>
       </nav>
     </header>
 
@@ -122,6 +136,17 @@ h1, h2, h3 { font-family: var(--font-display); color: var(--ink); letter-spacing
 }
 .masthead nav a:hover,
 .masthead nav a.router-link-active { color: var(--ink); }
+/* Sign-out sits in the nav row, so it's a text affordance, not a boxed button — it drops the
+   base button's border/padding and inherits the nav link's size and muted-to-ink hover. */
+.masthead nav .signout {
+  border: none;
+  background: none;
+  padding: 0;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  color: var(--muted);
+}
+.masthead nav .signout:hover { color: var(--ink); border: none; }
 
 /* --- Card: the base surface. --------------------------------------------- */
 .card {
