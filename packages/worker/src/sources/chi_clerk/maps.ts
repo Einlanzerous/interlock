@@ -46,6 +46,9 @@ const FINAL_SUBSTATUS: Record<string, BillStatus> = {
   'placed on file': 'failed', // shelved without action — dead
   // The original matter was folded into a substitute ordinance (see `supersededBy`).
   'input to substitute': 'withdrawn',
+  // Signed by the Mayor — the ordinance is law. `enacted`, not merely `passed`.
+  // (Observed live in the current-month corpus; ITLK-15 acceptance, 2026-07-15.)
+  signed: 'enacted',
 }
 
 const FINAL_STATUS = '90-final'
@@ -92,6 +95,11 @@ const ACTION: Record<string, ActionClassification> = {
   'recommended to pass': 'vote',
   'recommended do not pass': 'vote',
   submitted: 'introduced',
+  introduced: 'introduced',
+  // The Mayor signing a passed ordinance into law — a distinct, terminal event.
+  // (Observed live in the current-month corpus; ITLK-15 acceptance, 2026-07-15.)
+  'signed by mayor': 'signed',
+  signed: 'signed',
   // A substitute ordinance replaces the text of the original.
   substituted: 'amendment',
   'input to substitute': 'amendment',
