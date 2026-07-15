@@ -40,6 +40,29 @@ bun run db:migrate          # apply packages/db/migrations (idempotent)
 bun run dev
 ```
 
+## Releases & commit convention
+
+Interlock ships as versioned container images. Merges to `main` are versioned by
+[release-please](https://github.com/googleapis/release-please) and published to GHCR.
+
+- **Commits use [Conventional Commits](https://www.conventionalcommits.org)** — prefix the
+  subject with `feat:`, `fix:`, `perf:`, `refactor:`, `chore:`, `docs:`, etc. Keep the ITLK
+  key in the scope: `feat(ITLK-16): release pipeline`. `feat` bumps the minor, `fix`/`perf`
+  the patch, and a `!` (e.g. `feat!:`) or a `BREAKING CHANGE:` footer bumps the major.
+  Non-conventional commits are simply excluded from the changelog — they don't break the
+  pipeline.
+- **What a merge does:** a `feat:`/`fix:` merge opens (or updates) a *release PR* that bumps
+  the version in `.release-please-manifest.json` and adds a `CHANGELOG.md` entry. Merging that
+  PR (manually — auto-merge is blocked by policy) cuts a git tag + GitHub Release, which then
+  builds and pushes `ghcr.io/einlanzerous/interlock/{web,worker}` at that semver (plus
+  `{major}.{minor}` and `latest`) and notifies the `construct-server` stack to roll forward.
+- **Config:** `release-please-config.json` (release-type `simple`, one root release train) and
+  `.release-please-manifest.json` (the current version). Pipeline lives in
+  `.github/workflows/release.yml`; CI (lint/typecheck/test) is `ci.yml`.
+
+The release workflow needs the shared release-bot GitHub App installed on this repo
+(`RELEASE_BOT_APP_ID` + `RELEASE_BOT_PRIVATE_KEY` secrets), the same App switchyard uses.
+
 ## Status
 
 In build. The v1 epic is tracked as the **ITLK** project in switchyard: scaffold (ITLK-2) and the canonical schema + migrations (ITLK-3) are in; the Fetcher seam and ingest are next.

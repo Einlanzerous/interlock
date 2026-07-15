@@ -1,0 +1,136 @@
+name: Release Please
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+  packages: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+      version: ${{ steps.release.outputs.version }}
+    steps:
+      # Mint a short-lived installation token from the shared release-bot GitHub
+      # App so the release PR is opened by the App identity rather than the
+      # default GITHUB_TOKEN. Events from GITHUB_TOKEN don't trigger other
+      # workflows (GitHub's anti-recursion safeguard), so the release PR's
+      # required CI checks would never run under the default token. An
+      # App-minted token is a real actor, so `ci.yml` fires on the release PR.
+      # Requires repo/org secrets RELEASE_BOT_APP_ID + RELEASE_BOT_PRIVATE_KEY
+      # (the same App switchyard uses); the App needs Contents: write +
+      # Pull requests: write on this repo.
+      - name: Mint GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.RELEASE_BOT_APP_ID }}
+          private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
+
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          # Manifest/config-file mode. `simple` is the right release-type for a
+          # Bun workspace of unpublished package.json files — version is tracked
+          # as one root component in .release-please-manifest.json, not
+          # per-package. The action defaults to these filenames; we name them
+          # explicitly.
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  build-and-push:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract web metadata
+        id: meta-web
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}/web
+          tags: |
+            type=semver,pattern={{version}},value=${{ needs.release-please.outputs.version }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ needs.release-please.outputs.version }}
+            type=raw,value=latest
+
+      - name: Build and push web
+        uses: docker/build-push-action@v6
+        with:
+          # Build context is the repo root — the Bun workspace Dockerfile needs
+          # root package.json + bun.lock + every workspace's package.json at
+          # install time.
+          context: .
+          file: ./docker/web.Dockerfile
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.meta-web.outputs.tags }}
+          labels: ${{ steps.meta-web.outputs.labels }}
+          cache-from: type=gha,scope=web
+          cache-to: type=gha,mode=max,scope=web
+
+      - name: Extract worker metadata
+        id: meta-worker
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}/worker
+          tags: |
+            type=semver,pattern={{version}},value=${{ needs.release-please.outputs.version }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ needs.release-please.outputs.version }}
+            type=raw,value=latest
+
+      - name: Build and push worker
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./docker/worker.Dockerfile
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.meta-worker.outputs.tags }}
+          labels: ${{ steps.meta-worker.outputs.labels }}
+          cache-from: type=gha,scope=worker
+          cache-to: type=gha,mode=max,scope=worker
+
+      # Mint a short-lived, least-privilege token scoped to construct-server for
+      # the cross-repo dispatch, then notify the stack that new images are
+      # available. construct-server's deploy.yml handles `image-updated` with a
+      # `docker compose pull && up -d`, so a release here rolls the box forward
+      # automatically — a no-op for Interlock until its services are added to
+      # the stack in ITLK-18, harmless before then.
+      - name: Mint construct-server dispatch token
+        id: dispatch-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.RELEASE_BOT_APP_ID }}
+          private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
+          owner: Einlanzerous
+          repositories: construct-server
+
+      - name: Notify construct-server
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ steps.dispatch-token.outputs.token }}
+          repository: Einlanzerous/construct-server
+          event-type: image-updated
+          client-payload: '{"image": "interlock", "version": "${{ needs.release-please.outputs.version }}"}'
