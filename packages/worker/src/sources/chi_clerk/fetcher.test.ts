@@ -105,7 +105,25 @@ describe('ChiClerkFetcher', () => {
     const state = JSON.parse(cursor!)
     expect(state.matter.watermark).toBe('2026-07-10T00:00:00Z') // the newest seen
     expect(state.matter.skip).toBe(0)
-    expect(state.phase).toBe('matter') // parked for the next run
+    expect(state.phase).toBe('person') // parked at the first phase for the next run
+  })
+
+  test('cold start walks persons and bodies before matters (ITLK-17)', async () => {
+    // The ordering guarantee: officials/committees are seeded before any matter is
+    // matched, so sponsor→official links land on the first poll instead of waiting for
+    // each matter to re-publish. Persons/bodies must be emitted ahead of every matter.
+    const elms = new FakeELMS({
+      matter: [matter(1, '2026-07-10T00:00:00Z'), matter(2, '2026-07-09T00:00:00Z')],
+      person: [person(1, '2026-07-01T00:00:00Z')],
+      body: [body(1, '2026-07-01T00:00:00Z')],
+    })
+    const { records } = await drain(fetcherFor(elms))
+
+    const firstMatter = records.findIndex((r) => r.kind === 'matter')
+    const lastNonMatter = records.map((r) => r.kind).lastIndexOf('body')
+    const lastPerson = records.map((r) => r.kind).lastIndexOf('person')
+    expect(firstMatter).toBeGreaterThan(lastNonMatter)
+    expect(firstMatter).toBeGreaterThan(lastPerson)
   })
 
   test('re-poll with no upstream change fetches nothing new', async () => {
@@ -167,12 +185,15 @@ describe('ChiClerkFetcher', () => {
     expect(seen).toEqual(['m1', 'm2', 'm3', 'm4', 'm5'])
     // Only once the walk finishes does the watermark advance.
     expect(JSON.parse(rest.cursor!).matter.watermark).toBe('2026-07-10T00:00:00Z')
-    expect(elms.calls.filter((c) => c.kind === 'matter').map((c) => c.skip)).toEqual([0, 2, 4])
+    // 0/2/4 pages the five matters; the trailing 0 is the next poll's caught-up
+    // re-list (matter is the last phase now, so the walk parks back at `person` and the
+    // final empty confirmation ends on a matter list rather than a body one).
+    expect(elms.calls.filter((c) => c.kind === 'matter').map((c) => c.skip)).toEqual([0, 2, 4, 0])
   })
 
-  test('a caught-up matter phase still lets bodies and persons through', async () => {
+  test('a caught-up leading phase still lets later phases through', async () => {
     // The regression this guards: an empty page ends the scheduler's poll loop, so a
-    // caught-up first phase must not strand the phases behind it.
+    // caught-up leading phase (person/body) must not strand the phases behind it.
     const elms = new FakeELMS({
       matter: [matter(1, '2026-07-10T00:00:00Z')],
       person: [person(1, '2026-07-01T00:00:00Z')],
@@ -182,10 +203,11 @@ describe('ChiClerkFetcher', () => {
     const first = await drain(fetcher)
     expect(first.records).toHaveLength(3)
 
-    // Matters unchanged; a new committee appears.
-    elms['rows'].body.push(body(2, '2026-07-11T00:00:00Z'))
+    // Persons/bodies unchanged; a new matter appears — it must still come through even
+    // though the person and body phases lead and are caught up.
+    elms['rows'].matter.push(matter(2, '2026-07-11T00:00:00Z'))
     const second = await drain(fetcher, first.cursor)
-    expect(second.records).toEqual([{ sourceId: 'b2', kind: 'body' }])
+    expect(second.records).toEqual([{ sourceId: 'm2', kind: 'matter' }])
   })
 
   test('an unreadable cursor restarts from the backfill window instead of throwing', async () => {

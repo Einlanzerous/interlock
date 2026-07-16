@@ -26,11 +26,18 @@ export interface ChiClerkApi {
  */
 
 /**
- * Walk order. Persons come before bodies so the authoritative official records
- * usually land first — but nothing *depends* on that: pg-boss can run the staged
- * jobs out of order, so `normalizeBody` seeds the officials it links itself.
+ * Walk order: persons and bodies before matters (ITLK-17). On a cold start the matter
+ * phase stages ~every matter across several polls before the next phase runs, so if
+ * matters led, sponsor→official matching (ITLK-7) would run before any `official` row
+ * existed and leave every sponsorship unlinked — and an unchanged matter is never
+ * re-staged to retry (its `lastPublicationDate` short-circuits every later poll), so the
+ * gap would persist until each matter re-published. Walking persons then bodies first
+ * seeds the officials (and committees) that matters match against, so links land on the
+ * first poll. Persons lead bodies so the authoritative official records land first.
+ * Steady-state polls are unaffected: persons/bodies are caught up in one tiny list call
+ * each, then the walk falls through to matters.
  */
-const PHASES = ['matter', 'person', 'body'] as const
+const PHASES = ['person', 'body', 'matter'] as const
 type Phase = (typeof PHASES)[number]
 
 /** eLMS sort grammar: ONE space-separated param. `sortDirection` is ignored. */
@@ -189,7 +196,7 @@ export class ChiClerkFetcher implements Fetcher {
       console.warn('[chi_clerk] unreadable cursor — restarting from the backfill window')
     }
     return {
-      phase: 'matter',
+      phase: PHASES[0],
       matter: { watermark: this.backfillFloor(), skip: 0, pending: null },
       // Tiny collections; take them whole.
       body: { watermark: null, skip: 0, pending: null },
