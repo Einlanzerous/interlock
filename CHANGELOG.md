@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/Einlanzerous/interlock/compare/v1.0.0...v1.0.1) (2026-07-16)
+
+
+### Bug Fixes
+
+* **ITLK-16:** copy @interlock/db manifest into the worker image ([#18](https://github.com/Einlanzerous/interlock/issues/18)) ([8e35e75](https://github.com/Einlanzerous/interlock/commit/8e35e755cf8b866362a44f136f28388d0348bc78))
+
 ## 1.0.0 (2026-07-16)
 
 
