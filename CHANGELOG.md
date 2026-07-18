@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/Einlanzerous/interlock/compare/v1.0.1...v1.0.2) (2026-07-18)
+
+
+### Bug Fixes
+
+* **ITLK-20:** use : delimiter for auth hash (env-interpolation safe) ([#20](https://github.com/Einlanzerous/interlock/issues/20)) ([1379c3f](https://github.com/Einlanzerous/interlock/commit/1379c3f7df70f7f0c29304c505c97699a090bf36))
+
 ## [1.0.1](https://github.com/Einlanzerous/interlock/compare/v1.0.0...v1.0.1) (2026-07-16)
 
 
