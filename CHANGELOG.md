@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/Einlanzerous/interlock/compare/v1.1.0...v1.2.0) (2026-07-19)
+
+
+### Features
+
+* **ITLK-21:** organizations as first-class contacts in the CRM ([#24](https://github.com/Einlanzerous/interlock/issues/24)) ([0f193fc](https://github.com/Einlanzerous/interlock/commit/0f193fccf428a4f1781ff24cb2a5320d88da57ec))
+
 ## [1.1.0](https://github.com/Einlanzerous/interlock/compare/v1.0.2...v1.1.0) (2026-07-19)
 
 
