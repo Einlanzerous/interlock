@@ -64,8 +64,10 @@ interface BillLetter {
   direction: string
   channel: string
   status: string
+  kind: string
   sentDate: string | null
   receivedDate: string | null
+  publishedDate: string | null
 }
 
 interface BillDetail extends BillRow {
@@ -260,6 +262,12 @@ function statusLabel(s: string): string {
   return STATUS_LABEL[s] ?? s.replace(/_/g, ' ')
 }
 
+/** Media placements (letter-to-editor / op-ed) get a badge; plain correspondence stays bare. */
+const KIND_LABEL: Record<string, string> = {
+  letter_to_editor: 'Letter to the editor',
+  op_ed: 'Op-ed',
+}
+
 function day(iso: string | null): string {
   return iso ? new Date(`${iso}T00:00:00`).toLocaleDateString() : '—'
 }
@@ -432,15 +440,17 @@ function seat(s: Sponsor): string | null {
             </ol>
           </section>
 
-          <!-- Letters about this bill (ITLK-10). -->
+          <!-- Letters + media placements about this bill (ITLK-10, ITLK-23) — the engagement
+               view: who we contacted and where the bill was written about, in one list. -->
           <section v-if="detail.letters.length" class="block">
-            <div class="label">Letters</div>
+            <div class="label">Letters &amp; media</div>
             <ul class="letters">
               <li v-for="l in detail.letters" :key="l.id">
                 <span class="status" :data-status="l.status">{{ l.status }}</span>
                 <span class="letter-subject">{{ l.subject }}</span>
+                <span v-if="KIND_LABEL[l.kind]" class="pill kind">{{ KIND_LABEL[l.kind] }}</span>
                 <span class="pill">{{ l.direction }}</span>
-                <span class="faint small mono">{{ day(l.sentDate ?? l.receivedDate) }}</span>
+                <span class="faint small mono">{{ day(l.publishedDate ?? l.sentDate ?? l.receivedDate) }}</span>
               </li>
             </ul>
             <p class="more">
@@ -680,6 +690,8 @@ h1 { margin: 28px 0 0; font-size: 30px; }
   font-size: 13px;
 }
 .letter-subject { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* A media placement stands out from direct correspondence in the engagement list. */
+.pill.kind { color: var(--accent); border-color: var(--accent); }
 .status {
   font-family: var(--font-mono);
   font-size: 10px;

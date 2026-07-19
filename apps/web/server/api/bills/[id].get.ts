@@ -46,8 +46,11 @@ export interface BillLetter {
   direction: string
   channel: string
   status: string
+  /** correspondence | letter_to_editor | op_ed — a media placement about this bill (ITLK-23). */
+  kind: string
   sentDate: string | null
   receivedDate: string | null
+  publishedDate: string | null
 }
 
 export interface BillDetail {
@@ -177,15 +180,17 @@ export default defineEventHandler(async (event): Promise<BillDetail> => {
         direction: string
         channel: string
         status: string
+        kind: string
         sent_date: string | null
         received_date: string | null
+        published_date: string | null
       }>(
-        `select l.id, l.subject, l.direction, l.channel, l.status,
-                l.sent_date::text, l.received_date::text
+        `select l.id, l.subject, l.direction, l.channel, l.status, l.kind,
+                l.sent_date::text, l.received_date::text, l.published_date::text
          from letter_bill lb
          join letter l on l.id = lb.letter_id
          where lb.bill_id = $1
-         order by coalesce(l.sent_date, l.received_date, l.created_at::date) desc,
+         order by coalesce(l.published_date, l.sent_date, l.received_date, l.created_at::date) desc,
                   l.created_at desc`,
         [id],
       ),
@@ -252,8 +257,10 @@ export default defineEventHandler(async (event): Promise<BillDetail> => {
         direction: l.direction,
         channel: l.channel,
         status: l.status,
+        kind: l.kind,
         sentDate: l.sent_date,
         receivedDate: l.received_date,
+        publishedDate: l.published_date,
       })),
     }
   } catch (err) {

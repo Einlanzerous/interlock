@@ -281,6 +281,49 @@ describe.skipIf(!adminUrl)('migrate', () => {
     expect(orgsOnly.rows.map((r) => r.full_name)).toEqual(['CMAP'])
   })
 
+  /**
+   * ITLK-23. A media piece (letter to the editor / op-ed) is a letter row with `kind` set,
+   * `url` + `published_date` capturing where and when it ran, and a media org as its recipient.
+   * Everything existing stays `correspondence` by default, and a publish date is forbidden on
+   * anything but a media piece.
+   */
+  test('media piece: kind + url + published_date, with the publish-date shape check', async () => {
+    // Default kind on an ordinary logged exchange.
+    const {
+      rows: [plain],
+    } = await pool.query<{ kind: string }>(
+      `insert into letter (direction, channel, subject) values ('sent', 'phone', 'A call')
+       returning kind`,
+    )
+    expect(plain!.kind).toBe('correspondence')
+
+    // An op-ed with a link and a run date inserts fine.
+    const {
+      rows: [oped],
+    } = await pool.query<{ id: string; kind: string }>(
+      `insert into letter (direction, channel, kind, subject, url, published_date)
+       values ('sent', 'web_form', 'op_ed', 'Why Chicago needs TOD',
+               'https://blockclubchicago.org/op-ed', '2026-07-15')
+       returning id, kind`,
+    )
+    expect(oped!.kind).toBe('op_ed')
+
+    // A publish date on plain correspondence is rejected by the shape check.
+    await expect(
+      pool.query(
+        `insert into letter (direction, channel, kind, subject, published_date)
+         values ('sent', 'email', 'correspondence', 'Bad', '2026-07-15')`,
+      ),
+    ).rejects.toThrow(/letter_published_date_kind/)
+
+    // The media-only filter (a bill's engagement view / the ledger's "media" filter) excludes
+    // the phone call and keeps the op-ed.
+    const media = await pool.query<{ subject: string }>(
+      `select subject from letter where kind <> 'correspondence' and subject in ('A call','Why Chicago needs TOD')`,
+    )
+    expect(media.rows.map((r) => r.subject)).toEqual(['Why Chicago needs TOD'])
+  })
+
   test('updated_at bumps on update', async () => {
     const {
       rows: [before],

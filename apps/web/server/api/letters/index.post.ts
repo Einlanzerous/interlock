@@ -14,9 +14,13 @@ import { parseBillIds, parseLetter, parseOfficialLinks, writeLinks } from '../..
  * is a letter the ledger would show and the officials' correspondence tabs would not, and
  * the organizer would have no way to tell which of the two was lying.
  *
+ * A media piece — a letter to the editor, a published op-ed (ITLK-23) — is the same row with
+ * `kind` set and an outlet as its recipient (an org contact, org_type = 'media'); `url` and
+ * `publishedDate` capture where and when it ran.
+ *
  * POST /api/letters
- *   { direction, channel, subject, body?, status?, sentDate?, receivedDate?, followupDate?,
- *     officials?: [{ officialId, role }], billIds?: [] }
+ *   { direction, channel, subject, body?, status?, kind?, url?, publishedDate?,
+ *     sentDate?, receivedDate?, followupDate?, officials?: [{ officialId, role }], billIds?: [] }
  */
 
 export interface LetterCreated {
@@ -43,16 +47,19 @@ export default defineEventHandler(async (event): Promise<LetterCreated> => {
 
     const { rows } = await client.query<{ id: string }>(
       `insert into letter
-         (direction, channel, status, subject, body, sent_date, received_date,
-          followup_date, followup_done)
-       values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+         (direction, channel, status, kind, subject, body, url, published_date,
+          sent_date, received_date, followup_date, followup_done)
+       values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
        returning id`,
       [
         fields.direction,
         fields.channel,
         fields.status,
+        fields.kind,
         fields.subject,
         fields.body,
+        fields.url,
+        fields.publishedDate,
         sentDate,
         receivedDate,
         fields.followupDate,

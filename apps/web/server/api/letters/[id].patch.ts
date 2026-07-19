@@ -1,4 +1,4 @@
-import { LETTER_CHANNELS, LETTER_DIRECTIONS, LETTER_STATUSES } from '@interlock/shared'
+import { LETTER_CHANNELS, LETTER_DIRECTIONS, LETTER_KINDS, LETTER_STATUSES } from '@interlock/shared'
 import { DatabaseError } from 'pg'
 import { db } from '../../utils/db'
 import { parseBillIds, parseOfficialLinks, writeLinks } from '../../utils/letters'
@@ -26,8 +26,11 @@ const COLUMNS: Record<string, string> = {
   direction: 'direction',
   channel: 'channel',
   status: 'status',
+  kind: 'kind',
   subject: 'subject',
   body: 'body',
+  url: 'url',
+  publishedDate: 'published_date',
   sentDate: 'sent_date',
   receivedDate: 'received_date',
   followupDate: 'followup_date',
@@ -38,6 +41,7 @@ const ENUMS: Record<string, readonly string[]> = {
   direction: LETTER_DIRECTIONS,
   channel: LETTER_CHANNELS,
   status: LETTER_STATUSES,
+  kind: LETTER_KINDS,
 }
 
 function day(value: unknown, field: string): string | null {
@@ -89,19 +93,34 @@ export default defineEventHandler(async (event): Promise<LetterUpdated> => {
 
     const { rows: existing } = await client.query<{
       direction: string
+      kind: string
       sent_date: string | null
       received_date: string | null
-    }>(`select direction, sent_date::text, received_date::text from letter where id = $1 for update`, [id])
+    }>(`select direction, kind, sent_date::text, received_date::text from letter where id = $1 for update`, [id])
     if (!existing[0]) {
       throw createError({ statusCode: 404, statusMessage: 'no such letter' })
+    }
+
+    const publishedDate = day(body.publishedDate, 'publishedDate')
+    // A publish date only belongs on a media piece — check against the kind after this edit,
+    // whether it's changing here or staying as it was.
+    const effectiveKind = keys.includes('kind') ? String(body.kind) : existing[0].kind
+    if ('publishedDate' in body && publishedDate && effectiveKind === 'correspondence') {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'publishedDate only applies to a letter to the editor or an op-ed',
+      })
     }
 
     const values: Record<string, unknown> = {
       direction: body.direction,
       channel: body.channel,
       status: body.status,
+      kind: body.kind,
       subject: String(body.subject ?? '').trim(),
       body: String(body.body ?? '').trim() || null,
+      url: String(body.url ?? '').trim() || null,
+      publishedDate,
       sentDate: day(body.sentDate, 'sentDate'),
       receivedDate: day(body.receivedDate, 'receivedDate'),
       followupDate: day(body.followupDate, 'followupDate'),
@@ -158,6 +177,13 @@ export default defineEventHandler(async (event): Promise<LetterUpdated> => {
       throw createError({
         statusCode: 400,
         statusMessage: 'an official or bill on this letter does not exist',
+      })
+    }
+    // e.g. flipping kind back to 'correspondence' while a published_date lingers.
+    if (err instanceof DatabaseError && err.code === '23514') {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'a publish date only applies to a letter to the editor or an op-ed',
       })
     }
     throw err

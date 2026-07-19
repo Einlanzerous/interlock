@@ -3,10 +3,12 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import {
   LETTER_CHANNELS,
   LETTER_DIRECTIONS,
+  LETTER_KINDS,
   LETTER_OFFICIAL_ROLES,
   LETTER_STATUSES,
   type LetterChannel,
   type LetterDirection,
+  type LetterKind,
   type LetterOfficialRole,
   type LetterStatus,
   type Signal,
@@ -43,8 +45,11 @@ interface LetterRow {
   direction: LetterDirection
   channel: LetterChannel
   status: LetterStatus
+  kind: LetterKind
   subject: string
   body: string | null
+  url: string | null
+  publishedDate: string | null
   sentDate: string | null
   receivedDate: string | null
   followupDate: string | null
@@ -77,6 +82,7 @@ const filters = reactive({
   billId: (route.query.billId as string) ?? '',
   direction: (route.query.direction as string) ?? '',
   status: (route.query.status as string) ?? '',
+  kind: (route.query.kind as string) ?? '',
 })
 
 const { data: roster } = await useFetch<OfficialSummary[]>('/api/officials', {
@@ -93,6 +99,7 @@ const { data: ledger, refresh } = await useFetch<{
     billId: filters.billId || undefined,
     direction: filters.direction || undefined,
     status: filters.status || undefined,
+    kind: filters.kind || undefined,
   })),
 })
 
@@ -110,10 +117,11 @@ function clearFilters(): void {
   filters.billId = ''
   filters.direction = ''
   filters.status = ''
+  filters.kind = ''
   billFilterLabel.value = ''
 }
 const filtered = computed(
-  () => !!(filters.officialId || filters.billId || filters.direction || filters.status),
+  () => !!(filters.officialId || filters.billId || filters.direction || filters.status || filters.kind),
 )
 
 /* ── Compose / edit drawer ──────────────────────────────────────────────── */
@@ -123,8 +131,11 @@ type Draft = {
   direction: LetterDirection
   channel: LetterChannel
   status: LetterStatus
+  kind: LetterKind
   subject: string
   body: string
+  url: string
+  publishedDate: string
   sentDate: string
   receivedDate: string
   followupDate: string
@@ -137,8 +148,11 @@ const blank = (): Draft => ({
   direction: 'sent',
   channel: 'email',
   status: 'draft',
+  kind: 'correspondence',
   subject: '',
   body: '',
+  url: '',
+  publishedDate: '',
   sentDate: '',
   receivedDate: '',
   followupDate: '',
@@ -150,6 +164,9 @@ const open = ref(false)
 const draft = ref<Draft>(blank())
 const busy = ref(false)
 const error = ref<string | null>(null)
+
+/** A media piece — a letter to the editor or an op-ed — as opposed to plain correspondence. */
+const draftIsMedia = computed(() => draft.value.kind !== 'correspondence')
 
 /**
  * The drawer does double duty: reading a letter and writing one.
@@ -244,8 +261,11 @@ function edit(letter: LetterRow): void {
     direction: letter.direction,
     channel: letter.channel,
     status: letter.status,
+    kind: letter.kind,
     subject: letter.subject,
     body: letter.body ?? '',
+    url: letter.url ?? '',
+    publishedDate: letter.publishedDate ?? '',
     sentDate: letter.sentDate ?? '',
     receivedDate: letter.receivedDate ?? '',
     followupDate: letter.followupDate ?? '',
@@ -281,8 +301,13 @@ async function save(): Promise<void> {
     direction: d.direction,
     channel: d.channel,
     status: d.status,
+    kind: d.kind,
     subject: d.subject,
     body: d.body,
+    // url/publishedDate only mean something on a media piece; send them empty on
+    // correspondence so switching a draft's kind can't leave a stale link behind.
+    url: d.kind === 'correspondence' ? '' : d.url,
+    publishedDate: d.kind === 'correspondence' ? null : d.publishedDate || null,
     sentDate: d.sentDate || null,
     receivedDate: d.receivedDate || null,
     followupDate: d.followupDate || null,
@@ -359,6 +384,16 @@ const CHANNEL_LABEL: Record<string, string> = {
   in_person: 'in person',
 }
 
+const KIND_LABEL: Record<string, string> = {
+  correspondence: 'Correspondence',
+  letter_to_editor: 'Letter to the editor',
+  op_ed: 'Op-ed',
+}
+/** correspondence is the unmarked default, so only media kinds get a badge in the ledger. */
+function isMedia(kind: string): boolean {
+  return kind !== 'correspondence'
+}
+
 const today = new Date().toISOString().slice(0, 10)
 /** A follow-up that has come due and hasn't been done is the ledger's one hazard. */
 function overdue(letter: LetterRow): boolean {
@@ -426,6 +461,12 @@ function seat(o: OfficialSummary): string {
         <option v-for="s in LETTER_STATUSES" :key="s" :value="s">{{ s }}</option>
       </select>
 
+      <select v-model="filters.kind">
+        <option value="">Any kind</option>
+        <option value="media">Media only</option>
+        <option v-for="k in LETTER_KINDS" :key="k" :value="k">{{ KIND_LABEL[k] }}</option>
+      </select>
+
       <button v-if="filtered" @click="clearFilters">Clear</button>
       <button class="primary compose" @click="compose">Compose</button>
     </div>
@@ -448,8 +489,18 @@ function seat(o: OfficialSummary): string {
             <button class="subject" :title="l.body ? 'Read this one' : 'Open'" @click="view(l)">
               {{ l.subject }}
             </button>
+            <span v-if="isMedia(l.kind)" class="pill kind">{{ KIND_LABEL[l.kind] }}</span>
             <span class="pill">{{ l.direction }}</span>
             <span class="pill">{{ CHANNEL_LABEL[l.channel] ?? l.channel }}</span>
+            <a
+              v-if="l.url"
+              :href="l.url"
+              target="_blank"
+              rel="noopener"
+              class="pill link"
+              title="Open the published piece"
+              @click.stop
+            >↗ link</a>
           </div>
           <div class="row-links">
             <NuxtLink
@@ -469,7 +520,7 @@ function seat(o: OfficialSummary): string {
         </div>
 
         <div class="row-when">
-          <span class="when faint">{{ day(l.sentDate ?? l.receivedDate) }}</span>
+          <span class="when faint">{{ day(l.publishedDate ?? l.sentDate ?? l.receivedDate) }}</span>
           <span v-if="l.followupDate && !l.followupDone" class="followup" :class="{ hot: overdue(l) }">
             follow up {{ day(l.followupDate) }}
             <button class="x" title="Mark the follow-up done" @click="markFollowupDone(l)">✓</button>
@@ -506,6 +557,7 @@ function seat(o: OfficialSummary): string {
 
         <div class="read-tags">
           <span class="status" :data-status="viewing.status">{{ viewing.status }}</span>
+          <span v-if="isMedia(viewing.kind)" class="pill kind">{{ KIND_LABEL[viewing.kind] }}</span>
           <span class="pill">{{ viewing.direction }}</span>
           <span class="pill">{{ CHANNEL_LABEL[viewing.channel] ?? viewing.channel }}</span>
         </div>
@@ -530,6 +582,13 @@ function seat(o: OfficialSummary): string {
                 <span class="ident">{{ b.identifier }}</span>
               </NuxtLink>
             </dd>
+          </template>
+          <template v-if="viewing.publishedDate">
+            <dt class="label">Published</dt><dd class="mono">{{ day(viewing.publishedDate) }}</dd>
+          </template>
+          <template v-if="viewing.url">
+            <dt class="label">Link</dt>
+            <dd><a :href="viewing.url" target="_blank" rel="noopener" class="read-link">{{ viewing.url }}</a></dd>
           </template>
           <template v-if="viewing.sentDate">
             <dt class="label">Sent</dt><dd class="mono">{{ day(viewing.sentDate) }}</dd>
@@ -570,6 +629,17 @@ function seat(o: OfficialSummary): string {
           <button class="x" @click="open = false">×</button>
         </div>
 
+        <!-- What is this? Correspondence to a contact, or a media piece placed with an outlet.
+             It decides which fields below appear, so it leads. -->
+        <label class="field"><span class="label">Kind</span>
+          <select v-model="draft.kind">
+            <option v-for="k in LETTER_KINDS" :key="k" :value="k">{{ KIND_LABEL[k] }}</option>
+          </select></label>
+        <p v-if="draftIsMedia" class="faint hint media-hint">
+          Address it to the outlet — add the media organization under Officials below (it's a
+          contact with type “media”). Capture the piece with a link and, once it runs, a date.
+        </p>
+
         <!-- Flow B, in the brief's order: direction/channel first, because a phone call
              and an email are not the same shape and everything below follows from it. -->
         <div class="pair">
@@ -600,6 +670,14 @@ function seat(o: OfficialSummary): string {
               : 'Draft text.'"
           />
         </label>
+
+        <!-- Media capture: where it ran and when. Only for a letter-to-editor / op-ed. -->
+        <div v-if="draftIsMedia" class="pair">
+          <label><span class="label">Link</span>
+            <input v-model="draft.url" type="url" placeholder="https://blockclubchicago.org/…" /></label>
+          <label><span class="label">Published on</span>
+            <input v-model="draft.publishedDate" type="date" /></label>
+        </div>
 
         <!-- 2. Attach official(s) — typeahead over the CRM. -->
         <div class="field">
@@ -766,6 +844,15 @@ h1 { margin: 0; font-size: 30px; }
 .pill.bill { display: inline-flex; align-items: center; gap: 6px; }
 a.pill.bill:hover { border-color: var(--accent); }
 .unlinked { font-size: 12px; font-family: var(--font-mono); }
+
+/* A media piece's kind — accent-tinted so a placement stands out from correspondence in the
+   scan. Same idiom as the org pill in the CRM. */
+.pill.kind { color: var(--accent); border-color: var(--accent); }
+/* The link to where a piece ran. */
+a.pill.link { color: var(--ink2); }
+a.pill.link:hover { border-color: var(--accent); color: var(--ink); }
+.media-hint { margin: -4px 0 4px; }
+.read-link { overflow-wrap: anywhere; }
 
 .row-when { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex: none; }
 .when { font-family: var(--font-mono); font-size: 12px; }
