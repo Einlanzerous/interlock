@@ -176,11 +176,15 @@ const billPick = useTypeahead<BillSummary>('/api/bills')
  * Done on mount rather than watched: the drawer is a transient layer, and re-opening it every
  * time the URL happened to still carry the param would fight the user closing it.
  */
-onMounted(() => {
-  const wanted = route.query.letterId as string | undefined
-  if (!wanted) return
-  const letter = ledger.value?.items.find((l) => l.id === wanted)
-  if (letter) view(letter)
+onMounted(async () => {
+  const wantedLetter = route.query.letterId as string | undefined
+  if (wantedLetter) {
+    const letter = ledger.value?.items.find((l) => l.id === wantedLetter)
+    if (letter) view(letter)
+    return
+  }
+  const composeBillId = route.query.composeBillId as string | undefined
+  if (composeBillId) await composeForBill(composeBillId)
 })
 
 function compose(): void {
@@ -188,6 +192,38 @@ function compose(): void {
   error.value = null
   mode.value = 'edit'
   open.value = true
+}
+
+/**
+ * `/letters?composeBillId=…` opens the compose drawer pre-filled for a bill — the bill
+ * detail's "Log a letter" action (ITLK-11). Attaches the bill, seeds the subject from its
+ * identifier, and defaults the recipients to the sponsors we've matched to an official (an
+ * unmatched sponsor has no official to address, so it's left out — you can still add one).
+ */
+async function composeForBill(billId: string): Promise<void> {
+  compose()
+  try {
+    const bill = await $fetch<{
+      id: string
+      identifier: string
+      sponsors: Array<{ officialId: string | null; sponsorName: string }>
+    }>(`/api/bills/${billId}`)
+    draft.value.bills = [{ id: bill.id, identifier: bill.identifier }]
+    draft.value.subject = `Re: ${bill.identifier}`
+    const seen = new Set<string>()
+    for (const s of bill.sponsors) {
+      if (s.officialId && !seen.has(s.officialId)) {
+        seen.add(s.officialId)
+        draft.value.officials.push({
+          officialId: s.officialId,
+          fullName: s.sponsorName,
+          role: 'recipient',
+        })
+      }
+    }
+  } catch {
+    // Bill fetch failed — leave the drawer open blank rather than showing nothing.
+  }
 }
 
 function view(letter: LetterRow): void {
