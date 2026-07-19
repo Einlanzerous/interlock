@@ -1,4 +1,30 @@
+import { readFileSync } from 'node:fs'
 import { hostname } from 'node:os'
+import { fileURLToPath } from 'node:url'
+
+/**
+ * The release-please version, read from `.release-please-manifest.json` at build time and
+ * frozen into the bundle. release-please (release-type: simple) bumps that manifest and
+ * nothing else — package.json stays 0.0.0 — so it is the single source of truth for "what
+ * version are we on". The image is rebuilt from the bumped commit on every release, so the
+ * baked value is always the version the running container actually is. Falls back to 'dev'
+ * for a working tree / any read failure.
+ */
+function releaseVersion(): string {
+  const candidates = [
+    new URL('../../.release-please-manifest.json', import.meta.url),
+    new URL('.release-please-manifest.json', `file://${process.cwd()}/`),
+  ]
+  for (const url of candidates) {
+    try {
+      const manifest = JSON.parse(readFileSync(fileURLToPath(url), 'utf8')) as Record<string, string>
+      if (manifest['.']) return manifest['.']
+    } catch {
+      // try the next candidate
+    }
+  }
+  return 'dev'
+}
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -8,6 +34,10 @@ export default defineNuxtConfig({
   build: { transpile: ['@interlock/shared', '@interlock/db'] },
   runtimeConfig: {
     databaseUrl: process.env.DATABASE_URL ?? '',
+    // Exposed to the client so the masthead can show it.
+    public: {
+      version: releaseVersion(),
+    },
   },
   devServer: {
     port: Number(process.env.WEB_PORT ?? 3000),
