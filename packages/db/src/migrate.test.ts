@@ -155,6 +155,132 @@ describe.skipIf(!adminUrl)('migrate', () => {
     expect(inserted.rowCount).toBe(1)
   })
 
+  /**
+   * ITLK-21. An organization is a first-class contact: contact_type = 'org', no role, an
+   * org_type instead, and — always — a null source_person_ids, which is what keeps ingest
+   * and the sponsor matcher (both of which only ever find rows by source person id) from
+   * ever touching it. The shape check is what forbids the mongrel rows a flag column invites.
+   */
+  test('organization contact: contact_type org + org_type, no role, invisible to ingest', async () => {
+    const {
+      rows: [org],
+    } = await pool.query<{ id: string; contact_type: string; role: string | null }>(
+      `insert into official (contact_type, full_name, org_type, email, department)
+       values ('org', 'Chicago Metropolitan Agency for Planning', 'agency',
+               'info@cmap.illinois.gov', 'Planning Division')
+       returning id, contact_type, role`,
+    )
+    expect(org!.contact_type).toBe('org')
+    expect(org!.role).toBeNull()
+
+    // source_person_ids defaults to null, so the tier-1 matcher's lookup can never find it.
+    const invisible = await pool.query(
+      `select 1 from official
+       where source_person_ids @> jsonb_build_object('legiscan', '1') and id = $1`,
+      [org!.id],
+    )
+    expect(invisible.rowCount).toBe(0)
+  })
+
+  test('shape check: an org may not carry a role, a person must have one', async () => {
+    // Org with a role — rejected.
+    await expect(
+      pool.query(
+        `insert into official (contact_type, full_name, org_type, role)
+         values ('org', 'Bad Org', 'media', 'alder')`,
+      ),
+    ).rejects.toThrow(/official_contact_shape/)
+
+    // Org with no org_type — rejected.
+    await expect(
+      pool.query(
+        `insert into official (contact_type, full_name) values ('org', 'Typeless Org')`,
+      ),
+    ).rejects.toThrow(/official_contact_shape/)
+
+    // Person carrying an org_type — rejected.
+    await expect(
+      pool.query(
+        `insert into official (contact_type, full_name, role, org_type)
+         values ('person', 'Confused Person', 'alder', 'media')`,
+      ),
+    ).rejects.toThrow(/official_contact_shape/)
+  })
+
+  test('a staffer affiliates to an org via org_id; deleting the org orphans, not deletes', async () => {
+    const {
+      rows: [org],
+    } = await pool.query<{ id: string }>(
+      `insert into official (contact_type, full_name, org_type)
+       values ('org', 'CDOT', 'agency') returning id`,
+    )
+    const {
+      rows: [staffer],
+    } = await pool.query<{ id: string }>(
+      `insert into official (contact_type, full_name, role, org_id)
+       values ('person', 'A Staffer at CDOT', 'other', $1) returning id`,
+      [org!.id],
+    )
+
+    // An org may not point an affiliation at anything (org_id must stay null on an org)…
+    await expect(
+      pool.query(`update official set org_id = $2 where id = $1`, [org!.id, staffer!.id]),
+    ).rejects.toThrow(/official_contact_shape/)
+
+    // …and deleting the org sets the staffer's org_id back to null rather than cascading.
+    await pool.query(`delete from official where id = $1`, [org!.id])
+    const {
+      rows: [after],
+    } = await pool.query<{ org_id: string | null }>(
+      `select org_id from official where id = $1`,
+      [staffer!.id],
+    )
+    expect(after!.org_id).toBeNull()
+  })
+
+  /**
+   * ITLK-21. The detail endpoint names a person's org in the same round trip via a self-join,
+   * and lists an org's staff via org_id. Those two SQL shapes are new, so they're pinned here
+   * against a real database rather than only type-checked.
+   */
+  test('org detail SQL: self-join names the affiliation, org_id lists the staff', async () => {
+    const {
+      rows: [org],
+    } = await pool.query<{ id: string }>(
+      `insert into official (contact_type, full_name, org_type, department)
+       values ('org', 'CMAP', 'agency', 'Planning Division') returning id`,
+    )
+    await pool.query(
+      `insert into official (contact_type, full_name, role, org_id)
+       values ('person', 'Staffer One', 'other', $1), ('person', 'Staffer Two', 'other', $1)`,
+      [org!.id],
+    )
+
+    // The person side: their affiliated org's name comes back on the same row (index [id].get).
+    const person = await pool.query<{ full_name: string; org_name: string | null }>(
+      `select o.full_name, org.full_name as org_name
+       from official o left join official org on org.id = o.org_id
+       where o.full_name = 'Staffer One'`,
+    )
+    expect(person.rows[0]!.org_name).toBe('CMAP')
+
+    // The org side: its staff, active first then by name.
+    const staff = await pool.query<{ full_name: string }>(
+      `select full_name from official where org_id = $1 order by active desc, full_name`,
+      [org!.id],
+    )
+    expect(staff.rows.map((r) => r.full_name)).toEqual(['Staffer One', 'Staffer Two'])
+
+    // The roster's contact_type filter returns the org and excludes the people.
+    const orgsOnly = await pool.query<{ full_name: string }>(
+      `select full_name from official
+       where ($1::contact_type is null or contact_type = $1) and full_name in ('CMAP','Staffer One')
+       order by full_name`,
+      ['org'],
+    )
+    expect(orgsOnly.rows.map((r) => r.full_name)).toEqual(['CMAP'])
+  })
+
   test('updated_at bumps on update', async () => {
     const {
       rows: [before],

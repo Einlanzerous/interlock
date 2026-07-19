@@ -87,6 +87,21 @@ export const OFFICIAL_ROLES = [
 export const officialRoleSchema = z.enum(OFFICIAL_ROLES)
 export type OfficialRole = z.infer<typeof officialRoleSchema>
 
+/**
+ * `contact_type` — a CRM contact is a person or an organization (ITLK-21).
+ *
+ * Orgs (CMAP, CDOT, a community group) are correspondence targets, always hand-added, so
+ * ingest never touches them. `role` belongs to a person, `org_type` to an org.
+ */
+export const CONTACT_TYPES = ['person', 'org'] as const
+export const contactTypeSchema = z.enum(CONTACT_TYPES)
+export type ContactType = z.infer<typeof contactTypeSchema>
+
+/** `org_type` — an organization's kind, the way `official_role` is a person's seat. */
+export const ORG_TYPES = ['agency', 'media', 'advocacy', 'community_group', 'other'] as const
+export const orgTypeSchema = z.enum(ORG_TYPES)
+export type OrgType = z.infer<typeof orgTypeSchema>
+
 /** `letter_direction` — did we send it, or did it arrive? */
 export const LETTER_DIRECTIONS = ['sent', 'received'] as const
 export const letterDirectionSchema = z.enum(LETTER_DIRECTIONS)

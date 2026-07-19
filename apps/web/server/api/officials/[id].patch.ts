@@ -1,4 +1,4 @@
-import { OFFICIAL_ROLES } from '@interlock/shared'
+import { OFFICIAL_ROLES, ORG_TYPES } from '@interlock/shared'
 import { DatabaseError } from 'pg'
 import { db } from '../../utils/db'
 import { INGEST_OWNED_FIELDS, parseOfficialFields } from '../../utils/officials'
@@ -38,7 +38,20 @@ const COLUMNS: Record<string, string> = {
   officeAddress: 'office_address',
   relationshipNotes: 'relationship_notes',
   active: 'active',
+  orgType: 'org_type',
+  department: 'department',
+  orgId: 'org_id',
 }
+
+/**
+ * Which keys belong to which shape. `contact_type` is deliberately absent from COLUMNS — a
+ * person doesn't become an org by PATCH, and letting it flip would strand the row against
+ * the shape check (an org with a role, a person with none). Editing across the divide —
+ * setting a role on an org, an org_type on a person — is a 400 here rather than a Postgres
+ * constraint error, so the message reads.
+ */
+const PERSON_ONLY = ['role', 'ward', 'district', 'party', 'orgId'] as const
+const ORG_ONLY = ['orgType', 'department'] as const
 
 export default defineEventHandler(async (event): Promise<OfficialUpdated> => {
   const id = getRouterParam(event, 'id')!
@@ -57,10 +70,10 @@ export default defineEventHandler(async (event): Promise<OfficialUpdated> => {
 
   const pool = db()
 
-  let existing: { manual: boolean } | undefined
+  let existing: { manual: boolean; contact_type: 'person' | 'org' } | undefined
   try {
-    const { rows } = await pool.query<{ manual: boolean }>(
-      `select source_person_ids is null as manual from official where id = $1`,
+    const { rows } = await pool.query<{ manual: boolean; contact_type: 'person' | 'org' }>(
+      `select source_person_ids is null as manual, contact_type from official where id = $1`,
       [id],
     )
     existing = rows[0]
@@ -84,6 +97,21 @@ export default defineEventHandler(async (event): Promise<OfficialUpdated> => {
     }
   }
 
+  // A contact can't be edited across the person/org divide — the fields simply don't apply.
+  const wrongShape =
+    existing.contact_type === 'org'
+      ? keys.filter((k) => (PERSON_ONLY as readonly string[]).includes(k))
+      : keys.filter((k) => (ORG_ONLY as readonly string[]).includes(k))
+  if (wrongShape.length > 0) {
+    const noun = existing.contact_type === 'org' ? 'an organization' : 'a person'
+    throw createError({
+      statusCode: 400,
+      statusMessage: `${wrongShape.join(', ')} ${
+        wrongShape.length > 1 ? 'are' : 'is'
+      } not a field on ${noun} contact`,
+    })
+  }
+
   // Validated together so a bad ward is a 400 whether or not the row is manual.
   const fields = parseOfficialFields(body)
 
@@ -93,8 +121,25 @@ export default defineEventHandler(async (event): Promise<OfficialUpdated> => {
       statusMessage: `role must be one of: ${OFFICIAL_ROLES.join(', ')}`,
     })
   }
+  if ('orgType' in body && !(ORG_TYPES as readonly string[]).includes(String(body.orgType))) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: `orgType must be one of: ${ORG_TYPES.join(', ')}`,
+    })
+  }
   if ('fullName' in body && !String(body.fullName ?? '').trim()) {
     throw createError({ statusCode: 400, statusMessage: 'fullName cannot be blank' })
+  }
+
+  // A person's affiliation must still point at a real org after the edit.
+  if ('orgId' in body && fields.orgId) {
+    const { rows } = await pool.query<{ contact_type: string }>(
+      `select contact_type from official where id = $1`,
+      [fields.orgId],
+    ).catch(() => ({ rows: [] as { contact_type: string }[] }))
+    if (rows[0]?.contact_type !== 'org') {
+      throw createError({ statusCode: 400, statusMessage: 'orgId must be an existing organization' })
+    }
   }
 
   const values: Record<string, unknown> = {
@@ -109,6 +154,9 @@ export default defineEventHandler(async (event): Promise<OfficialUpdated> => {
     officeAddress: fields.officeAddress,
     relationshipNotes: fields.relationshipNotes,
     active: body.active !== false,
+    orgType: body.orgType,
+    department: fields.department,
+    orgId: fields.orgId,
   }
 
   const sets = keys.map((k, i) => `${COLUMNS[k]} = $${i + 2}`)

@@ -1,7 +1,9 @@
 import {
   signalForStatus,
   type BillStatus,
+  type ContactType,
   type OfficialRole,
+  type OrgType,
   type Signal,
 } from '@interlock/shared'
 import { DatabaseError } from 'pg'
@@ -59,10 +61,25 @@ export interface OfficialLetter {
   followupDone: boolean
 }
 
+/** A person on staff at an org (ITLK-21) — the org detail page's people list. */
+export interface OfficialStaffer {
+  id: string
+  fullName: string
+  role: OfficialRole | null
+  active: boolean
+}
+
 export interface OfficialDetail {
   id: string
   fullName: string
-  role: OfficialRole
+  /** person | org. An org has null role/seat and carries orgType + department instead. */
+  contactType: ContactType
+  role: OfficialRole | null
+  orgType: OrgType | null
+  department: string | null
+  /** A person's affiliated org, if any — its id and name for a one-hop link. */
+  orgId: string | null
+  orgName: string | null
   party: string | null
   ward: number | null
   district: string | null
@@ -78,6 +95,8 @@ export interface OfficialDetail {
   committees: OfficialCommittee[]
   sponsoredBills: OfficialSponsoredBill[]
   letters: OfficialLetter[]
+  /** People affiliated to this contact — non-empty only when this contact is an org. */
+  staff: OfficialStaffer[]
 }
 
 export default defineEventHandler(async (event): Promise<OfficialDetail> => {
@@ -85,11 +104,16 @@ export default defineEventHandler(async (event): Promise<OfficialDetail> => {
   const pool = db()
 
   try {
-    const [official, committees, bills, letters] = await Promise.all([
+    const [official, committees, bills, letters, staff] = await Promise.all([
       pool.query<{
         id: string
         full_name: string
-        role: OfficialRole
+        contact_type: ContactType
+        role: OfficialRole | null
+        org_type: OrgType | null
+        department: string | null
+        org_id: string | null
+        org_name: string | null
         party: string | null
         ward: number | null
         district: string | null
@@ -103,10 +127,16 @@ export default defineEventHandler(async (event): Promise<OfficialDetail> => {
         created_at: string
         updated_at: string
       }>(
-        `select id, full_name, role, party, ward, district, email, phone, web_form_url,
-                office_address, relationship_notes, active,
-                source_person_ids is null as manual, created_at, updated_at
-         from official where id = $1`,
+        // Self-join to name the affiliated org in the same round trip — a person's "at CDOT"
+        // is one hop, so it costs no extra query.
+        `select o.id, o.full_name, o.contact_type, o.role, o.org_type, o.department,
+                o.org_id, org.full_name as org_name,
+                o.party, o.ward, o.district, o.email, o.phone, o.web_form_url,
+                o.office_address, o.relationship_notes, o.active,
+                o.source_person_ids is null as manual, o.created_at, o.updated_at
+         from official o
+         left join official org on org.id = o.org_id
+         where o.id = $1`,
         [id],
       ),
 
@@ -175,6 +205,15 @@ export default defineEventHandler(async (event): Promise<OfficialDetail> => {
                   l.created_at desc`,
         [id],
       ),
+
+      // People affiliated to this contact. Empty for a person (nobody staffs a person);
+      // for an org it's the roster of named contacts at it. Active first, then by name.
+      pool.query<{ id: string; full_name: string; role: OfficialRole | null; active: boolean }>(
+        `select id, full_name, role, active from official
+         where org_id = $1
+         order by active desc, full_name`,
+        [id],
+      ),
     ])
 
     const row = official.rows[0]
@@ -183,7 +222,12 @@ export default defineEventHandler(async (event): Promise<OfficialDetail> => {
     return {
       id: row.id,
       fullName: row.full_name,
+      contactType: row.contact_type,
       role: row.role,
+      orgType: row.org_type,
+      department: row.department,
+      orgId: row.org_id,
+      orgName: row.org_name,
       party: row.party,
       ward: row.ward,
       district: row.district,
@@ -219,6 +263,12 @@ export default defineEventHandler(async (event): Promise<OfficialDetail> => {
         receivedDate: l.received_date,
         followupDate: l.followup_date,
         followupDone: l.followup_done,
+      })),
+      staff: staff.rows.map((s) => ({
+        id: s.id,
+        fullName: s.full_name,
+        role: s.role,
+        active: s.active,
       })),
     }
   } catch (err) {
