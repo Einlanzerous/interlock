@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
-import { OFFICIAL_ROLES, type OfficialRole, type Signal } from '@interlock/shared'
+import {
+  OFFICIAL_ROLES,
+  ORG_TYPES,
+  type ContactType,
+  type OfficialRole,
+  type OrgType,
+  type Signal,
+} from '@interlock/shared'
 
 /**
  * The Officials CRM (ITLK-9, brief §6 / user flow C).
@@ -25,7 +32,9 @@ import { OFFICIAL_ROLES, type OfficialRole, type Signal } from '@interlock/share
 interface OfficialSummary {
   id: string
   fullName: string
-  role: OfficialRole
+  contactType: ContactType
+  role: OfficialRole | null
+  orgType: OrgType | null
   party: string | null
   ward: number | null
   district: string | null
@@ -60,13 +69,24 @@ interface Correspondence {
   followupDone: boolean
 }
 
+interface Staffer {
+  id: string
+  fullName: string
+  role: OfficialRole | null
+  active: boolean
+}
+
 interface OfficialDetail extends OfficialSummary {
+  department: string | null
+  orgId: string | null
+  orgName: string | null
   webFormUrl: string | null
   officeAddress: string | null
   relationshipNotes: string | null
   committees: Array<{ id: string; name: string; classification: string | null; role: string | null }>
   sponsoredBills: SponsoredBill[]
   letters: Correspondence[]
+  staff: Staffer[]
 }
 
 const route = useRoute()
@@ -74,13 +94,14 @@ const selectedId = computed(() => (route.params.id as string | undefined) || nul
 
 /* ── The roster (left pane) ─────────────────────────────────────────────── */
 
-const filters = reactive({ q: '', role: '', ward: '', district: '', active: 'true' })
+const filters = reactive({ q: '', type: '', role: '', ward: '', district: '', active: 'true' })
 
 const { data: roster, refresh: refreshRoster } = await useFetch<OfficialSummary[]>(
   '/api/officials',
   {
     query: computed(() => ({
       q: filters.q || undefined,
+      type: filters.type || undefined,
       role: filters.role || undefined,
       ward: filters.ward || undefined,
       district: filters.district || undefined,
@@ -88,6 +109,12 @@ const { data: roster, refresh: refreshRoster } = await useFetch<OfficialSummary[
     })),
   },
 )
+
+// Every organization, for the "affiliated org" picker on a person. Cheap (the org list is
+// short) and kept apart from the roster so the roster's own filters don't shrink it.
+const { data: orgs, refresh: refreshOrgs } = await useFetch<OfficialSummary[]>('/api/officials', {
+  query: { type: 'org', active: 'all' },
+})
 
 /* ── The person (right pane) ────────────────────────────────────────────── */
 
@@ -127,18 +154,31 @@ const {
 
 const detail = computed(() => fetched.value?.official ?? null)
 
-const tab = ref<'bills' | 'letters'>('bills')
+/** Orgs show Staff where people show Sponsored bills; both show Correspondence. */
+const tab = ref<'bills' | 'staff' | 'letters'>('bills')
 watch(selectedId, () => {
   tab.value = 'bills'
   editing.value = false
   creating.value = false
 })
+// When an org loads (or a person after an org), land on the tab that actually exists.
+watch(
+  () => detail.value?.contactType,
+  (type) => {
+    if (type === 'org' && tab.value === 'bills') tab.value = 'staff'
+    if (type === 'person' && tab.value === 'staff') tab.value = 'bills'
+  },
+)
 
 /* ── Editing and adding ─────────────────────────────────────────────────── */
 
 type Draft = {
+  contactType: ContactType
   fullName: string
   role: string
+  orgType: string
+  department: string
+  orgId: string
   party: string
   ward: string
   district: string
@@ -151,8 +191,12 @@ type Draft = {
 }
 
 const blank = (): Draft => ({
+  contactType: 'person',
   fullName: '',
   role: 'us_sen',
+  orgType: 'agency',
+  department: '',
+  orgId: '',
   party: '',
   ward: '',
   district: '',
@@ -179,8 +223,12 @@ function startCreate(): void {
 
 function startEdit(o: OfficialDetail): void {
   draft.value = {
+    contactType: o.contactType,
     fullName: o.fullName,
-    role: o.role,
+    role: o.role ?? 'us_sen',
+    orgType: o.orgType ?? 'agency',
+    department: o.department ?? '',
+    orgId: o.orgId ?? '',
     party: o.party ?? '',
     ward: o.ward != null ? String(o.ward) : '',
     district: o.district ?? '',
@@ -196,7 +244,7 @@ function startEdit(o: OfficialDetail): void {
   error.value = null
 }
 
-/** The three columns no ingest statement writes — editable on anyone. */
+/** The three columns no ingest statement writes — editable on any person. */
 function humanOwned(d: Draft): Record<string, unknown> {
   return {
     relationshipNotes: d.relationshipNotes,
@@ -205,9 +253,10 @@ function humanOwned(d: Draft): Record<string, unknown> {
   }
 }
 
-/** Everything else — only offered when there's no ingest to fight over the row. */
-function contactFields(d: Draft): Record<string, unknown> {
+/** A person's editable surface when nothing else owns the row (manual / create). */
+function personFields(d: Draft): Record<string, unknown> {
   return {
+    contactType: 'person',
     fullName: d.fullName,
     role: d.role,
     ward: d.ward,
@@ -215,6 +264,24 @@ function contactFields(d: Draft): Record<string, unknown> {
     phone: d.phone,
     webFormUrl: d.webFormUrl,
     officeAddress: d.officeAddress,
+    orgId: d.orgId, // '' clears the affiliation; the API turns blank into null.
+    active: d.active,
+    ...humanOwned(d),
+  }
+}
+
+/** An org is always manual, so its whole surface is editable — no role, no seat. */
+function orgFields(d: Draft): Record<string, unknown> {
+  return {
+    contactType: 'org',
+    fullName: d.fullName,
+    orgType: d.orgType,
+    department: d.department,
+    email: d.email,
+    phone: d.phone,
+    webFormUrl: d.webFormUrl,
+    officeAddress: d.officeAddress,
+    relationshipNotes: d.relationshipNotes,
     active: d.active,
   }
 }
@@ -225,12 +292,18 @@ async function save(): Promise<void> {
   busy.value = true
   error.value = null
   try {
-    const body = target.manual
-      ? { ...humanOwned(draft.value), ...contactFields(draft.value) }
-      : humanOwned(draft.value)
+    // An org is manual → whole surface. A manual person → whole surface. A sourced person →
+    // only the three columns ingest never touches. contactType is immutable, so it's dropped
+    // from the edit payload (the API rejects it in COLUMNS anyway).
+    const body =
+      target.contactType === 'org'
+        ? withoutType(orgFields(draft.value))
+        : target.manual
+          ? withoutType(personFields(draft.value))
+          : humanOwned(draft.value)
     await $fetch(`/api/officials/${target.id}`, { method: 'PATCH', body })
     editing.value = false
-    await Promise.all([refreshDetail(), refreshRoster()])
+    await Promise.all([refreshDetail(), refreshRoster(), refreshOrgs()])
   } catch (err: unknown) {
     error.value = messageOf(err)
   } finally {
@@ -238,16 +311,20 @@ async function save(): Promise<void> {
   }
 }
 
+/** contactType is a create-only field; a PATCH must not carry it. */
+function withoutType(body: Record<string, unknown>): Record<string, unknown> {
+  const { contactType: _drop, ...rest } = body
+  return rest
+}
+
 async function create(): Promise<void> {
   busy.value = true
   error.value = null
   try {
-    const created = await $fetch<{ id: string }>('/api/officials', {
-      method: 'POST',
-      body: { ...contactFields(draft.value), ...humanOwned(draft.value) },
-    })
+    const body = draft.value.contactType === 'org' ? orgFields(draft.value) : personFields(draft.value)
+    const created = await $fetch<{ id: string }>('/api/officials', { method: 'POST', body })
     creating.value = false
-    await refreshRoster()
+    await Promise.all([refreshRoster(), refreshOrgs()])
     await navigateTo(`/officials/${created.id}`)
   } catch (err: unknown) {
     error.value = messageOf(err)
@@ -273,10 +350,24 @@ const ROLE_LABEL: Record<string, string> = {
   other: 'Other',
 }
 
+const ORG_TYPE_LABEL: Record<string, string> = {
+  agency: 'Agency',
+  media: 'Media',
+  advocacy: 'Advocacy',
+  community_group: 'Community group',
+  other: 'Other',
+}
+
 /** The seat, as a person would say it. */
 function seat(o: { ward: number | null; district: string | null }): string | null {
   if (o.ward != null) return `Ward ${o.ward}`
   return o.district || null
+}
+
+/** The one-line descriptor under a name — a person's role/seat, or an org's kind. */
+function kindLabel(o: OfficialSummary): string {
+  if (o.contactType === 'org') return ORG_TYPE_LABEL[o.orgType ?? 'other'] ?? 'Organization'
+  return (o.role && ROLE_LABEL[o.role]) || o.role || ''
 }
 
 function day(iso: string | null): string {
@@ -291,8 +382,9 @@ function day(iso: string | null): string {
       <NuxtLink to="/officials/review" class="review-link">Review queue →</NuxtLink>
     </div>
     <p class="muted intro">
-      Everyone the organizer deals with — alders, state legislators, the mayor, and the
-      federal contacts added by hand so letters to Congress are loggable.
+      Everyone the organizer deals with — alders, state legislators, the mayor, the federal
+      contacts added by hand so letters to Congress are loggable, and the organizations
+      (CMAP, CDOT, community groups) a letter can be addressed to.
     </p>
 
     <p v-if="error" class="error">{{ error }}</p>
@@ -303,17 +395,24 @@ function day(iso: string | null): string {
         <div class="filters">
           <input v-model="filters.q" type="search" placeholder="Search the roster…" class="search" />
           <div class="filter-row">
-            <select v-model="filters.role">
+            <select v-model="filters.type">
+              <option value="">People &amp; orgs</option>
+              <option value="person">People</option>
+              <option value="org">Organizations</option>
+            </select>
+            <select v-model="filters.role" :disabled="filters.type === 'org'">
               <option value="">Any role</option>
               <option v-for="r in OFFICIAL_ROLES" :key="r" :value="r">{{ ROLE_LABEL[r] }}</option>
             </select>
-            <input v-model="filters.ward" type="text" inputmode="numeric" placeholder="Ward" class="narrow" />
-            <input v-model="filters.district" type="text" placeholder="District" class="narrow" />
             <select v-model="filters.active">
               <option value="true">Active</option>
               <option value="false">Inactive</option>
               <option value="all">All</option>
             </select>
+          </div>
+          <div v-if="filters.type !== 'org'" class="filter-row">
+            <input v-model="filters.ward" type="text" inputmode="numeric" placeholder="Ward" class="narrow" />
+            <input v-model="filters.district" type="text" placeholder="District" class="narrow" />
           </div>
           <button class="primary add" @click="startCreate">+ Add contact</button>
         </div>
@@ -326,15 +425,17 @@ function day(iso: string | null): string {
         <ul v-else class="rows">
           <li v-for="o in roster" :key="o.id">
             <NuxtLink :to="`/officials/${o.id}`" :class="{ on: o.id === selectedId }">
-              <OfficialAvatar :name="o.fullName" :size="16" />
+              <OfficialAvatar :name="o.fullName" :size="16" :square="o.contactType === 'org'" />
               <span class="who">
                 <span class="name">{{ o.fullName }}</span>
                 <span class="sub muted">
-                  {{ ROLE_LABEL[o.role] ?? o.role }}<template v-if="seat(o)"> · {{ seat(o) }}</template>
-                  <template v-if="o.party"> · {{ o.party }}</template>
+                  {{ kindLabel(o) }}
+                  <template v-if="o.contactType === 'person' && seat(o)"> · {{ seat(o) }}</template>
+                  <template v-if="o.contactType === 'person' && o.party"> · {{ o.party }}</template>
                 </span>
               </span>
-              <span v-if="o.manual" class="pill manual">manual</span>
+              <span v-if="o.contactType === 'org'" class="pill org">org</span>
+              <span v-else-if="o.manual" class="pill manual">manual</span>
               <span v-if="!o.active" class="pill">inactive</span>
             </NuxtLink>
           </li>
@@ -346,11 +447,26 @@ function day(iso: string | null): string {
         <!-- New contact -->
         <div v-if="creating" class="pane-card">
           <div class="label">Add a contact by hand</div>
+
+          <!-- Person or organization — the choice that decides the rest of the form. -->
+          <div class="seg" role="tablist">
+            <button
+              :class="{ on: draft.contactType === 'person' }"
+              @click="draft.contactType = 'person'"
+            >Person</button>
+            <button
+              :class="{ on: draft.contactType === 'org' }"
+              @click="draft.contactType = 'org'"
+            >Organization</button>
+          </div>
+
           <p class="muted note">
             A hand-added contact has no source, so no ingest will ever touch it — that's what
-            makes a US senator loggable here.
+            makes a US senator, or CMAP, loggable here.
           </p>
-          <div class="form">
+
+          <!-- Person -->
+          <div v-if="draft.contactType === 'person'" class="form">
             <label><span class="label">Full name</span>
               <input v-model="draft.fullName" placeholder="Tammy Duckworth" /></label>
             <label><span class="label">Role</span>
@@ -365,12 +481,38 @@ function day(iso: string | null): string {
             <label><span class="label">Web form</span><input v-model="draft.webFormUrl" placeholder="https://…" /></label>
             <label class="wide"><span class="label">Office address</span>
               <input v-model="draft.officeAddress" /></label>
+            <label class="wide"><span class="label">Organization <span class="faint">(if they staff one)</span></span>
+              <select v-model="draft.orgId">
+                <option value="">— None —</option>
+                <option v-for="og in orgs ?? []" :key="og.id" :value="og.id">{{ og.fullName }}</option>
+              </select></label>
             <label class="wide"><span class="label">Notes</span>
               <textarea v-model="draft.relationshipNotes" rows="3" /></label>
           </div>
+
+          <!-- Organization -->
+          <div v-else class="form">
+            <label class="wide"><span class="label">Organization name</span>
+              <input v-model="draft.fullName" placeholder="Chicago Metropolitan Agency for Planning" /></label>
+            <label><span class="label">Type</span>
+              <select v-model="draft.orgType">
+                <option v-for="t in ORG_TYPES" :key="t" :value="t">{{ ORG_TYPE_LABEL[t] }}</option>
+              </select></label>
+            <label><span class="label">Department <span class="faint">(optional)</span></span>
+              <input v-model="draft.department" placeholder="Planning Division" /></label>
+            <label><span class="label">Email</span><input v-model="draft.email" type="email" /></label>
+            <label><span class="label">Phone</span><input v-model="draft.phone" /></label>
+            <label class="wide"><span class="label">Web form</span>
+              <input v-model="draft.webFormUrl" placeholder="https://…" /></label>
+            <label class="wide"><span class="label">Address</span>
+              <input v-model="draft.officeAddress" /></label>
+            <label class="wide"><span class="label">Notes</span>
+              <textarea v-model="draft.relationshipNotes" rows="3" /></label>
+          </div>
+
           <div class="actions">
             <button class="primary" :disabled="busy || !draft.fullName.trim()" @click="create">
-              Add contact
+              Add {{ draft.contactType === 'org' ? 'organization' : 'contact' }}
             </button>
             <button :disabled="busy" @click="creating = false">Cancel</button>
           </div>
@@ -388,48 +530,84 @@ function day(iso: string | null): string {
         <!-- The person -->
         <div v-else-if="detail" class="pane-card">
           <header class="person">
-            <OfficialAvatar :name="detail.fullName" :size="34" />
+            <OfficialAvatar :name="detail.fullName" :size="34" :square="detail.contactType === 'org'" />
             <div class="person-name">
               <h2>{{ detail.fullName }}</h2>
               <div class="sub muted">
-                {{ ROLE_LABEL[detail.role] ?? detail.role }}
-                <template v-if="seat(detail)"> · {{ seat(detail) }}</template>
-                <template v-if="detail.party"> · {{ detail.party }}</template>
+                {{ kindLabel(detail) }}
+                <template v-if="detail.contactType === 'org' && detail.department">
+                  · {{ detail.department }}
+                </template>
+                <template v-if="detail.contactType === 'person' && seat(detail)"> · {{ seat(detail) }}</template>
+                <template v-if="detail.contactType === 'person' && detail.party"> · {{ detail.party }}</template>
+              </div>
+              <div v-if="detail.contactType === 'person' && detail.orgId" class="sub muted affil">
+                at <NuxtLink :to="`/officials/${detail.orgId}`">{{ detail.orgName }}</NuxtLink>
               </div>
             </div>
             <div class="person-tags">
-              <span v-if="detail.manual" class="pill manual">manual</span>
+              <span v-if="detail.contactType === 'org'" class="pill org">org</span>
+              <span v-else-if="detail.manual" class="pill manual">manual</span>
               <span v-if="!detail.active" class="pill">inactive</span>
             </div>
           </header>
 
           <!-- Edit -->
           <div v-if="editing" class="form edit">
-            <template v-if="detail.manual">
-              <label><span class="label">Full name</span><input v-model="draft.fullName" /></label>
-              <label><span class="label">Role</span>
-                <select v-model="draft.role">
-                  <option v-for="r in OFFICIAL_ROLES" :key="r" :value="r">{{ ROLE_LABEL[r] }}</option>
+            <!-- Organization: no source, so the whole surface is the organizer's. -->
+            <template v-if="detail.contactType === 'org'">
+              <label class="wide"><span class="label">Organization name</span>
+                <input v-model="draft.fullName" /></label>
+              <label><span class="label">Type</span>
+                <select v-model="draft.orgType">
+                  <option v-for="t in ORG_TYPES" :key="t" :value="t">{{ ORG_TYPE_LABEL[t] }}</option>
                 </select></label>
-              <label><span class="label">Ward</span><input v-model="draft.ward" inputmode="numeric" /></label>
+              <label><span class="label">Department</span><input v-model="draft.department" /></label>
               <label><span class="label">Email</span><input v-model="draft.email" type="email" /></label>
               <label><span class="label">Phone</span><input v-model="draft.phone" /></label>
-              <label><span class="label">Web form</span><input v-model="draft.webFormUrl" /></label>
-              <label class="wide"><span class="label">Office address</span>
-                <input v-model="draft.officeAddress" /></label>
+              <label class="wide"><span class="label">Web form</span><input v-model="draft.webFormUrl" /></label>
+              <label class="wide"><span class="label">Address</span><input v-model="draft.officeAddress" /></label>
               <label class="wide check">
                 <input v-model="draft.active" type="checkbox" /> <span class="muted">Active</span>
               </label>
+              <label class="wide"><span class="label">Notes</span>
+                <textarea v-model="draft.relationshipNotes" rows="4" /></label>
             </template>
-            <p v-else class="muted note wide">
-              Contact details come from the feed and are rewritten on every poll, so they
-              aren't editable here — an edit would be reverted within the hour. Party,
-              district and notes are yours.
-            </p>
-            <label><span class="label">Party</span><input v-model="draft.party" /></label>
-            <label><span class="label">District</span><input v-model="draft.district" /></label>
-            <label class="wide"><span class="label">Notes</span>
-              <textarea v-model="draft.relationshipNotes" rows="4" /></label>
+
+            <!-- Person -->
+            <template v-else>
+              <template v-if="detail.manual">
+                <label><span class="label">Full name</span><input v-model="draft.fullName" /></label>
+                <label><span class="label">Role</span>
+                  <select v-model="draft.role">
+                    <option v-for="r in OFFICIAL_ROLES" :key="r" :value="r">{{ ROLE_LABEL[r] }}</option>
+                  </select></label>
+                <label><span class="label">Ward</span><input v-model="draft.ward" inputmode="numeric" /></label>
+                <label><span class="label">Email</span><input v-model="draft.email" type="email" /></label>
+                <label><span class="label">Phone</span><input v-model="draft.phone" /></label>
+                <label><span class="label">Web form</span><input v-model="draft.webFormUrl" /></label>
+                <label class="wide"><span class="label">Office address</span>
+                  <input v-model="draft.officeAddress" /></label>
+                <label class="wide"><span class="label">Organization <span class="faint">(if they staff one)</span></span>
+                  <select v-model="draft.orgId">
+                    <option value="">— None —</option>
+                    <option v-for="og in orgs ?? []" :key="og.id" :value="og.id">{{ og.fullName }}</option>
+                  </select></label>
+                <label class="wide check">
+                  <input v-model="draft.active" type="checkbox" /> <span class="muted">Active</span>
+                </label>
+              </template>
+              <p v-else class="muted note wide">
+                Contact details come from the feed and are rewritten on every poll, so they
+                aren't editable here — an edit would be reverted within the hour. Party,
+                district and notes are yours.
+              </p>
+              <label><span class="label">Party</span><input v-model="draft.party" /></label>
+              <label><span class="label">District</span><input v-model="draft.district" /></label>
+              <label class="wide"><span class="label">Notes</span>
+                <textarea v-model="draft.relationshipNotes" rows="4" /></label>
+            </template>
+
             <div class="actions wide">
               <button class="primary" :disabled="busy" @click="save">Save</button>
               <button :disabled="busy" @click="editing = false">Cancel</button>
@@ -439,6 +617,10 @@ function day(iso: string | null): string {
           <!-- Contact + notes -->
           <template v-else>
             <dl class="contact">
+              <template v-if="detail.contactType === 'org' && detail.department">
+                <dt class="label">Department</dt>
+                <dd>{{ detail.department }}</dd>
+              </template>
               <template v-if="detail.email">
                 <dt class="label">Email</dt>
                 <dd><a :href="`mailto:${detail.email}`">{{ detail.email }}</a></dd>
@@ -468,7 +650,9 @@ function day(iso: string | null): string {
             <div class="notes">
               <div class="label">My notes</div>
               <p v-if="detail.relationshipNotes" class="notes-body">{{ detail.relationshipNotes }}</p>
-              <p v-else class="faint notes-body">Nothing yet. What do we know about this person?</p>
+              <p v-else class="faint notes-body">
+                Nothing yet. What do we know about this {{ detail.contactType === 'org' ? 'organization' : 'person' }}?
+              </p>
             </div>
 
             <div class="actions">
@@ -478,7 +662,18 @@ function day(iso: string | null): string {
 
           <!-- Tabs -->
           <div class="tabs">
-            <button :class="tab === 'bills' ? 'secondary' : ''" @click="tab = 'bills'">
+            <button
+              v-if="detail.contactType === 'org'"
+              :class="tab === 'staff' ? 'secondary' : ''"
+              @click="tab = 'staff'"
+            >
+              Staff · {{ detail.staff.length }}
+            </button>
+            <button
+              v-else
+              :class="tab === 'bills' ? 'secondary' : ''"
+              @click="tab = 'bills'"
+            >
               Sponsored bills · {{ detail.sponsoredBills.length }}
             </button>
             <button :class="tab === 'letters' ? 'secondary' : ''" @click="tab = 'letters'">
@@ -486,7 +681,7 @@ function day(iso: string | null): string {
             </button>
           </div>
 
-          <!-- Sponsored bills -->
+          <!-- Sponsored bills (person) -->
           <div v-if="tab === 'bills'">
             <p v-if="!detail.sponsoredBills.length" class="faint tab-empty">
               Nothing sponsored — or nothing the matcher has linked to them yet.
@@ -499,6 +694,23 @@ function day(iso: string | null): string {
                 <span class="pill">{{ b.sponsorType }}</span>
                 <span v-if="b.position" class="pill stance">{{ b.position }}</span>
                 <span class="when faint">{{ day(b.lastActionDate) }}</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Staff (org) -->
+          <div v-else-if="tab === 'staff'">
+            <p v-if="!detail.staff.length" class="faint tab-empty">
+              No named contacts yet. Add a person and set their organization to this one.
+            </p>
+            <ul v-else class="rows">
+              <li v-for="s in detail.staff" :key="s.id">
+                <NuxtLink :to="`/officials/${s.id}`" class="staff-row">
+                  <OfficialAvatar :name="s.fullName" :size="16" />
+                  <span class="staff-name">{{ s.fullName }}</span>
+                  <span class="sub muted">{{ s.role ? (ROLE_LABEL[s.role] ?? s.role) : '' }}</span>
+                  <span v-if="!s.active" class="pill">inactive</span>
+                </NuxtLink>
               </li>
             </ul>
           </div>
@@ -630,6 +842,38 @@ h1 { margin: 0; font-size: 30px; }
 
 .note { font-size: 13px; margin: 6px 0 14px; }
 .actions { display: flex; gap: 8px; margin-top: 16px; }
+
+.affil { margin-top: 2px; }
+.affil a { color: var(--accent); }
+
+/* --- Person / org segmented toggle ---------------------------------------- */
+.seg { display: inline-flex; margin: 14px 0 4px; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button {
+  border: 0;
+  border-radius: 0;
+  background: var(--panel);
+  color: var(--ink2);
+  padding: 6px 16px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button.on { background: var(--accdim); color: var(--ink); }
+
+/* --- Staff rows (org detail) ---------------------------------------------- */
+.staff-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--panel2);
+  border-radius: 5px;
+  padding: 8px 10px;
+  font-size: 13px;
+  color: var(--ink2);
+}
+.staff-row:hover { background: var(--accdim); }
+.staff-name { font-weight: 600; color: var(--ink); }
+.staff-row .sub { flex: 1; min-width: 0; }
 
 /* --- Forms ---------------------------------------------------------------- */
 .form { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; margin-top: 14px; }

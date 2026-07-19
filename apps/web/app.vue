@@ -286,6 +286,8 @@ textarea { line-height: 1.6; resize: vertical; }
 }
 /* "Not from a feed" — the brief's idiom for it is a dashed border. */
 .pill.manual { border-style: dashed; color: var(--faint); }
+/* An organization, not a person — accent-tinted so it reads at a glance in the roster. */
+.pill.org { color: var(--accent); border-color: var(--accent); }
 
 .error {
   background: #2a1614;

@@ -10,18 +10,25 @@ import { computed } from 'vue'
  * There are no photos to show — eLMS and LegiScan don't ship any — so it's initials on the
  * nested-surface fill, which is what the wireframe draws.
  */
-const props = withDefaults(defineProps<{ name: string; size?: number }>(), { size: 16 })
+const props = withDefaults(
+  defineProps<{ name: string; size?: number; square?: boolean }>(),
+  { size: 16, square: false },
+)
 
 /**
  * "Lopez, Raymond A." and "Raymond Lopez" should agree, so the comma form is flipped
  * before initials are taken — otherwise the roster shows LR for one and RL for the other.
+ *
+ * A single-word name — an org acronym like "CMAP", or a mononym — takes its first two
+ * letters rather than one, so the glyph never collapses to a lone character.
  */
 const initials = computed(() => {
   const raw = props.name.trim()
   const name = raw.includes(',')
     ? `${raw.slice(raw.indexOf(',') + 1).trim()} ${raw.slice(0, raw.indexOf(','))}`
     : raw
-  const words = name.split(/\s+/).filter((w) => /[a-z]/i.test(w))
+  const words = name.split(/\s+/).filter((w) => /[a-z0-9]/i.test(w))
+  if (words.length === 1) return (words[0] ?? '').slice(0, 2).toUpperCase()
   const first = words[0]?.[0] ?? ''
   const last = words.length > 1 ? (words[words.length - 1]?.[0] ?? '') : ''
   return (first + last).toUpperCase()
@@ -31,6 +38,7 @@ const initials = computed(() => {
 <template>
   <span
     class="avatar"
+    :class="{ square: props.square }"
     :style="{
       width: `${props.size}px`,
       height: `${props.size}px`,
@@ -54,4 +62,7 @@ const initials = computed(() => {
   flex: none;
   user-select: none;
 }
+/* An organization reads as a rounded square, so the roster's shape tells person from org
+   before the label does — the same "shape signals the kind" logic as the signal dot. */
+.avatar.square { border-radius: 28%; }
 </style>

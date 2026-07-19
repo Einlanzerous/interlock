@@ -49,6 +49,10 @@ export interface OfficialFields {
   webFormUrl: string | null
   officeAddress: string | null
   relationshipNotes: string | null
+  /** Org sub-unit ("Planning Division") — org contacts only (ITLK-21). */
+  department: string | null
+  /** A person's affiliated organization (an official id) — person contacts only. */
+  orgId: string | null
 }
 
 /** Empty string and whitespace mean "not set", not "set to blank". */
@@ -77,5 +81,7 @@ export function parseOfficialFields(body: Record<string, unknown> | null): Offic
     webFormUrl: text(body?.webFormUrl),
     officeAddress: text(body?.officeAddress),
     relationshipNotes: text(body?.relationshipNotes),
+    department: text(body?.department),
+    orgId: text(body?.orgId),
   }
 }
