@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 
 /**
  * The app shell, and the design system every screen borrows from.
@@ -27,6 +27,27 @@ async function signOut() {
   await $fetch('/api/auth/logout', { method: 'POST' })
   await navigateTo('/login')
 }
+
+// Unread-alert count on the Alerts tab — the brief's one promise is "zero missed movements",
+// so the count belongs where it's always in view, not only on the dashboard. Refreshed after
+// every navigation because reading the alerts feed is what clears them.
+const unread = ref(0)
+async function refreshUnread(): Promise<void> {
+  if (route.path === '/login') {
+    unread.value = 0
+    return
+  }
+  try {
+    const res = await $fetch<{ unreadTotal: number }>('/api/alerts', {
+      query: { unread: '1', limit: '1' },
+    })
+    unread.value = res.unreadTotal ?? 0
+  } catch {
+    unread.value = 0
+  }
+}
+onMounted(refreshUnread)
+watch(() => route.path, refreshUnread)
 </script>
 
 <template>
@@ -46,7 +67,10 @@ async function signOut() {
         <NuxtLink to="/bills">Bills</NuxtLink>
         <NuxtLink to="/officials">Officials</NuxtLink>
         <NuxtLink to="/letters">Letters</NuxtLink>
-        <NuxtLink to="/alerts">Alerts</NuxtLink>
+        <NuxtLink to="/alerts" class="alerts-link">
+          Alerts
+          <span v-if="unread > 0" class="badge">{{ unread > 99 ? '99+' : unread }}</span>
+        </NuxtLink>
         <button type="button" class="signout" @click="signOut">Sign out</button>
       </nav>
     </header>
@@ -102,7 +126,7 @@ body {
   color: var(--ink2);
   font-family: var(--font-body);
   line-height: 1.6;
-  max-width: 1180px;
+  max-width: 1360px;
   margin: 0 auto;
   padding: 32px 40px 100px;
 }
@@ -136,6 +160,21 @@ h1, h2, h3 { font-family: var(--font-display); color: var(--ink); letter-spacing
 }
 .masthead nav a:hover,
 .masthead nav a.router-link-active { color: var(--ink); }
+/* Unread-alert count. Mono (a machine-chosen number) on the accent, small and pill-shaped —
+   sits inline after the tab label. */
+.masthead nav .alerts-link { display: inline-flex; align-items: center; gap: 6px; }
+.badge {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--bg);
+  background: var(--accent);
+  border-radius: 999px;
+  padding: 3px 6px;
+  min-width: 8px;
+  text-align: center;
+}
 /* Sign-out sits in the nav row, so it's a text affordance, not a boxed button — it drops the
    base button's border/padding and inherits the nav link's size and muted-to-ink hover. */
 .masthead nav .signout {

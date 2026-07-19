@@ -445,11 +445,12 @@ function seat(s: Sponsor): string | null {
             </ul>
             <p class="more">
               <NuxtLink :to="`/letters?billId=${detail.id}`">Open in the ledger →</NuxtLink>
+              <NuxtLink :to="`/letters?composeBillId=${detail.id}`">Log a letter →</NuxtLink>
             </p>
           </section>
           <p v-else class="block faint small">
             Nothing written about this one yet.
-            <NuxtLink :to="`/letters?billId=${detail.id}`">Log a letter →</NuxtLink>
+            <NuxtLink :to="`/letters?composeBillId=${detail.id}`">Log a letter →</NuxtLink>
           </p>
 
           <!-- ── Track: flow A ends here, so the control does too. ──────── -->
@@ -521,7 +522,7 @@ h1 { margin: 28px 0 0; font-size: 30px; }
 
 .panes {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
   gap: 16px;
   align-items: start;
 }
@@ -695,7 +696,7 @@ h1 { margin: 28px 0 0; font-size: 30px; }
 .status[data-status='sent'] { background: var(--caution); }
 .status[data-status='responded'] { background: var(--go); }
 .status[data-status='closed'] { background: var(--muted); }
-.more { font-family: var(--font-mono); font-size: 12px; margin: 10px 0 0; }
+.more { font-family: var(--font-mono); font-size: 12px; margin: 10px 0 0; display: flex; gap: 16px; }
 
 /* --- Track: bottom-anchored, per the brief's wireframe. -------------------- */
 .track {

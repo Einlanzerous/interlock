@@ -543,7 +543,7 @@ h1 { margin: 0; font-size: 30px; }
    instead of wrapping inside it. */
 .panes {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
   gap: 16px;
   align-items: start;
 }
@@ -563,6 +563,14 @@ h1 { margin: 0; font-size: 30px; }
 .add { width: 100%; }
 
 .rows { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+/* The roster is the whole council + every manually-added contact — too long to push the page.
+   Cap it to the viewport and let it scroll inside its own pane; the small right padding keeps
+   the scrollbar off the rows. */
+.roster .rows {
+  max-height: calc(100vh - 300px);
+  overflow-y: auto;
+  padding-right: 4px;
+}
 .roster .rows a {
   display: flex;
   align-items: center;
