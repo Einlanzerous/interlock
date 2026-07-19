@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/Einlanzerous/interlock/compare/v1.0.2...v1.1.0) (2026-07-19)
+
+
+### Features
+
+* **ui:** wider layout, log-a-letter autofill, alerts tab badge, officials scroll ([#22](https://github.com/Einlanzerous/interlock/issues/22)) ([6dab783](https://github.com/Einlanzerous/interlock/commit/6dab78318b70b51996ddd163a2799b32a1d5c8fe))
+
 ## [1.0.2](https://github.com/Einlanzerous/interlock/compare/v1.0.1...v1.0.2) (2026-07-18)
 
 
