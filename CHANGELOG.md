@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/Einlanzerous/interlock/compare/v1.2.0...v1.3.0) (2026-07-20)
+
+
+### Features
+
+* **ITLK-23:** media / non-official correspondence in the ledger ([#26](https://github.com/Einlanzerous/interlock/issues/26)) ([d941b06](https://github.com/Einlanzerous/interlock/commit/d941b0650fcb5ab9e491e811d759fccddfc7da11))
+
 ## [1.2.0](https://github.com/Einlanzerous/interlock/compare/v1.1.0...v1.2.0) (2026-07-19)
 
 
