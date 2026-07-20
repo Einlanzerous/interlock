@@ -18,6 +18,10 @@ import { computed, onMounted, ref, watch } from 'vue'
  */
 const route = useRoute()
 
+// The release-please version, baked into the bundle at build time (see nuxt.config), shown
+// beside the wordmark so the running version is always in view.
+const version = useRuntimeConfig().public.version
+
 // The login screen is the one place without a session, so it carries neither the nav (every
 // link would just bounce back to login) nor a sign-out. Everywhere else is authenticated by
 // the route guard, so showing them there is always correct.
@@ -62,6 +66,7 @@ watch(() => route.path, refreshUnread)
           <circle cx="33" cy="23" r="3" fill="#4db6d9" />
         </svg>
         <span>Interlock</span>
+        <span v-if="version" class="ver">v{{ version }}</span>
       </NuxtLink>
       <nav v-if="!chromeless">
         <NuxtLink to="/bills">Bills</NuxtLink>
@@ -152,6 +157,20 @@ h1, h2, h3 { font-family: var(--font-display); color: var(--ink); letter-spacing
   letter-spacing: -0.01em;
   text-decoration: none;
 }
+/* The version tag: mono (a machine chose it), muted, and small enough to read as a footnote
+   to the wordmark. Nudged toward the baseline so it hangs off "Interlock" rather than
+   centering against its cap height. */
+.brand .ver {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted);
+  letter-spacing: 0;
+  align-self: flex-end;
+  margin-left: -4px;
+  padding-bottom: 3px;
+}
+
 .masthead nav { display: flex; gap: 18px; }
 .masthead nav a {
   color: var(--muted);

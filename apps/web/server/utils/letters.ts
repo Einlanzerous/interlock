@@ -1,16 +1,18 @@
 import {
   LETTER_CHANNELS,
   LETTER_DIRECTIONS,
+  LETTER_KINDS,
   LETTER_OFFICIAL_ROLES,
   LETTER_STATUSES,
   type LetterChannel,
   type LetterDirection,
+  type LetterKind,
   type LetterOfficialRole,
   type LetterStatus,
 } from '@interlock/shared'
 import type { PoolClient } from 'pg'
 
-/** Shared field handling for the letters ledger (ITLK-10). */
+/** Shared field handling for the letters ledger (ITLK-10, media pieces ITLK-23). */
 
 export interface LetterOfficialLink {
   officialId: string
@@ -21,8 +23,11 @@ export interface LetterFields {
   direction: LetterDirection
   channel: LetterChannel
   status: LetterStatus
+  kind: LetterKind
   subject: string
   body: string | null
+  url: string | null
+  publishedDate: string | null
   sentDate: string | null
   receivedDate: string | null
   followupDate: string | null
@@ -71,12 +76,27 @@ export function parseLetter(body: Record<string, unknown> | null): LetterFields 
     throw createError({ statusCode: 400, statusMessage: 'subject is required' })
   }
 
+  const kind: LetterKind = body?.kind == null ? 'correspondence' : oneOf(body.kind, LETTER_KINDS, 'kind')
+  const publishedDate = day(body?.publishedDate, 'publishedDate')
+
+  // A publish date is a claim that something ran, so it has no meaning on a plain exchange —
+  // matches the letter_published_date_kind check, but as a readable 400 rather than a DB error.
+  if (publishedDate && kind === 'correspondence') {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'publishedDate only applies to a letter to the editor or an op-ed',
+    })
+  }
+
   return {
     direction: oneOf(body?.direction, LETTER_DIRECTIONS, 'direction'),
     channel: oneOf(body?.channel, LETTER_CHANNELS, 'channel'),
     status: body?.status == null ? 'draft' : oneOf(body.status, LETTER_STATUSES, 'status'),
+    kind,
     subject,
     body: text(body?.body),
+    url: text(body?.url),
+    publishedDate,
     sentDate: day(body?.sentDate, 'sentDate'),
     receivedDate: day(body?.receivedDate, 'receivedDate'),
     followupDate: day(body?.followupDate, 'followupDate'),

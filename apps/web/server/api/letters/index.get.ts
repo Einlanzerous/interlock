@@ -1,10 +1,12 @@
 import {
   LETTER_DIRECTIONS,
+  LETTER_KINDS,
   LETTER_STATUSES,
   signalForStatus,
   type BillStatus,
   type LetterChannel,
   type LetterDirection,
+  type LetterKind,
   type LetterStatus,
   type Signal,
 } from '@interlock/shared'
@@ -41,8 +43,11 @@ export interface LetterRow {
   direction: LetterDirection
   channel: LetterChannel
   status: LetterStatus
+  kind: LetterKind
   subject: string
   body: string | null
+  url: string | null
+  publishedDate: string | null
   sentDate: string | null
   receivedDate: string | null
   followupDate: string | null
@@ -64,8 +69,11 @@ interface Row {
   direction: LetterDirection
   channel: LetterChannel
   status: LetterStatus
+  kind: LetterKind
   subject: string
   body: string | null
+  url: string | null
+  published_date: string | null
   sent_date: string | null
   received_date: string | null
   followup_date: string | null
@@ -97,6 +105,18 @@ export default defineEventHandler(async (event): Promise<LedgerResponse> => {
     })
   }
 
+  // `?kind=` narrows to a kind; the special value `media` means "either media kind" — the
+  // ledger's "media placements" view and a bill's media-engagement filter.
+  const kindParam = query.kind ? String(query.kind) : null
+  if (kindParam && kindParam !== 'media' && !(LETTER_KINDS as readonly string[]).includes(kindParam)) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: `kind must be one of: ${LETTER_KINDS.join(', ')}, or 'media'`,
+    })
+  }
+  const kind = kindParam === 'media' ? null : kindParam
+  const mediaOnly = kindParam === 'media'
+
   const limit = Math.min(Number(query.limit) || 100, 500)
   const offset = Math.max(Number(query.offset) || 0, 0)
 
@@ -106,7 +126,9 @@ export default defineEventHandler(async (event): Promise<LedgerResponse> => {
     and ($2::uuid is null or exists (
        select 1 from letter_bill lb where lb.letter_id = l.id and lb.bill_id = $2))
     and ($3::letter_direction is null or l.direction = $3)
-    and ($4::letter_status is null or l.status = $4)`
+    and ($4::letter_status is null or l.status = $4)
+    and ($5::letter_kind is null or l.kind = $5)
+    and ($6::boolean is false or l.kind <> 'correspondence')`
 
   const pool = db()
 
@@ -116,7 +138,8 @@ export default defineEventHandler(async (event): Promise<LedgerResponse> => {
         // Ordered by when the exchange happened, not when the row was made: a call logged
         // today about a letter sent last month belongs where its date puts it. A draft has
         // neither date, so it falls back to created_at rather than sinking to the bottom.
-        `select l.id, l.direction, l.channel, l.status, l.subject, l.body,
+        `select l.id, l.direction, l.channel, l.status, l.kind, l.subject, l.body,
+                l.url, l.published_date::text,
                 l.sent_date::text, l.received_date::text,
                 l.followup_date::text, l.followup_done, l.created_at,
                 (select json_agg(json_build_object('id', o.id, 'full_name', o.full_name, 'role', lo.role)
@@ -129,14 +152,14 @@ export default defineEventHandler(async (event): Promise<LedgerResponse> => {
                  where lb.letter_id = l.id) as bills
          from letter l
          where ${where}
-         order by coalesce(l.sent_date, l.received_date, l.created_at::date) desc,
+         order by coalesce(l.published_date, l.sent_date, l.received_date, l.created_at::date) desc,
                   l.created_at desc
-         limit $5 offset $6`,
-        [officialId, billId, direction, status, limit, offset],
+         limit $7 offset $8`,
+        [officialId, billId, direction, status, kind, mediaOnly, limit, offset],
       ),
       pool.query<{ n: string }>(
         `select count(*) as n from letter l where ${where}`,
-        [officialId, billId, direction, status],
+        [officialId, billId, direction, status, kind, mediaOnly],
       ),
       pool.query<{ n: string }>(
         `select count(*) as n from letter
@@ -150,8 +173,11 @@ export default defineEventHandler(async (event): Promise<LedgerResponse> => {
         direction: row.direction,
         channel: row.channel,
         status: row.status,
+        kind: row.kind,
         subject: row.subject,
         body: row.body,
+        url: row.url,
+        publishedDate: row.published_date,
         sentDate: row.sent_date,
         receivedDate: row.received_date,
         followupDate: row.followup_date,

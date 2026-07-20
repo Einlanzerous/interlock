@@ -121,6 +121,16 @@ export const LETTER_STATUSES = ['draft', 'sent', 'responded', 'closed'] as const
 export const letterStatusSchema = z.enum(LETTER_STATUSES)
 export type LetterStatus = z.infer<typeof letterStatusSchema>
 
+/**
+ * `letter_kind` — what a ledger entry *is* (ITLK-23). `correspondence` is a letter/call/email
+ * to a contact (the original meaning, and the default). `letter_to_editor` is a submission to
+ * a media outlet; `op_ed` is a published article/op-ed. The outlet itself is an org contact
+ * (`org_type = 'media'`), so media pieces ride the same ledger and the same recipient join.
+ */
+export const LETTER_KINDS = ['correspondence', 'letter_to_editor', 'op_ed'] as const
+export const letterKindSchema = z.enum(LETTER_KINDS)
+export type LetterKind = z.infer<typeof letterKindSchema>
+
 /** `letter_official_role` — how an official featured in one exchange. */
 export const LETTER_OFFICIAL_ROLES = ['recipient', 'sender', 'cc'] as const
 export const letterOfficialRoleSchema = z.enum(LETTER_OFFICIAL_ROLES)
