@@ -16,6 +16,53 @@ RUN bun install --frozen-lockfile --ignore-scripts
 
 COPY packages ./packages
 
+# Build identity (ITLK-32). Reported by the worker's /healthz listener, which
+# Switchyard's delivery reconciler polls to record what is actually running (the
+# SWY-192 contract, rolled out by SERV-128).
+#
+# Both default to EMPTY, and the fallback lives in `resolveBuildIdentity` rather
+# than here — an ARG that is declared but never passed expands to an empty
+# string, so `ENV APP_VERSION=${APP_VERSION}` sets the key to "" whatever
+# default is written above it. A default of the release version is deliberately
+# absent: an image built outside the release workflow must not claim to be one.
+#
+# APP_VERSION is bare semver, no "v" prefix — compared with strict equality
+# against org.opencontainers.image.version, which metadata-action stamps bare.
+# GIT_SHA is the full 40-char commit, reported verbatim.
+#
+# Placed last, after every COPY: an ENV is image config and a changed value
+# invalidates every layer beneath it. GIT_SHA changes on every release build, so
+# higher up this would re-run `bun install` each time instead of restoring it
+# from cache.
+ARG APP_VERSION=
+ARG GIT_SHA=
+ENV APP_VERSION=${APP_VERSION}
+ENV GIT_SHA=${GIT_SHA}
+
+# The health listener (ITLK-32). Not published to the host — construct-server's
+# compose reaches it on construct_net, and Docker's HEALTHCHECK reaches it from
+# inside the container.
+ENV WORKER_HEALTH_PORT=3001
+EXPOSE 3001
+
+# An image-level default, NOT the check that guards production.
+#
+# construct-server's compose overrides this with a far better probe (SERV-102):
+# it reads pgboss.version's timestamp, which only the worker itself updates. The
+# failure that actually happened here was the worker's connection pool wedged on
+# a dead postgres IP while the database was fine — and an HTTP probe like this
+# one would have reported healthy for the entire outage, because the listener
+# below has no dependency on that pool. A compose healthcheck wins over the
+# image's, so that better probe is what runs in the stack; keep it that way.
+#
+# This exists so the image is not unprobeable when run outside that compose. It
+# can genuinely fail, which is the bar CLAUDE.md sets: the listener answers 503
+# until boot completes, and a refused connection rejects the fetch, so bun exits
+# non-zero rather than the exits-0-forever trap a `require`-throwing one-liner
+# falls into.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+  CMD bun -e "const r = await fetch('http://127.0.0.1:' + (process.env.WORKER_HEALTH_PORT ?? 3001) + '/healthz'); process.exit(r.ok ? 0 : 1)"
+
 # Drop to the unprivileged user the base image ships.
 USER bun
 CMD ["bun", "packages/worker/src/index.ts"]

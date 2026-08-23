@@ -89,6 +89,16 @@ jobs:
           labels: ${{ steps.meta-web.outputs.labels }}
           cache-from: type=gha,scope=web
           cache-to: type=gha,mode=max,scope=web
+          # Build identity for the health contract (ITLK-32). This job only
+          # runs when release-please actually cut a release, so there is no
+          # main-build path whose metadata version output would be the
+          # literal "latest". That output is already BARE semver, matching
+          # org.opencontainers.image.version character for character — the
+          # agreement the delivery matrix depends on, since it compares the
+          # observed string and the reported label with strict equality.
+          build-args: |
+            APP_VERSION=${{ needs.release-please.outputs.version }}
+            GIT_SHA=${{ github.sha }}
 
       - name: Extract worker metadata
         id: meta-worker
@@ -111,6 +121,16 @@ jobs:
           labels: ${{ steps.meta-worker.outputs.labels }}
           cache-from: type=gha,scope=worker
           cache-to: type=gha,mode=max,scope=worker
+          # Build identity for the health contract (ITLK-32). This job only
+          # runs when release-please actually cut a release, so there is no
+          # main-build path whose metadata version output would be the
+          # literal "latest". That output is already BARE semver, matching
+          # org.opencontainers.image.version character for character — the
+          # agreement the delivery matrix depends on, since it compares the
+          # observed string and the reported label with strict equality.
+          build-args: |
+            APP_VERSION=${{ needs.release-please.outputs.version }}
+            GIT_SHA=${{ github.sha }}
 
       # Mint a short-lived, least-privilege token scoped to construct-server for
       # the cross-repo dispatch, then notify the stack that new images are
