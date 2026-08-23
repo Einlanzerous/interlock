@@ -45,10 +45,21 @@ ENV GIT_SHA=${GIT_SHA}
 ENV WORKER_HEALTH_PORT=3001
 EXPOSE 3001
 
-# The worker had NO healthcheck at all, which is how it once stayed invisibly
-# dead — a process that is up but never finished booting looks identical to a
-# working one from outside. The listener answers 503 until boot completes, so
-# this can genuinely fail rather than reporting healthy for ever.
+# An image-level default, NOT the check that guards production.
+#
+# construct-server's compose overrides this with a far better probe (SERV-102):
+# it reads pgboss.version's timestamp, which only the worker itself updates. The
+# failure that actually happened here was the worker's connection pool wedged on
+# a dead postgres IP while the database was fine — and an HTTP probe like this
+# one would have reported healthy for the entire outage, because the listener
+# below has no dependency on that pool. A compose healthcheck wins over the
+# image's, so that better probe is what runs in the stack; keep it that way.
+#
+# This exists so the image is not unprobeable when run outside that compose. It
+# can genuinely fail, which is the bar CLAUDE.md sets: the listener answers 503
+# until boot completes, and a refused connection rejects the fetch, so bun exits
+# non-zero rather than the exits-0-forever trap a `require`-throwing one-liner
+# falls into.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
   CMD bun -e "const r = await fetch('http://127.0.0.1:' + (process.env.WORKER_HEALTH_PORT ?? 3001) + '/healthz'); process.exit(r.ok ? 0 : 1)"
 
