@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/Einlanzerous/interlock/compare/v1.3.0...v1.4.0) (2026-08-23)
+
+
+### Features
+
+* **health:** report version and sha, and give the worker a health listener (ITLK-32) ([#28](https://github.com/Einlanzerous/interlock/issues/28)) ([cdd3b23](https://github.com/Einlanzerous/interlock/commit/cdd3b239e46b267bfc0880b07adcffdda32e9120))
+
 ## [1.3.0](https://github.com/Einlanzerous/interlock/compare/v1.2.0...v1.3.0) (2026-07-20)
 
 
