@@ -6,6 +6,7 @@ import { makeAlerter, type AlertChannelPort } from './alerts/deliver'
 import { EmailAlertChannel } from './alerts/email'
 import { readChangeHashes } from './seam/ingest'
 import { ensureQueues, makeNormalizer, registerPipeline } from './seam/pipeline'
+import { startHealthServer } from './health'
 import { startScheduler, type ScheduledSource } from './seam/scheduler'
 import { ChiClerkClient } from './sources/chi_clerk/client'
 import { ChiClerkFetcher } from './sources/chi_clerk/fetcher'
@@ -64,6 +65,11 @@ if (env.LEGISCAN_API_KEY) {
 async function main(): Promise<void> {
   console.log('[worker] starting Interlock worker')
 
+  // Started FIRST, before migrate and pg-boss, so a worker wedged during boot
+  // is visibly unhealthy (503) rather than silently up. That is the state that
+  // let this worker stay invisibly dead before it had a healthcheck at all.
+  const health = startHealthServer()
+
   const applied = await migrate(pool)
   console.log(
     applied.length > 0
@@ -120,12 +126,14 @@ async function main(): Promise<void> {
     console.log(`[worker] ${signal} received — shutting down`)
     await scheduler.stop()
     await boss.stop({ close: true, timeout: 5_000 })
+    await health.stop()
     await pool.end()
     process.exit(0)
   }
   process.on('SIGINT', () => void shutdown('SIGINT'))
   process.on('SIGTERM', () => void shutdown('SIGTERM'))
 
+  health.markReady()
   console.log('[worker] ready')
 }
 

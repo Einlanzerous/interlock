@@ -1,3 +1,4 @@
+export * from './build-identity'
 export * from './canonical'
 export * from './env'
 export * from './seam'
