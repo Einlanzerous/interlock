@@ -49,6 +49,19 @@ const FINAL_SUBSTATUS: Record<string, BillStatus> = {
   // Signed by the Mayor — the ordinance is law. `enacted`, not merely `passed`.
   // (Observed live in the current-month corpus; ITLK-15 acceptance, 2026-07-15.)
   signed: 'enacted',
+  // ── Seen live in prod and left at `unknown` until ITLK-33 (2026-10-16) ──
+  // A mayoral veto is its own terminal rung; the canonical vocabulary has had
+  // `vetoed` all along, this map just never routed to it.
+  vetoed: 'vetoed',
+  // Siblings of `passed as substitute`: the substitute is what was approved.
+  'approved as substitute': 'passed',
+  'adopted as substitute': 'passed',
+  // Passed, then printed in a separate pamphlet (bond issues, SSA levies,
+  // budget items). 178/180 prod matters with this subStatus carry a `Passed`
+  // action; the other two are SSA levies, which are passed by definition.
+  'published in special pamphlet': 'passed',
+  // Laid on the table at a Final stage — dead, like `placed on file`.
+  tabled: 'failed',
 }
 
 const FINAL_STATUS = '90-final'
@@ -109,6 +122,19 @@ const ACTION: Record<string, ActionClassification> = {
   'council introduction': 'introduced',
   accepted: 'introduced',
   'held in committee': 'hearing',
+  // ── Seen live in prod until ITLK-33 (2026-10-16) ──
+  vetoed: 'veto',
+  tabled: 'failure',
+  amended: 'amendment',
+  'substituted-aggregated': 'amendment',
+  // Procedural steps with no canonical rung. Mapped explicitly to the same
+  // `other` the fallback would give, so they stop reading as an unmapped gap:
+  // a deferral to the next meeting, a motion to skip committee, the pamphlet
+  // printing of a passed matter, and a committee being discharged of it.
+  'deferred and published': 'other',
+  'immediate consideration': 'other',
+  'published in special pamphlet': 'other',
+  'committee discharged': 'other',
 }
 
 export function toActionClassification(

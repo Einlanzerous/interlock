@@ -37,3 +37,40 @@ test('a genuinely unknown value still warns and falls back', () => {
   expect(toActionClassification('Teleported', a.report)).toBe('other')
   expect(a.seen).toEqual([['actionName', 'Teleported']])
 })
+
+/**
+ * ITLK-33: strings the v1.4.0 worker logged as unmapped in prod. Before this, 199
+ * finished Council matters sat at `unknown` — including three mayoral vetoes.
+ */
+test.each([
+  ['Vetoed', 'vetoed'],
+  ['Approved as Substitute', 'passed'],
+  ['Adopted as Substitute', 'passed'],
+  ['Published in Special Pamphlet', 'passed'],
+  ['Tabled', 'failed'],
+] as const)('a Final matter with subStatus %p is `%s`, without a warning', (sub, want) => {
+  const a = spy()
+  expect(toBillStatus('90-Final', sub, a.report)).toBe(want)
+  expect(a.seen).toEqual([])
+})
+
+test.each([
+  ['Vetoed', 'veto'],
+  ['Tabled', 'failure'],
+  ['Amended', 'amendment'],
+  ['Substituted-Aggregated', 'amendment'],
+  ['Deferred and Published', 'other'],
+  ['Immediate Consideration', 'other'],
+  ['Published in Special Pamphlet', 'other'],
+  ['Committee Discharged', 'other'],
+] as const)('action %p classifies as `%s`, without a warning', (name, want) => {
+  const a = spy()
+  expect(toActionClassification(name, a.report)).toBe(want)
+  expect(a.seen).toEqual([])
+})
+
+test('an unseen Final subStatus is still `unknown` and still warns', () => {
+  const a = spy()
+  expect(toBillStatus('90-Final', 'Teleported', a.report)).toBe('unknown')
+  expect(a.seen).toEqual([['90-Final subStatus', 'Teleported']])
+})
