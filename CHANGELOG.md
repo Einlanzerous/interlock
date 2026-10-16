@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/Einlanzerous/interlock/compare/v1.4.0...v1.4.1) (2026-10-16)
+
+
+### Bug Fixes
+
+* **worker:** map the eLMS Final outcomes the Clerk actually emits (ITLK-33) ([#30](https://github.com/Einlanzerous/interlock/issues/30)) ([6e19f9a](https://github.com/Einlanzerous/interlock/commit/6e19f9aa737201f33da2e78e30f518d33e17693f))
+
 ## [1.4.0](https://github.com/Einlanzerous/interlock/compare/v1.3.0...v1.4.0) (2026-08-23)
 
 
