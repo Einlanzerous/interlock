@@ -30,7 +30,7 @@ export const sourceRecordInputSchema = z.object({
   /** matter / bill / person / body / event / ... — source vocabulary. */
   kind: z.string().min(1),
   /** Verbatim payload; adapters normalize it downstream, never fetchers. */
-  payload: z.record(z.unknown()),
+  payload: z.record(z.string(), z.unknown()),
   /** Source change primitive when it has one (LegiScan change_hash). */
   changeHash: z.string().nullish(),
 })
