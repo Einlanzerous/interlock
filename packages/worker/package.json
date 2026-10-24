@@ -11,7 +11,7 @@
   "dependencies": {
     "@interlock/db": "workspace:*",
     "@interlock/shared": "workspace:*",
-    "nodemailer": "^9.0.3",
+    "nodemailer": "^10.2.1",
     "pg": "^8.13.1",
     "pg-boss": "^12.26.0"
   },
