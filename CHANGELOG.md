@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.2](https://github.com/Einlanzerous/interlock/compare/v1.4.1...v1.4.2) (2026-10-24)
+
+
+### Bug Fixes
+
+* **deps:** bump nuxt, nodemailer, zod and transitives past known advisories (ITLK-34) ([#32](https://github.com/Einlanzerous/interlock/issues/32)) ([dfd72cb](https://github.com/Einlanzerous/interlock/commit/dfd72cbb1d2722bb37ef522558fb2f86806ebd1a))
+
 ## [1.4.1](https://github.com/Einlanzerous/interlock/compare/v1.4.0...v1.4.1) (2026-10-16)
 
 
