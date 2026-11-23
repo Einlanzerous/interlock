@@ -58,6 +58,18 @@ async function submit() {
       <p class="muted lede">Signal-grade tracking for city &amp; state legislation.</p>
 
       <form @submit.prevent="submit">
+        <!-- Single-user gate, so the username is fixed — but a password manager needs the
+             pair to save and fill a credential. Visually hidden, not display:none. -->
+        <input
+          type="text"
+          name="username"
+          value="interlock"
+          autocomplete="username"
+          readonly
+          tabindex="-1"
+          aria-hidden="true"
+          class="username"
+        />
         <label class="label field-label" for="password">Password</label>
         <input
           id="password"
@@ -68,9 +80,9 @@ async function submit() {
           :disabled="submitting"
         />
 
-        <p v-if="error" class="error">{{ error }}</p>
+        <p v-if="error" class="error" role="alert">{{ error }}</p>
 
-        <button class="primary" type="submit" :disabled="submitting || password.length === 0">
+        <button class="primary" type="submit" :disabled="submitting || password.length === 0" :aria-busy="submitting">
           {{ submitting ? 'Signing in…' : 'Sign in' }}
         </button>
       </form>
@@ -108,6 +120,13 @@ form {
 }
 input {
   width: 100%;
+}
+input.username {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
 }
 button {
   margin-top: 6px;
