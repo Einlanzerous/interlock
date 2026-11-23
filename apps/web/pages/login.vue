@@ -65,9 +65,7 @@ async function submit() {
           name="username"
           value="interlock"
           autocomplete="username"
-          readonly
           tabindex="-1"
-          aria-hidden="true"
           class="username"
         />
         <label class="label field-label" for="password">Password</label>
@@ -82,7 +80,7 @@ async function submit() {
 
         <p v-if="error" class="error" role="alert">{{ error }}</p>
 
-        <button class="primary" type="submit" :disabled="submitting || password.length === 0" :aria-busy="submitting">
+        <button class="primary" type="submit" :disabled="submitting || password.length === 0">
           {{ submitting ? 'Signing in…' : 'Sign in' }}
         </button>
       </form>

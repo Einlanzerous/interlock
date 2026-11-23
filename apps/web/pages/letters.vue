@@ -165,11 +165,30 @@ const open = ref(false)
 // scroll lock on the page behind and focus return, none of which a div scrim has. Backdrop
 // click is the @click.self on the element (`closedby` is not in Firefox).
 const drawerDialog = ref<HTMLDialogElement | null>(null)
-watch(open, async (isOpen) => {
-  if (!isOpen) return
-  await nextTick()
-  if (drawerDialog.value && !drawerDialog.value.open) drawerDialog.value.showModal()
-})
+watch(
+  open,
+  async (isOpen) => {
+    if (!isOpen) {
+      // flush: 'pre' runs before v-if removes the element; close() first is what returns
+      // focus to whatever opened the drawer.
+      drawerDialog.value?.close()
+      return
+    }
+    await nextTick()
+    if (drawerDialog.value && !drawerDialog.value.open) drawerDialog.value.showModal()
+  },
+  { flush: 'pre' },
+)
+// Backdrop click closes, but only if the press also started on the backdrop: a text
+// selection dragged out of the drawer must not dismiss it.
+let pressOnBackdrop = false
+function backdropDown(e: MouseEvent): void {
+  pressOnBackdrop = e.target === e.currentTarget
+}
+function backdropUp(e: MouseEvent): void {
+  if (pressOnBackdrop && e.target === e.currentTarget) open.value = false
+  pressOnBackdrop = false
+}
 const draft = ref<Draft>(blank())
 const busy = ref(false)
 const error = ref<string | null>(null)
@@ -553,7 +572,15 @@ function seat(o: OfficialSummary): string {
     </ul>
 
     <!-- ── Drawer: read a letter, or write one ──────────────────────────── -->
-    <dialog v-if="open" ref="drawerDialog" class="scrim" @click.self="open = false" @close="open = false">
+    <dialog
+      v-if="open"
+      ref="drawerDialog"
+      class="scrim"
+      @mousedown="backdropDown"
+      @click="backdropUp"
+      @cancel.prevent="!busy && (open = false)"
+      @close="open = false"
+    >
       <!-- Reading. The body is the record — for a logged call it is the whole record — so it
            gets a surface of its own rather than being reachable only through the edit form. -->
       <aside v-if="mode === 'view' && viewing" class="drawer">

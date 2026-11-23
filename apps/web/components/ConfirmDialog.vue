@@ -50,6 +50,16 @@ const emit = defineEmits<{ confirm: []; cancel: [] }>()
 const dialogEl = ref<HTMLDialogElement | null>(null)
 const cancelButton = ref<HTMLButtonElement | null>(null)
 
+// Only a press that began on the backdrop counts, so a drag out of the box doesn't dismiss.
+let pressOnBackdrop = false
+function backdropDown(e: MouseEvent): void {
+  pressOnBackdrop = e.target === e.currentTarget
+}
+function backdropUp(e: MouseEvent): void {
+  if (pressOnBackdrop && e.target === e.currentTarget) cancel()
+  pressOnBackdrop = false
+}
+
 function cancel(): void {
   if (!props.busy) emit('cancel')
 }
@@ -71,7 +81,8 @@ onBeforeUnmount(() => dialogEl.value?.close())
     role="alertdialog"
     aria-labelledby="confirm-title"
     @cancel.prevent="cancel"
-    @click.self="cancel"
+    @mousedown="backdropDown"
+    @click="backdropUp"
   >
     <div class="dialog">
       <div class="label" :class="{ hazard: destructive }">
