@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.3](https://github.com/Einlanzerous/interlock/compare/v1.4.2...v1.4.3) (2026-11-23)
+
+
+### Bug Fixes
+
+* **web:** frontend quality pass, Firefox 160 floor (ITLK-35) ([#34](https://github.com/Einlanzerous/interlock/issues/34)) ([5792b6e](https://github.com/Einlanzerous/interlock/commit/5792b6e26e171cd64c00a6061216ee6dd20150cd))
+
 ## [1.4.2](https://github.com/Einlanzerous/interlock/compare/v1.4.1...v1.4.2) (2026-10-24)
 
 
