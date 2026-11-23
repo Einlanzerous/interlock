@@ -74,11 +74,17 @@ watch(() => route.path, refreshUnread)
         <NuxtLink to="/letters">Letters</NuxtLink>
         <NuxtLink to="/alerts" class="alerts-link">
           Alerts
-          <span v-if="unread > 0" class="badge">{{ unread > 99 ? '99+' : unread }}</span>
+          <span v-if="unread > 0" class="badge" aria-hidden="true">{{ unread > 99 ? '99+' : unread }}</span>
+          <span v-if="unread > 0" class="sr-only">{{ unread }} unread</span>
         </NuxtLink>
         <button type="button" class="signout" @click="signOut">Sign out</button>
       </nav>
     </header>
+
+    <!-- Polite live region: a change in the unread count is announced without stealing focus. -->
+    <div class="sr-only" role="status" aria-live="polite">
+      {{ unread > 0 ? `${unread} unread alert${unread === 1 ? '' : 's'}` : '' }}
+    </div>
 
     <NuxtPage />
   </div>
@@ -111,7 +117,7 @@ watch(() => route.path, refreshUnread)
   --warn: var(--caution);
   --bad: var(--stop);
 
-  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-display: 'Space Grotesk Variable', 'Space Grotesk', system-ui, sans-serif;
   --font-body: 'IBM Plex Sans', system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
 }
@@ -288,9 +294,40 @@ input, select, textarea {
   border-radius: 8px;
   padding: 8px 12px;
 }
-input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
+input:focus, select:focus, textarea:focus { border-color: var(--accent); }
 input::placeholder, textarea::placeholder { color: var(--faint); }
 textarea { line-height: 1.6; resize: vertical; }
+
+/* Keyboard focus: one visible ring for everything focusable, in the accent. Mouse clicks do
+   not trigger it (:focus-visible), so it never shows on a pointer press. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Visually hidden, still announced. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Motion: honour the OS "reduce motion" setting. Animations collapse to a single frame and
+   transitions to nothing; the pulsing dot simply holds still. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
 
 /* --- Tag pill: outline-only, mono, no fill. ------------------------------- */
 .pill {

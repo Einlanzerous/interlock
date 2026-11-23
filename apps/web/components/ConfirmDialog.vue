@@ -13,8 +13,8 @@ import { onBeforeUnmount, onMounted, ref } from 'vue'
  * behaviour: it traps you, Escape cancels, and the safe choice is the one already under your
  * finger. All three are reproduced here.
  *
- *   - **Escape cancels** (and, because the listener is on `window`, it works before anyone
- *     has clicked anything).
+ *   - **Escape cancels**, via the native `<dialog>` `cancel` event (always prevented, so a
+ *     `busy` dialog can't be dismissed mid-request).
  *   - **Focus lands on Cancel**, not on the destructive button — so Enter, and a stray
  *     Space, do the harmless thing.
  *   - **Clicking the scrim cancels**, which is the modern expectation for "I didn't mean it".
@@ -47,22 +47,44 @@ const props = withDefaults(
 
 const emit = defineEmits<{ confirm: []; cancel: [] }>()
 
+const dialogEl = ref<HTMLDialogElement | null>(null)
 const cancelButton = ref<HTMLButtonElement | null>(null)
 
-function onKey(event: KeyboardEvent): void {
-  if (event.key === 'Escape' && !props.busy) emit('cancel')
+// Only a press that began on the backdrop counts, so a drag out of the box doesn't dismiss.
+let pressOnBackdrop = false
+function backdropDown(e: MouseEvent): void {
+  pressOnBackdrop = e.target === e.currentTarget
+}
+function backdropUp(e: MouseEvent): void {
+  if (pressOnBackdrop && e.target === e.currentTarget) cancel()
+  pressOnBackdrop = false
+}
+
+function cancel(): void {
+  if (!props.busy) emit('cancel')
 }
 
 onMounted(() => {
-  window.addEventListener('keydown', onKey)
+  // showModal() traps focus, locks page scroll and makes Escape fire `cancel`.
+  dialogEl.value?.showModal()
   cancelButton.value?.focus()
 })
-onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
+// close() before the element is removed is what returns focus to whatever opened the dialog.
+onBeforeUnmount(() => dialogEl.value?.close())
 </script>
 
 <template>
-  <div class="scrim" @click.self="!busy && emit('cancel')">
-    <div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title">
+  <!-- Backdrop click is a handler on the dialog itself (`closedby` is not in Firefox). -->
+  <dialog
+    ref="dialogEl"
+    class="confirm-scrim"
+    role="alertdialog"
+    aria-labelledby="confirm-title"
+    @cancel.prevent="cancel"
+    @mousedown="backdropDown"
+    @click="backdropUp"
+  >
+    <div class="dialog">
       <div class="label" :class="{ hazard: destructive }">
         {{ destructive ? 'This cannot be undone' : 'Confirm' }}
       </div>
@@ -72,7 +94,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
       <p v-if="body" class="body muted">{{ body }}</p>
 
       <div class="actions">
-        <button ref="cancelButton" :disabled="busy" @click="emit('cancel')">
+        <button ref="cancelButton" :disabled="busy" @click="cancel">
           {{ cancelLabel }}
         </button>
         <button
@@ -84,22 +106,30 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
         </button>
       </div>
     </div>
-  </div>
+  </dialog>
 </template>
 
 <style scoped>
-.scrim {
+.confirm-scrim {
+  /* Reset the <dialog> UA box into a full-viewport scrim. Both modals live in the top layer,
+     and a later showModal() sits above an earlier one, so a confirm launched from the
+     drawer is on top without a z-index. */
   position: fixed;
   inset: 0;
-  background: rgba(8, 10, 13, 0.66);
-  display: flex;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
   align-items: center;
   justify-content: center;
   padding: 24px;
-  /* Above the compose drawer, which is z-index 10 — a confirm launched from inside the
-     drawer has to sit on top of it, not under it. */
-  z-index: 50;
 }
+.confirm-scrim[open] { display: flex; }
+.confirm-scrim::backdrop { background: rgba(8, 10, 13, 0.66); }
 
 .dialog {
   width: min(440px, 100%);

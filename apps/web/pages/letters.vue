@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue'
 import {
   LETTER_CHANNELS,
   LETTER_DIRECTIONS,
@@ -161,6 +161,34 @@ const blank = (): Draft => ({
 })
 
 const open = ref(false)
+// The drawer is a native modal <dialog>: showModal() gives it a focus trap, Escape-to-close,
+// scroll lock on the page behind and focus return, none of which a div scrim has. Backdrop
+// click is the @click.self on the element (`closedby` is not in Firefox).
+const drawerDialog = ref<HTMLDialogElement | null>(null)
+watch(
+  open,
+  async (isOpen) => {
+    if (!isOpen) {
+      // flush: 'pre' runs before v-if removes the element; close() first is what returns
+      // focus to whatever opened the drawer.
+      drawerDialog.value?.close()
+      return
+    }
+    await nextTick()
+    if (drawerDialog.value && !drawerDialog.value.open) drawerDialog.value.showModal()
+  },
+  { flush: 'pre' },
+)
+// Backdrop click closes, but only if the press also started on the backdrop: a text
+// selection dragged out of the drawer must not dismiss it.
+let pressOnBackdrop = false
+function backdropDown(e: MouseEvent): void {
+  pressOnBackdrop = e.target === e.currentTarget
+}
+function backdropUp(e: MouseEvent): void {
+  if (pressOnBackdrop && e.target === e.currentTarget) open.value = false
+  pressOnBackdrop = false
+}
 const draft = ref<Draft>(blank())
 const busy = ref(false)
 const error = ref<string | null>(null)
@@ -435,7 +463,7 @@ function seat(o: OfficialSummary): string {
       <div class="bill-filter">
         <span v-if="filters.billId" class="pill bill-chip">
           {{ billFilterLabel || 'bill' }}
-          <button class="x" @click="filters.billId = ''; billFilterLabel = ''">×</button>
+          <button class="x" aria-label="Clear bill filter" @click="filters.billId = ''; billFilterLabel = ''">×</button>
         </span>
         <template v-else>
           <input v-model="billFilter.q.value" type="search" placeholder="Any bill…" />
@@ -538,19 +566,27 @@ function seat(o: OfficialSummary): string {
             </option>
           </select>
           <button :disabled="busy" @click="edit(l)">Edit</button>
-          <button :disabled="busy" class="danger" title="Delete" @click="deleting = l">×</button>
+          <button :disabled="busy" class="danger" title="Delete" aria-label="Delete letter" @click="deleting = l">×</button>
         </div>
       </li>
     </ul>
 
     <!-- ── Drawer: read a letter, or write one ──────────────────────────── -->
-    <div v-if="open" class="scrim" @click.self="open = false">
+    <dialog
+      v-if="open"
+      ref="drawerDialog"
+      class="scrim"
+      @mousedown="backdropDown"
+      @click="backdropUp"
+      @cancel.prevent="!busy && (open = false)"
+      @close="open = false"
+    >
       <!-- Reading. The body is the record — for a logged call it is the whole record — so it
            gets a surface of its own rather than being reachable only through the edit form. -->
       <aside v-if="mode === 'view' && viewing" class="drawer">
         <div class="drawer-head">
           <span class="label">Letter</span>
-          <button class="x" @click="open = false">×</button>
+          <button class="x" aria-label="Close" @click="open = false">×</button>
         </div>
 
         <h2 class="read-subject">{{ viewing.subject }}</h2>
@@ -626,7 +662,7 @@ function seat(o: OfficialSummary): string {
       <aside v-else class="drawer">
         <div class="drawer-head">
           <span class="label">{{ draft.id ? 'Edit letter' : 'Log a letter' }}</span>
-          <button class="x" @click="open = false">×</button>
+          <button class="x" aria-label="Close" @click="open = false">×</button>
         </div>
 
         <!-- What is this? Correspondence to a contact, or a media piece placed with an outlet.
@@ -688,7 +724,7 @@ function seat(o: OfficialSummary): string {
               <select v-model="o.role" class="role">
                 <option v-for="r in LETTER_OFFICIAL_ROLES" :key="r" :value="r">{{ r }}</option>
               </select>
-              <button class="x" @click="draft.officials.splice(i, 1)">×</button>
+              <button class="x" aria-label="Remove official" @click="draft.officials.splice(i, 1)">×</button>
             </span>
           </div>
           <div class="pick">
@@ -711,7 +747,7 @@ function seat(o: OfficialSummary): string {
           <div class="chips">
             <span v-for="(b, i) in draft.bills" :key="b.id" class="pill bill">
               <span class="ident">{{ b.identifier }}</span>
-              <button class="x" @click="draft.bills.splice(i, 1)">×</button>
+              <button class="x" aria-label="Remove bill" @click="draft.bills.splice(i, 1)">×</button>
             </span>
           </div>
           <div class="pick">
@@ -753,7 +789,7 @@ function seat(o: OfficialSummary): string {
           <button :disabled="busy" @click="open = false">Cancel</button>
         </div>
       </aside>
-    </div>
+    </dialog>
 
     <!-- Deleting. Its own surface, above the drawer, because it is the one irreversible
          thing on this screen. -->
@@ -930,13 +966,23 @@ button.x:hover:not(:disabled) { color: var(--ink); border: none; }
 
 /* --- Drawer --------------------------------------------------------------- */
 .scrim {
+  /* A <dialog> brings UA sizing, margin, border and colour; reset them so it is the
+     full-viewport scrim it replaces. It lives in the top layer, so no z-index. */
   position: fixed;
   inset: 0;
-  background: rgba(8, 10, 13, 0.6);
-  display: flex;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
   justify-content: flex-end;
-  z-index: 10;
 }
+.scrim[open] { display: flex; }
+.scrim::backdrop { background: rgba(8, 10, 13, 0.6); }
 .drawer {
   /* Half the viewport, floored so it stays usable on a laptop and capped so the body text
      doesn't run to an unreadable line length on a wide monitor. */
